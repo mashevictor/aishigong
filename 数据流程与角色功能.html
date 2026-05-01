@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>数据流程与角色功能说明</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif; margin: 0; background: #f0f2f5; color: #1a1a1a; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+    .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: #fff; padding: 28px 32px; border-radius: 12px; margin-bottom: 20px; }
+    .header h1 { margin: 0 0 8px; font-size: 26px; font-weight: 600; }
+    .header p { margin: 0; opacity: 0.9; font-size: 14px; }
+    .card { background: #fff; border-radius: 12px; padding: 22px 24px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    h2 { font-size: 20px; margin: 0 0 16px; padding-bottom: 10px; border-bottom: 2px solid #e8ecf4; color: #1e3a5f; }
+    h3 { font-size: 16px; margin: 18px 0 10px; color: #333; }
+    .desc { color: #666; font-size: 14px; line-height: 1.65; margin: 0 0 14px; }
+    .mermaid { background: #fafbfd; border: 1px solid #e5e9f0; border-radius: 8px; padding: 16px; overflow: auto; }
+    .tag { display: inline-block; background: #e8f0fe; color: #1557b0; font-size: 12px; padding: 2px 10px; border-radius: 6px; margin-right: 6px; }
+    .table-wrap { overflow-x: auto; }
+    .rfp-mini { font-size: 13px; color: #334155; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+    .rfp-mini table { font-size: 12px; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #dde3ed; padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: #f4f6fa; color: #1e3a5f; }
+    tr:nth-child(even) { background: #fcfcfd; }
+    footer { text-align: center; color: #999; font-size: 12px; margin-top: 24px; }
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#e8f0fe',
+        primaryTextColor: '#1a1a1a',
+        primaryBorderColor: '#2d5a87',
+        lineColor: '#5c6b7a',
+        secondaryColor: '#f4f6fa',
+        tertiaryColor: '#fff'
+      },
+      flowchart: { useMaxWidth: true, htmlLabels: true, padding: 12 },
+      sequence: { useMaxWidth: true },
+      mindmap: { useMaxWidth: true }
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>数据流程与角色功能</h1>
+      <p>对照《统一需求》<strong>三、技术要求</strong>：云端/混合、<strong>微信小程序或 App + 网页管理后台</strong>、多模态（一期 Gemini）+ 规则、权限分级。多模态统一为 <strong>Google Gemini</strong>；端侧含 <strong>微信小程序、专属 APK、H5/网站、管理后台、实时、工程内聊天</strong>。Mermaid 需联网渲染。</p>
+    </div>
+
+    <div class="card rfp-mini">
+      <strong>与《统一需求》二、核心功能模块（5 项）对照</strong>：① 图像识别 → 队列+Gemini+规则+存储 ② 工作流 → 任务/问题/通知+RBAC ③ TOC 与材料 → 台账+分析服务 ④ 客户远程观测 → 网站/小程序/H5+日周报+评论 ⑤ 售后 → 工单+多模态分类。下列各图按「数据如何流经这些能力」展开。
+    </div>
+
+    <div class="card">
+      <h2>一、数据流程总图</h2>
+      <p class="desc">多终端经网关进入业务与消息（含 <strong>微信小程序</strong> 与 <strong>APK</strong> 双移动端，与 RFP「小程序或 App」一致）；视觉类分析经队列调用 <strong>Gemini</strong>；<strong>实时+工程 IM</strong> 与网站/小程序/APK <strong>同源</strong>。灰框为存储与制品。</p>
+      <div class="mermaid">
+flowchart TB
+  subgraph 接入层
+    U1[工人/班组长]
+    U2[施工经理]
+    U3[客户]
+    U4[总包/监理]
+    U5[售后人员]
+  end
+  U1 --> GW[API 网关/鉴权 Web 小程序 APK H5]
+  U2 --> GW
+  U3 --> GW
+  U4 --> GW
+  U5 --> GW
+  GW --> APP[业务: 项目·任务·材料·售后]
+  GW --> FUP[文件服务]
+  GW --> IM[工程内聊天/频道]
+  GW --> RT[实时: WSS或SSE 进度推送]
+  FUP --> OSS[(对象存储)]
+  APP --> DB[(关系库)]
+  IM --> DB
+  RT --> U1
+  RT --> U2
+  RT --> U3
+  RT --> U4
+  RT --> U5
+  OSS --> JQ[异步队列]
+  JQ --> GEM[Gemini 多模态: 识别·比对·分类]
+  DB --> GEM
+  GEM --> RUL[规则与验收引擎]
+  RUL --> EVT[异常与工单]
+  EVT --> WFL[工作流]
+  WFL --> DB
+  WFL --> MSG[通知: 企微/短信/站内]
+  DB --> TBC[进度与TOC]
+  TBC --> RSK[风险与调度建议]
+  RSK --> GW
+  APP --> GW
+  BLD[APK与H5与小程序: 发版/提审] --> PUB[下载页/子域/码]
+  DB --> BLD
+  WFL --> U1
+  WFL --> U2
+  WFL --> U3
+  WFL --> U4
+  WFL --> U5
+  MSG --> U1
+  MSG --> U2
+  MSG --> U3
+  MSG --> U4
+  MSG --> U5
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>二、各角色功能总览图（思维导图）</h2>
+      <p class="desc">按角色归纳系统内可执行的主要操作；细粒度权限由 RBAC 在后台配置。</p>
+      <div class="mermaid">
+mindmap
+  root((各角色功能))
+    工人/班组长
+      微信小程序或APK收派工
+      查看交底与任务
+      现场拍照或短视频上传
+      问题上报与整改回复
+      领料与简单用料登记
+    施工经理
+      排期派工与验收标准
+      审批/驳回与催办
+      看板 进度 异常 材料
+      协同总包与客户关键节点
+    客户
+      微信小程序或网站或APK
+      实时看进度与影像
+      工程内聊天
+      日周报与评论节点
+      报修与满意度
+    总包/监理
+      多项目总览
+      风险与延期预警
+      资源协调与升级审批
+    售后人员
+      报修单受理与转派
+      现场维修记录与关单
+      回访与满意度统计
+    系统管理员
+      组织/项目/人员
+      微信小程序 版本与提审
+      专属APK 打包与发布
+      项目站点与子域
+      角色权限与数据范围
+      标准库与流程模板
+      审计与对接
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>三、角色职责泳道图（简版）</h2>
+      <p class="desc">从「派工—执行—现场记录—AI 辅助—纠偏—客户可见」的横向协作关系。</p>
+      <div class="mermaid">
+flowchart LR
+  subgraph 施工经理
+    M1[派工+验收标准] --> M2[监控异常/催办]
+  end
+  subgraph 工人
+    W1[接任务+交底] --> W2[施工+影像上传]
+  end
+  subgraph 系统
+    S1[AI/规则] --> S2[异常任务/通知]
+  end
+  subgraph 客户/总包
+    C1[日周报/节点确认]
+    T1[风险总览/升级]
+  end
+  M1 --> W1
+  W2 --> S1
+  S2 --> M2
+  S2 --> C1
+  M2 --> T1
+  W2 --> C1
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>四、典型业务：现场上传 → AI 分析 → 闭环 时序图</h2>
+      <p class="desc">说明一次「影像进入系统到任务闭环」的交互顺序，便于和研发/甲方对齐接口与职责。</p>
+      <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant 工人
+  participant 网关 as API网关
+  participant 业务 as 项目任务服务
+  participant 文件 as 文件/OSS
+  participant 队列 as 队列
+  participant GEM as Gemini多模态
+  participant 工作流
+  participant 经理 as 施工经理
+  participant 客户
+
+  工人->>网关: 上传现场照片(带工点/工序)
+  网关->>业务: 写入任务关联元数据
+  业务->>文件: 存对象存储
+  文件-->>队列: 触发多模态分析
+  队列->>GEM: 图文与标准(提示词)请求
+  GEM->>工作流: 无异常/或生成整改与摘要
+  工作流->>经理: 待审批或待指派整改
+  工作流-->>客户: 实时/推送: 进度 网站 小程序 APK(按权限)
+  经理->>工作流: 通过验收或驳回重传
+  工作流-->>客户: 节点确认与可聊天@提醒(若需要)
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>五、角色与功能对照表</h2>
+      <p class="desc">与上图一致的文字版，便于复制到标书或需求附件。</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>角色</th>
+              <th>主要功能</th>
+              <th>数据/权限说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>工人/班组长</td>
+              <td>接任务、交底；<strong>微信小程序或 APK</strong> 上传现场；问题上报、整改回复、领料（RFP 二-2 角色）</td>
+              <td>仅本项目、本工点及与己相关的任务/整改单；影像默认带水印与工点</td>
+            </tr>
+            <tr>
+              <td>施工经理</td>
+              <td>排期派工、设定验收标准、审批/催办、异常处理、日周报组织、材料与进度看板</td>
+              <td>所管辖项目全量；可配置对客户的可见范围</td>
+            </tr>
+            <tr>
+              <td>客户</td>
+              <td><strong>微信小程序 / 网站 / 专属 APK</strong> 实时看进度、<strong>工程内聊天</strong>、日/周更新、评论提问、节点确认、报修、满意度（覆盖 RFP 二-4）</td>
+              <td>仅本人项目；内容脱敏；不展示内部成本与未对客户开放的沟通</td>
+            </tr>
+            <tr>
+              <td>总包/监理</td>
+              <td>多项目总览、风险与延期、升级审批、跨项目资源协调</td>
+              <td>按项目授权聚合视图；可配置敏感字段</td>
+            </tr>
+            <tr>
+              <td>售后人员</td>
+              <td>报修派单、维修过程记录、关单、回访</td>
+              <td>仅售后期工单与客户授权资料</td>
+            </tr>
+            <tr>
+              <td>系统管理员</td>
+              <td>组织/人员、<strong>微信小程序</strong> 版本/体验版、<strong>专属 APK 与站点/子域/下载页</strong>、项目模板、标准库、审计、开放接口</td>
+              <td>全系统配置；小程序与安装包发布留痕</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>AI 施工管理 · 数据流与角色说明（当前商务口径：总报价 <strong>￥7 万</strong> · 周期 <strong>约 1.5 个月</strong>）· 需联网加载 Mermaid</footer>
+  </div>
+</body>
+</html>

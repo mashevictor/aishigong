@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 施工实时聊天监控系统 - 方案汇总（总价 ￥7 万 · 8 周/每阶段 2 周）</title>
+  <style>
+    :root {
+      --fd-black: #04060a;
+      --fd-ink: #0a1220;
+      --fd-blue-1: #0f2347;
+      --fd-blue-2: #1a3d63;
+      --fd-blue-3: #1e4a7a;
+      --fd-gold: #c9a44a;
+      --fd-gold-2: #e8c76b;
+      --tx-bg: #e8edf4;
+      --tx-title: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; margin: 0; background: linear-gradient(180deg, #dbe4f0 0%, var(--tx-bg) 28%); color: #1a1f2e; line-height: 1.55; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 16px 16px 64px; }
+    .top { background: linear-gradient(150deg, var(--fd-black) 0%, var(--fd-blue-1) 42%, var(--fd-blue-3) 100%); color: #f8fafc; border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; text-align: center; box-shadow: 0 8px 32px rgba(4, 6, 10, 0.35), inset 0 1px 0 rgba(232, 199, 107, 0.12); }
+    .top-brand { margin: 0 0 10px; }
+    .fudan-logo { width: 72px; height: 72px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; filter: drop-shadow(0 3px 8px rgba(0,0,0,.4)); border-radius: 8px; }
+    .top h1 { margin: 0 0 12px; font-size: 28px; line-height: 1.3; font-family: var(--tx-title); font-weight: 800; text-align: center; letter-spacing: 0.02em; }
+    .team { font-size: 15px; color: var(--fd-gold-2); font-weight: 600; margin: 0 auto 16px; padding: 12px 14px; background: rgba(0,0,0,.25); border-radius: 8px; border: 1px solid rgba(201, 164, 74, 0.45); text-align: center; max-width: 800px; }
+    .summary { display: flex; flex-wrap: wrap; gap: 14px 16px; align-items: stretch; justify-content: center; margin: 0; padding: 14px 12px; background: rgba(0,0,0,.28); border-radius: 12px; border: 1px solid rgba(201, 164, 74, 0.42); font-size: 15px; }
+    .summary-item { display: flex; flex-direction: row; align-items: center; gap: 12px; text-align: left; min-width: min(100%, 260px); max-width: 400px; flex: 1 1 240px; padding: 12px 14px; background: linear-gradient(145deg, rgba(0,0,0,.4) 0%, rgba(30, 45, 75, 0.55) 100%); border-radius: 10px; border: 1px solid rgba(232, 199, 107, 0.4); }
+    .summary-ico-wrap { flex-shrink: 0; color: #ffe9a8; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: rgba(0,0,0,.2); border-radius: 10px; border: 1px solid rgba(232, 199, 107, 0.5); }
+    .summary-ico { width: 28px; height: 28px; display: block; }
+    .summary-txt { min-width: 0; }
+    .summary .k { font-size: 12px; display: block; margin-bottom: 2px; color: #f5e0a8; font-weight: 800; letter-spacing: 0.12em; text-shadow: 0 1px 1px rgba(0,0,0,.4); }
+    .summary .v { font-size: 22px; font-weight: 800; color: #fff1c0; line-height: 1.2; text-shadow: 0 0 1px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.4); -webkit-font-smoothing: antialiased; }
+    .summary .v2 { font-size: 16px; font-weight: 800; color: #ffecb0; line-height: 1.5; max-width: 100%; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    .summary .v2 strong { color: #fff6d5; }
+    .toc { background: #fff; border: 1px solid rgba(15, 35, 71, 0.12); border-radius: 10px; padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 1px 0 rgba(201, 164, 74, 0.15) inset; }
+    .toc h2 { margin: 0 0 10px; font-size: 17px; color: var(--fd-ink); font-family: var(--tx-title); font-weight: 800; }
+    .toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 28px; }
+    @media (max-width: 700px) { .toc ol { columns: 1; } }
+    .toc a { color: var(--fd-blue-2); text-decoration: none; font-weight: 600; }
+    .toc a:hover { text-decoration: underline; color: var(--fd-blue-3); }
+    .card { background: #fff; border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(4, 6, 20, 0.06); border: 1px solid rgba(15, 35, 71, 0.08); }
+    h2.sect { font-family: var(--tx-title); font-size: 20px; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--fd-gold); color: var(--fd-ink); text-align: center; scroll-margin-top: 12px; font-weight: 800; letter-spacing: 0.03em; }
+    h3 { font-size: 16px; margin: 16px 0 8px; color: #334155; }
+    h4 { font-size: 14px; margin: 12px 0 6px; color: #64748b; }
+    p { margin: 8px 0; }
+    ul { margin: 6px 0 0 20px; }
+    li { margin: 4px 0; }
+    .muted { color: #64748b; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: linear-gradient(180deg, #ebe6dc, #e0d9ce); color: var(--fd-ink); }
+    tr:nth-child(even) { background: #fafafa; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 8px; background: #dbeafe; color: #1d4ed8; font-size: 12px; margin: 0 4px 4px 0; }
+    .hl { color: var(--fd-blue-2); font-weight: 600; }
+    .compare-box { font-size: 13px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; }
+    .dfd-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 8px 0; font-size: 13px; line-height: 1.6; color: #1a1f2e; font-family: "Microsoft YaHei", "PingFang SC", "SimHei", sans-serif; }
+    .dfd-panel .dfd-title { font-weight: 700; color: var(--fd-ink); margin: 0 0 10px; font-size: 14px; }
+    .dfd-flex { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 8px; margin: 8px 0; }
+    .dfd-n { display: inline-block; padding: 6px 10px; background: #fff; border: 1px solid #c7d2e0; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .dfd-n.em { background: #e8f0ff; border-color: #8fb4e8; }
+    .dfd-n.gate { background: #fef3e8; border-color: #d4a84a; font-weight: 600; }
+    .dfd-n.db { background: #e8f4ee; border-color: #7cb99c; }
+    .dfd-n.ai { background: #f0e8ff; border-color: #9b7fd4; }
+    .dfd-ar { color: #64748b; user-select: none; }
+    .dfd-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .dfd-hint { font-size: 12px; color: #64748b; margin-top: 6px; }
+    .subgraph { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 8px; border: 1px dashed #94a3b8; border-radius: 6px; background: #f1f5f9; margin: 4px 0; }
+    .subgraph-ttl { width: 100%; text-align: center; font-size: 12px; color: #475569; font-weight: 600; margin-bottom: 4px; }
+    code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+    .demo-wrap {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 10px 0;
+    }
+    @media (max-width: 800px) {
+      .demo-wrap { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 420px) {
+      .demo-wrap { grid-template-columns: 1fr; }
+    }
+    .d-card { background: linear-gradient(160deg, #04060a 0%, #0f2347 100%); color: #e2e8f0; border-radius: 10px; padding: 12px 10px; font-size: 12.5px; border: 1px solid rgba(201, 164, 74, 0.3); min-width: 0; }
+    .d-card strong { color: var(--fd-gold-2); display: block; font-size: 16px; margin: 4px 0; }
+    .d-card .dt { color: #f0d78c; font-weight: 800; }
+    .d-hi { background: linear-gradient(135deg, #0a0a0c, #152d4a); border: 1px solid var(--fd-gold); }
+    .b-endu { background: #e3eef9; color: #15365a; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .b-biz { background: #dce6f2; color: #0f2347; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .b-del { background: #f5ecd8; color: #5c4518; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .row-g { background: #f2f5fa; }
+    .row-b { background: #eef1f5; }
+    .summary .v-sub { display: block; font-size: 12px; font-weight: 600; color: #e6cf8a; margin-top: 2px; text-shadow: 0 1px 1px rgba(0,0,0,.3); }
+    table.price-split { margin-top: 4px; }
+    table.price-split th:nth-child(3) { min-width: 6.5em; }
+    tr.price-total td { background: #f0e9dc; font-weight: 800; color: var(--fd-ink); }
+    /* 打印 / 另存为 PDF：保留配色、四卡单行、版心拉满 */
+    @media print {
+      @page { margin: 10mm; }
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+      }
+      body { background: #e8edf4 !important; }
+      .container { max-width: 100% !important; padding: 0 4mm 12mm !important; }
+      .card { break-inside: auto; page-break-inside: auto; box-shadow: none !important; }
+      #sec-demo { break-inside: avoid; page-break-inside: avoid; }
+      .demo-wrap {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+        margin: 6px 0 0 !important;
+      }
+      .d-card, .d-hi {
+        background: #1a2c48 !important;
+        background-image: none !important;
+        color: #e8ecf4 !important;
+        border: 1.2pt solid #b8923a !important;
+        font-size: 8.5pt !important;
+        line-height: 1.32 !important;
+        padding: 5pt 4pt !important;
+      }
+      .d-card strong, .d-card .dt { color: #e8c76b !important; -webkit-print-color-adjust: exact; }
+      .top {
+        background: #132038 !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        border: 1pt solid #3d4f66 !important;
+      }
+      .summary, .summary-item, .summary-ico-wrap { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .summary .k { color: #f5e0a8 !important; }
+      .summary .v { color: #fff1c0 !important; }
+      .summary .v2, .summary .v2 strong { color: #ffecb0 !important; }
+      .summary .v-sub { color: #e6cf8a !important; }
+      th { background: #e5dfd4 !important; -webkit-print-color-adjust: exact; }
+      tr.price-total td { background: #efe6d8 !important; }
+      a { color: #1a3d63 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top">
+      <div class="top-brand">
+        <img class="fudan-logo" src="logo.jpeg" width="72" height="72" alt="复旦大学" decoding="async" />
+      </div>
+      <h1>AI 施工实时聊天监控系统</h1>
+      <p class="team">复旦硕士领衔 · <strong>15 年以上</strong>一线工程与软件研发团队 · 品质保证 · 值得信赖</p>
+      <div class="summary" role="group" aria-label="项目概要">
+        <div class="summary-item">
+          <span class="summary-ico-wrap" title="总报价" aria-hidden="true">
+            <svg class="summary-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="3" width="20" height="18" rx="2" />
+              <text x="12" y="15" text-anchor="middle" font-size="10" font-weight="800" fill="currentColor" stroke="none" font-family="Arial, 'Microsoft YaHei', sans-serif">&#165;</text>
+            </svg>
+          </span>
+          <div class="summary-txt">
+            <span class="k">总报价</span>
+            <span class="v">￥70,000</span>
+            <span class="v-sub">人民币柒万元整（7 万）</span>
+          </div>
+        </div>
+        <div class="summary-item">
+          <span class="summary-ico-wrap" title="建设周期" aria-hidden="true">
+            <svg class="summary-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="16" rx="2" />
+              <path d="M3 9h18M7 1v4M17 1v4" />
+              <path d="M7 14h.01M12 14h.01M7 18h.01" />
+            </svg>
+          </span>
+          <div class="summary-txt">
+            <span class="k">建设周期</span>
+            <span class="v2">约 2 个月（8 周），<strong>每阶段 2 周</strong>，2026-05-01 启动</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="sec-demo">
+      <h2 class="sect">分阶段演示上线</h2>
+      <p class="muted" style="text-align: center; margin-top: 0;">排期按<strong>每阶段 2 个自然周</strong>；启动日 2026-05-01（签约后可平移）。</p>
+      <div class="demo-wrap">
+        <div class="d-card">
+          第1 阶段 · 联调<br /><strong class="dt" style="color:#b6d0f2">≤ 2026-05-15</strong>测试 / Demo 可访、可登录，范围与线框对齐
+        </div>
+        <div class="d-card">第2 阶段 · 业务可演示<br /><strong class="dt" style="color:var(--fd-gold-2)">≤ 2026-05-29</strong>管理+上传+谷歌多模态模型+工作流闭环可跑通</div>
+        <div class="d-card d-hi">★ 第3 阶段 · 终用户首见<br /><strong class="dt">≤ 2026-06-12</strong>H5/网站+实时+聊天；<strong>小程序</strong> 建议同批；同源业务数据</div>
+        <div class="d-card">第4 阶段 · 双端可验<br /><strong class="dt" style="color:var(--fd-gold-2)">≤ 2026-06-26</strong>微信小程序+专属 APK 与网站同源可装可验，下载/码就绪</div>
+      </div>
+    </div>
+
+    <div class="toc" id="toc">
+      <h2>章节目录</h2>
+      <ol>
+        <li><a href="#sec-demo">分阶段演示上线</a></li>
+        <li><a href="#sec-bg">项目背景与需求范围</a></li>
+        <li><a href="#sec-map">需求要点与方案落实</a></li>
+        <li><a href="#sec-func">功能清单与说明</a></li>
+        <li><a href="#sec-impl">技术实现方案</a></li>
+        <li><a href="#sec-role">角色与权限</a></li>
+        <li><a href="#sec-dfd">数据流程图</a></li>
+        <li><a href="#sec-sched">八周（每阶段 2 周）交付计划与可见成果</a></li>
+        <li><a href="#sec-ship">交付物与使用对象</a></li>
+        <li><a href="#sec-biz">商务与验收说明</a>（建设总价 ￥7 万 + 五大分项）</li>
+      </ol>
+    </div>
+
+    <div class="card" id="sec-bg">
+      <h2 class="sect">项目背景与需求范围</h2>
+      <h3>一、项目背景</h3>
+      <p>我司为建筑装修设计公司，现需开发/部署 <strong>AI 施工实时聊天监控系统</strong>，用于提升工地管理效率、减少沟通成本、实现现场进度可视化与多方即时协同。</p>
+      <h3>二、核心功能模块（按优先级排序）</h3>
+      <p class="muted">按建设目标整理的需求要点说明。</p>
+      <p><strong>1. AI 图像识别</strong> 输入：设计图、施工图、效果图、现场照片/视频。功能：比对现场与图纸一致性；识别施工错误；多阶段图像存档与变化检测。</p>
+      <p><strong>2. 工作流协同</strong> 角色：工人、客户、施工经理、总承包方。功能：任务派发与接收、现场问题闭环、各方实时查看进度与异常提醒。</p>
+      <p><strong>3. 进度与材料（TOC）</strong> 材料进场/使用/剩余可视化；基于 TOC 识别瓶颈工序；延期风险预警与调度建议。</p>
+      <p><strong>4. 客户远程观测</strong> 重点交付 <strong>一客一专属 App + H5/网站/小程序</strong>：<strong>实时</strong>形象进度、现场/节点、评论/验收/提问；<strong>即时</strong>工程内沟通。可选 AI 日/周摘要。</p>
+      <p><strong>5. 售后管理</strong> 售后档案、报修（多模态）、AI 分类派单、维修跟踪与满意度回访。</p>
+      <h3>三、技术要求（建议方案包含）</h3>
+      <ul>
+        <li>支持云端部署或本地+云端混合</li>
+        <li>移动端（<strong>微信小程序</strong>或 <strong>App</strong>）+ <strong>网页管理后台</strong></li>
+        <li>图像识别可<strong>私有化</strong>或<strong>可商用 API</strong></li>
+        <li>数据权限分级（不同角色见不同内容）</li>
+      </ul>
+      <h3>四、建设方对交付资料的期望（类型）</h3>
+      <ul>
+        <li>技术方案简述：识别模型、架构、存储、工作流</li>
+        <li>开发周期（分阶段）</li>
+        <li>总报价（可分开首期+后期扩展）</li>
+        <li>维护/迭代费用说明</li>
+        <li>是否提供试用/POC 环境</li>
+      </ul>
+      <h3>五、文档类时间节点（参考）</h3>
+      <p class="muted">除下列项目实勘日历外，前期商务往来中的资料提交时间以当时书面约定为准。</p>
+    </div>
+
+    <div class="card" id="sec-map">
+      <h2 class="sect">需求要点与方案落实</h2>
+      <div class="compare-box">
+        <table>
+          <thead><tr><th>建设侧要点</th><th>本系统方案</th></tr></thead>
+          <tbody>
+            <tr><td>五大建设模块 ①～⑤</td><td>对应该方案功能表中的 P0/P1/P2；材料与现场约束（TOC）与售后在首期可 <strong>轻量实现</strong> 或分阶段加强</td></tr>
+            <tr><td>云部署或云地混合</td><td>支持，部署方式在技术实现与交付物说明中落盘</td></tr>
+            <tr><td>手机端需覆盖微信生态或 App，并配网页管理</td><td><strong>网页管理后台</strong>、<strong>微信小程序</strong>、<strong>Android 专用安装包</strong>、<strong>项目 H5/网站</strong>，<strong>共用一套业务接口</strong></td></tr>
+            <tr><td>识图能力可自研或走商用服务</td><td>首采用 <strong>谷歌多模态模型 + 现场规则</strong>；自研/私有化可再议</td></tr>
+            <tr><td>多角色、分级可见数据</td><td><strong>RBAC</strong> 与按项目/工区授权</td></tr>
+            <tr><td>方案、周期、报价、运维与试用等书面材料</td><td>技术说明、周计划、总报价、试用与验收等在本方案主体中一次性给出，运维条款以签约文本为准</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="sec-func">
+      <h2 class="sect">功能清单与说明</h2>
+      <table>
+        <thead><tr><th>需求模块</th><th>核心功能</th><th>优先级</th><th>落地</th></tr></thead>
+        <tbody>
+          <tr><td>AI 图像/视频</td><td>图纸-现场、偏差/变化、报修多模态分类</td><td>P0</td><td class="hl">谷歌多模态模型 + 规则 + 队列</td></tr>
+          <tr><td>工作流协同</td><td>派发、问题闭环、提醒</td><td>P0</td><td>状态机/流程 + 消息 + RBAC</td></tr>
+          <tr><td>移动端与工程入口</td><td>一客一 <strong>专属 App</strong> + 微信小程序 + H5/网站，实时+工程聊天</td><td>P0</td><td>同 API、一客一 CI 出包、WSS+IM</td></tr>
+          <tr><td>TOC 与材料</td><td>材料台账、瓶颈、预警</td><td>P1</td><td>轻量可演示 / 可二期</td></tr>
+          <tr><td>客户远程观测</td><td>一客一 <strong>专属 App</strong> 与 H5/小程序，日/周、实时/留痕、同源</td><td>P1</td><td>内容 + 一客一入口</td></tr>
+          <tr><td>售后</td><td>报修、派单、回访</td><td>P2</td><td>工单 + 谷歌多模态模型 分类/摘要，可轻量</td></tr>
+        </tbody>
+      </table>
+      <h3>P0：AI 图像识别（谷歌多模态）— 技术基座</h3>
+      <ul>
+        <li>图/视频类能力统一经<strong>谷歌多模态模型</strong>，结构化 JSON 与业务表对齐；图纸与现场、一致性/偏差/变化与售后多模态分类同一套可配置策略</li>
+        <li>多阶段影像归档、变化说明与整改回写</li>
+      </ul>
+      <h3>P0：工作流</h3>
+      <ul>
+        <li>多角色、派发/领用/验收、问题上报与闭环、看板与提醒、审批（整改-复检-通过/驳回）</li>
+      </ul>
+      <h3>P0：工程专属（一客一专属 App + 网站/小程序 + 实时 + 聊天）</h3>
+      <ul>
+        <li>按<strong>每客/每项目</strong>出包：<strong>定制专属 Android App</strong>（一客一安装包/品牌），供业主侧 <strong>实时</strong>看施工进度、现场、节点，并 <strong>即时</strong>参与工程内沟通与待办。同步配置 <strong>H5/网站</strong>、<strong>微信小程序</strong>，<strong>实时</strong>（WSS/SSE）与 <strong>聊天</strong> 全端 <strong>同源</strong>。</li>
+      </ul>
+      <h3>P1：TOC &amp; 客户远程观测 / P2：售后</h3>
+      <p class="muted">进度材料与客户观测、售后的深度可按首期范围裁剪并后续迭代加强。</p>
+    </div>
+
+    <div class="card" id="sec-impl">
+      <h2 class="sect">技术实现方案</h2>
+      <h3>1.1 多模态（全链路 谷歌多模态模型）</h3>
+      <ul>
+        <li>统一基座：识别/视频/比对/报修多模态分类经 <strong>谷歌多模态模型</strong>，经官方多模态云端服务接入，支持图文/短视频等复合输入</li>
+        <li>合规与审计：脱敏、日志、水印与分片上传；几何精度专检可二期叠加</li>
+        <li>视频：关键帧/片段、异步队列；变化检测：多期对比 + 规则 + 人工复核</li>
+      </ul>
+      <h3>1.2 系统架构</h3>
+      <ul>
+        <li>前端：管理后台 Vue3+TS+Ant Design；专属 H5/网站；<strong>微信小程序</strong>；<strong>专属 APK</strong>（RN/Flutter/Uni-App+热配置+CI）</li>
+        <li>后端：Nest 或 Spring Boot；用户 RBAC、项目/工地、工作流、文件、多模态代理、<strong>WebSocket 聊天与实时</strong>、报表</li>
+        <li>AI：<strong>谷歌多模态模型</strong> 服务封装（重试、限流、多路轮换、流式/结构化 JSON）；<strong>规则引擎</strong> 与模型解耦</li>
+        <li>部署：云服务器 + OSS + HTTPS；<strong>实时 WSS/Redis PubSub</strong> 等</li>
+      </ul>
+      <h3>1.3 存储</h3>
+      <p>MySQL/PostgreSQL、对象存储、Redis、RabbitMQ/SQS、消息表+已读、按角色脱敏的审计日志。</p>
+      <h3>1.4 工作流</h3>
+      <p>待派发 → 进行中 → 待验收 → 整改中 → 已完成；上传经队列调 <strong>谷歌多模态模型</strong> → 规则 → 整改/通知/催办。</p>
+      <h3>1.5 专属进度（网站/APK/小程序 同源）</h3>
+      <ul>
+        <li>管理端：projectId、短链、白标、APK 流水线、下载页、<strong>小程序发版/体验码</strong></li>
+        <li>网站与多客户端同 API、同鉴权，实时+聊天同屏</li>
+      </ul>
+    </div>
+
+    <div class="card" id="sec-role">
+      <h2 class="sect">角色与权限</h2>
+      <table>
+        <thead><tr><th>角色</th><th>主要能力</th></tr></thead>
+        <tbody>
+          <tr><td>工人</td><td>接任务、<strong>小程序或 APK</strong> 传现场、领料/完工、问题与整改</td></tr>
+          <tr><td>施工经理</td><td>排班、验收、异常、看板、对客户可见范围配置</td></tr>
+          <tr><td>总包</td><td>多项目、风险/延期、资源与升级</td></tr>
+          <tr><td>客户</td><td><strong>一客一专属 App</strong> 及网站/小程序：<strong>实时</strong>看进度/现场/节点、<strong>即时</strong>工程沟通；日/周、评论、节点、报修</td></tr>
+          <tr><td>售后</td><td>工单、维修、回访</td></tr>
+          <tr><td>管理员</td><td>组织、<strong>小程序+APK+网站</strong> 发布、RBAC、审计</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-dfd">
+      <h2 class="sect">数据流程图</h2>
+      <h3>架构总图（多终端经网关 + 谷歌多模态模型 + 工作流 + 发版）</h3>
+      <div class="dfd-panel" role="img" aria-label="架构总图：多终端、网关、中台与模型">
+        <div class="dfd-title">多终端经统一网关进入业务，影像经队列进入多模态，结果经规则进入工作流并回写各端</div>
+        <div class="dfd-flex">
+          <span class="dfd-n em">多终端（管理/网站/小程序/APK/聊天）</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n gate">API 网关</span>
+        </div>
+        <div class="dfd-flex" style="margin-top:2px">
+          <span class="dfd-n" style="background:#f1f5f9;border-style:dashed">自网关</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n">RBAC</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n">项目与任务</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n">文件</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n">即时通讯</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n">实时 WSS / SSE</span>
+        </div>
+        <div class="dfd-flex" style="margin-top:6px">
+          <span class="dfd-n db">对象存储</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n db">业务库</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n ai">谷歌多模态分析</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n">规则引擎</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n em">工作流与通知</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n">多终端 / 发版与下载</span>
+        </div>
+        <p class="dfd-hint">业务库 → 进度与 TOC → 风险与预警 → 回推各端；<strong>实时</strong>通道直接向各端推送。APK/H5/小程序 发版与项目配置、业务库关联。</p>
+      </div>
+      <h3>数据流总图（接入、队列、消息）</h3>
+      <div class="dfd-panel" role="img" aria-label="数据流总图：角色、网关、业务、队列与多模态">
+        <div class="dfd-title">各角色经同一网关注入；文件经对象存储与队列进入多模态；业务、聊天、通知与关系库写读闭环</div>
+        <div class="subgraph">
+          <div class="subgraph-ttl">角色接入</div>
+          <span class="dfd-n">工人/班组</span>
+          <span class="dfd-n">施工经理</span>
+          <span class="dfd-n">客户</span>
+          <span class="dfd-n">总包/监理</span>
+          <span class="dfd-n">售后</span>
+        </div>
+        <div class="dfd-flex">
+          <span class="dfd-n gate">API 网关（Web / 小程序 / APK / H5 鉴权）</span>
+        </div>
+        <div class="dfd-flex">
+          <span class="dfd-n em">项目·任务·材料·售后</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n">文件上传</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n">工程聊天</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n">实时 WSS/SSE</span>
+        </div>
+        <div class="dfd-flex" style="margin-top:4px">
+          <span class="dfd-n db">对象存储</span>
+          <span class="dfd-ar" aria-hidden="true">-</span>
+          <span class="dfd-n">异步队列</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n ai">谷歌多模态模型</span>
+          <span class="dfd-ar" aria-hidden="true">+</span>
+          <span class="dfd-n db">关系库</span>
+        </div>
+        <div class="dfd-flex">
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n">规则引擎</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n">异常与工单 / 工作流</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n">通知（企微/短信/站内 等）</span>
+        </div>
+        <div class="dfd-flex" style="margin-top:4px">
+          <span class="dfd-n em">进度与 TOC</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n">风险与调度</span>
+          <span class="dfd-ar" aria-hidden="true">→</span>
+          <span class="dfd-n">回网关/各端</span>
+        </div>
+        <p class="dfd-hint">实时通道双向往返各角色；<strong>APK/H5/小程序 发版</strong> 指向下载页/子域/码，数据仍来自关系库与发布配置。工作流/消息可回到工人等终端。</p>
+      </div>
+    </div>
+
+    <div class="card" id="sec-sched">
+      <h2 class="sect">八周交付计划（每阶段 2 周）、验收窗与建设方可视成果</h2>
+      <p><strong>启动</strong> 2026-05-01（周五） · <strong>全周期 8 周</strong>、<strong>4 个阶段、每阶段 2 个自然周</strong> · <strong>计划结束</strong> 约 2026-06-26（周五）· 验收/移交 2026-06-27 ～ 06-30（以书面约定为准）</p>
+      <table>
+        <thead><tr><th>阶段</th><th>自然日（约）</th><th>阶段与关键输出</th></tr></thead>
+        <tbody>
+          <tr><td>第1 阶段（2 周）</td><td>5/01–5/14</td><td>需求冻结、环境/CI/HTTPS、线框、测试环境可访问；<strong>对应页首 D0</strong> 不晚于 5/15</td></tr>
+          <tr><td>第2 阶段（2 周）</td><td>5/15–5/28</td><td>领域 API、<strong>谷歌多模态模型</strong> 联调、RBAC、任务/文件、工作流与规则、管理端主体闭环可跑；<strong>D1</strong> 不晚于 5/29</td></tr>
+          <tr><td>第3 阶段（2 周）</td><td>5/29–6/11</td><td>项目 H5/网站、工程 IM、<strong>实时+聊天+小程序同批</strong>；P1 轻量看板/材料或 TOC 起步、APK 流水线/下载/码开跑；<strong>终用户首见</strong> 不晚于 6/12</td></tr>
+          <tr><td>第4 阶段（2 周）</td><td>6/12–6/25</td><td><strong>微信+APK</strong> 可装可验与同源、样板项目、双场培训、用例与交付包、可进入待验收；<strong>双端可验</strong> 不晚于 6/26</td></tr>
+        </tbody>
+      </table>
+      <h3>分阶段任务明细（每阶段 2 周，研发侧摘要）</h3>
+      <p><strong>第1 阶段</strong> 合并原第 1–2 周工作：需求与库表、OSS/HTTPS/CI、线框、可登录/空壳的测试与 Demo；联调点达到「地址可访、可登录、范围对齐」。</p>
+      <p><strong>第2 阶段</strong> 合并原第 3–4 周：任务/问题/多模态 JSON 落库、工作流全状态、规则与异常单、管理端派工—验收闭环；H5/网站+IM+实时与<strong>小程序同批</strong>联调优先。</p>
+      <p><strong>第3 阶段</strong> 合并原第 5 周 + 部分第 6 周前置：APK 可装、轻量 P1/TOC 展示、<strong>小程序+APK</strong> 与网站一致体验；为终用户演示窗做好准备。</p>
+      <p><strong>第4 阶段</strong> 以贯通样板、双场培训、用例/交付包、验收与移交组织为主，确保 <strong>同源多端</strong> 与现场演练到位。</p>
+      <h3>建设方各阶段可查看内容</h3>
+      <table>
+        <thead><tr><th>不晚于</th><th>可见成果</th></tr></thead>
+        <tbody>
+          <tr><td>5/15</td><td>第1 阶段：范围、测试环境、线框/流程、Demo 可登录</td></tr>
+          <tr><td>5/29</td><td>第2 阶段：上传+多模态落库、管理端全流程可演示</td></tr>
+          <tr><td>6/12</td><td>第3 阶段：客户 <strong>网页+实时+聊天</strong>，<strong>建议同批小程序</strong>；双端/下载入口推进中</td></tr>
+          <tr><td>6/26</td><td>第4 阶段：<strong>微信小程序+APK</strong> 与网站同源可验、交付包与培训可进入</td></tr>
+          <tr><td>6/30 前</td><td>全链贯通、验收用例、移交清单（以书面窗为准）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-ship">
+      <h2 class="sect">交付物清单与使用对象</h2>
+      <table>
+        <thead><tr><th>交付物</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr class="row-b"><td>Web 管理后台</td><td><span class="b-biz">管理/项目</span></td><td>全项目运营与数据配置</td></tr>
+          <tr class="row-g"><td>项目 H5/网站+客户视图</td><td><span class="b-endu">终用户</span></td><td>客户远程观测、节点与留痕</td></tr>
+          <tr class="row-g"><td>微信小程序</td><td><span class="b-endu">终用户</span></td><td>微信内免装访问，与 H5 能力一致</td></tr>
+          <tr class="row-g"><td>工程聊天、实时推送</td><td><span class="b-endu">终用户/管理</span></td><td>多终端统一消息与待办</td></tr>
+          <tr class="row-g"><td>一客一专属 App（定制 APK）</td><td><span class="b-endu">终用户/业主</span></td><td>按客户/项目 <strong>定制</strong> 安装包与白标，<strong>实时</strong>看进度/现场/节点，<strong>即时</strong>沟通与推送，非通用商城 App</td></tr>
+          <tr><td>多模态分析结论区</td><td><span class="b-biz">管理</span> / 可选 C 端</td><td>按签约范围配置</td></tr>
+          <tr><td>后端包、DB 脚本、OSS、网关、RBAC 说明</td><td><span class="b-del">移交</span></td><td>建设方信息化岗位</td></tr>
+          <tr><td>功能说明、操作手册、测试/验收报告</td><td><span class="b-del">移交</span></td><td>全角色可复印</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-biz">
+      <h2 class="sect">商务与验收说明</h2>
+      <h3 id="总报价" class="sect" style="border:0; margin-top:0; font-size: 17px;">五大功能域 · 交付物落点与分项报价</h3>
+      <table class="price-split">
+        <thead>
+          <tr>
+            <th>功能域</th>
+            <th>主要交付物 / 落点</th>
+            <th>分项价（元）</th>
+            <th>阶段</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>① AI 图像识别</td>
+            <td>图纸/现场影像接入，谷歌多模态模型 + 现场规则，任务与影像中结构化比对与风险提示、变化说明</td>
+            <td>19,000</td>
+            <td>P0</td>
+          </tr>
+          <tr>
+            <td>② 工作流协同</td>
+            <td>多角色、派发/整改/验收闭环，问题单与消息通知；工程内实时聊天与待办，与实时通道联动</td>
+            <td>15,000</td>
+            <td>P0</td>
+          </tr>
+          <tr>
+            <td>③ 进度与材料（TOC）</td>
+            <td>材料与工序台账、轻量看板/瓶颈与预警（首期为可演示的轻量版）</td>
+            <td>5,000</td>
+            <td>P1 轻量</td>
+          </tr>
+          <tr>
+            <td>④ 客户远程观测</td>
+            <td><strong>一客一专属 App</strong> 与项目网站/H5、微信小程序 等客户入口，<strong>实时</strong>看进度/现场/节点、<strong>即时</strong>工程沟通，日/周、评论、节点、可选 AI 摘要。<strong>同时含</strong>：云环境部署/割接与上线支持、与建设方在云平台 <strong>自购</strong> 的 ECS/OSS/带宽 等资源衔接、监控与 <strong>首 12 个月</strong> 应用/服务器 <strong>基础运维</strong>（小版本内参数、日志与备份策略落地等，不含大改与等保）。</td>
+            <td>25,000</td>
+            <td>P0~P1</td>
+          </tr>
+          <tr>
+            <td>⑤ 售后管理</td>
+            <td>报修入口（多模态）、派单/进度与轻量回访（首期可轻量，可续深化）</td>
+            <td>6,000</td>
+            <td>P2 轻量</td>
+          </tr>
+          <tr class="price-total">
+            <td colspan="2">合计（包干总价）</td>
+            <td>70,000</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="muted" style="margin-top: 10px;">注：上列分项合计 ￥70,000；不另加收本条结构说明以外的隐性拆分费用，功能增项以补充协议另议。</p>
+      <ul>
+        <li><strong>技术内容</strong>：多模态能力、系统架构、数据存储、工作流、多终端发版与联调等已在本方案正文中分节说明。</li>
+        <li><strong>分阶段建设周期</strong>：与页首概要数字一致，<strong>每阶段 2 周、共 8 周/4 阶段</strong>，具体日期与交付物以本方案内「八周交付计划」表为准。</li>
+        <li><strong>总报价与分项</strong>：包干价与「五大功能域」分项表一致；增项以补充协议约定。</li>
+        <li><strong>持续服务</strong>：增项、大版本或驻场等以双方补充合同为准。</li>
+        <li><strong>现场试用与样板</strong>：建设周期内可嵌入一个样板项目贯通演示；若需加开专项验证周期，可单独商洽。</li>
+      </ul>
+    </div>
+
+    <p style="text-align:center"><a href="#toc">↑ 返回章节目录</a></p>
+  </div>
+</body>
+</html>

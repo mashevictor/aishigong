@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Fudan mark">
+  <title>??</title>
+  <defs>
+    <linearGradient id="gfd" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f2347"/>
+      <stop offset="100%" style="stop-color:#1e4a7a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="56" fill="url(#gfd)"/>
+  <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(200,180,100,0.4)" stroke-width="1.5"/>
+  <text x="60" y="72" text-anchor="middle" fill="#f8fafc" font-size="28" font-family="Microsoft YaHei, SimHei, sans-serif" font-weight="600">??</text>
+  <text x="60" y="92" text-anchor="middle" fill="rgba(232,199,107,0.9)" font-size="8" font-family="Arial, sans-serif" letter-spacing="0.15em">FUDAN</text>
+</svg>

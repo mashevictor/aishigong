@@ -1,0 +1,19 @@
+# 密钥与环境（切勿提交）
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+
+# 依赖
+node_modules/
+server/node_modules/
+
+# 日志与本地
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

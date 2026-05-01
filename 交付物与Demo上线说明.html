@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>交付物与 Demo 上线时间说明</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; margin: 0; background: #eef1f6; color: #1a1a2e; line-height: 1.5; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 48px; }
+    h1 { margin: 0 0 8px; font-size: 26px; }
+    h2 { font-size: 19px; margin: 0 0 12px; color: #0f172a; border-left: 4px solid #2563eb; padding-left: 10px; }
+    h3 { font-size: 15px; margin: 20px 0 10px; color: #334155; }
+    p.lead { margin: 0; font-size: 15px; color: #475569; }
+
+    /* 图例 - 用户可见最醒目 */
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 16px 0 0; font-size: 14px; }
+    .leg-item { display: inline-flex; align-items: center; gap: 8px; }
+    .leg-swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,.12); }
+    .sw-enduser { background: linear-gradient(135deg, #10b981, #34d399); }
+    .sw-biz { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .sw-delivery { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .sw-internal { background: #e2e8f0; }
+
+    /* Demo 时间轴卡片 */
+    .hero { background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 100%); color: #f8fafc; border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(15,23,42,.25); }
+    .hero .sub { font-size: 14px; opacity: .9; margin-top: 6px; }
+    .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 18px; }
+    .demo-card { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 10px; padding: 14px 16px; }
+    .demo-card.highlight { background: linear-gradient(135deg, rgba(16,185,129,.25), rgba(16,185,129,.1)); border-color: rgba(52,211,153,.45); }
+    .demo-label { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; opacity: .8; }
+    .demo-name { font-weight: 700; font-size: 16px; margin: 4px 0 6px; }
+    .demo-date { font-size: 18px; font-weight: 800; color: #6ee7b7; }
+    .demo-date.blue { color: #93c5fd; }
+    .demo-date.amber { color: #fcd34d; }
+    .demo-date.white { color: #fff; }
+    .demo-desc { font-size: 13px; opacity: .92; line-height: 1.45; }
+
+    .callout { background: #ecfdf5; border: 2px solid #10b981; color: #065f46; border-radius: 10px; padding: 14px 18px; font-size: 15px; font-weight: 600; margin: 0 0 20px; }
+    .callout small { display: block; font-weight: 500; color: #047857; margin-top: 6px; font-size: 13px; }
+
+    .card { background: #fff; border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: #f1f5f9; color: #0f172a; }
+    tr:nth-child(even) { background: #fafafa; }
+    @media (max-width: 720px) { th, td { font-size: 12px; padding: 8px; } }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .b-enduser { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .b-biz { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+    .b-delivery { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .b-internal { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+    .row-enduser { background: #f0fdf4 !important; }
+    .row-biz { background: #eff6ff !important; }
+    .row-delivery { background: #fffbeb !important; }
+
+    footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1 style="color: #f8fafc;">Demo 啥时候能上线？</h1>
+      <p class="sub">项目自 <strong>2026-05-01</strong> 启动，按本计划分阶段开放演示环境。原始需求要求 <strong>云端/混合</strong>、<strong>微信小程序或 App + 网页管理后台</strong>、<strong>可私有化或商用 API 的识别</strong>、<strong>权限分级</strong> — 本页「终用户可见」侧已显式包含 <strong>微信小程序</strong> 与 <strong>APK</strong>。下表为「<strong>最早可给对应人群看</strong>」的日期（以联调完成为准，遇阻顺延）。</p>
+      <div class="demo-grid">
+        <div class="demo-card">
+          <div class="demo-label">D0 联调环境</div>
+          <div class="demo-name">测试 / Demo 地址可访问</div>
+          <div class="demo-date white">≤ 2026-05-07</div>
+          <div class="demo-desc">具备域名或 IP、可登录，界面可为线框/空壳，用于环境与账号验证。</div>
+        </div>
+        <div class="demo-card">
+          <div class="demo-label">D1 业务可演示</div>
+          <div class="demo-name">管理端 + 上传 + Gemini 结果 + 工作流闭环</div>
+          <div class="demo-date blue">≤ 2026-05-21</div>
+          <div class="demo-desc">甲方可用项目经理等账号<strong>完整点流程</strong>；客户专属端可尚未齐全。</div>
+        </div>
+        <div class="demo-card highlight">
+          <div class="demo-label" style="color: #a7f3d0;">★ 终用户首见</div>
+          <div class="demo-name">客户 H5/网站 +（可选）小程序体验 + 实时 + 工程聊天</div>
+          <div class="demo-date">≤ 2026-05-28</div>
+          <div class="demo-desc">业主/客户在 <strong>H5/网站</strong> 必达；若排期允许，同步提供 <strong>微信小程序体验版</strong>（与网站<strong>同一业务 API</strong>），满足 RFP「小程序」侧可演示。</div>
+        </div>
+        <div class="demo-card">
+          <div class="demo-label">D3 移动端双轨（RFP）</div>
+          <div class="demo-name">微信小程序 + 专属 Android APK 可验</div>
+          <div class="demo-date.amber" style="font-size: 18px; font-weight: 800; color: #fcd34d; margin: 4px 0 6px;">≤ 2026-06-04</div>
+          <div class="demo-desc">微信内搜码/体验 + APK 下载安装，与 <strong>网站同源</strong> 查进度、聊天与关键页；覆盖「<strong>小程序或 App</strong>」两条线。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      「用户可见」交付物（业主/客户在浏览器或手机 App 上能直接点到的功能）在下方用 <span class="b-enduser">终用户可见</span> 标识，一眼区分于内部/文档类。
+      <small>说明：管理后台、总包看板等对「项目管理人员」同样可演示，用 <span class="b-biz">管理/项目端可见</span> 标出。原始需求 <strong>二、</strong>①～⑤ 在《方案汇总》与《项目功能清单》中均有 P0/P1/P2 对应；<strong>三、</strong> 云/混合、<strong>小程序或 App+后台</strong>、可私有化/商用 API、权限分级，本页已显式写清 <strong>小程序+APK+后台+网站</strong> 与 <strong>Gemini+规则</strong>。</small>
+    </div>
+
+    <div class="card" style="background: #f0f9ff; border: 1px solid #bae6fd;">
+      <h2>原始《统一需求》二、功能模块 — 在交付物中的落点</h2>
+      <table>
+        <thead>
+          <tr><th>模块</th><th>主要可见/可验交付物</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>① 图像识别</td><td>管理端/现场端上传后，任务与影像中的 <strong>AI 解读与比对结果</strong>（Gemini，见《实现方案》）</td></tr>
+          <tr><td>② 工作流</td><td>后台+小程序/App 的 <strong>派工、问题、整改闭环、通知与实时</strong></td></tr>
+          <tr><td>③ TOC 与材料</td><td>管理端/看板 <strong>材料与工序、瓶颈/预警</strong>（P1 轻量，以基线为准）</td></tr>
+          <tr><td>④ 客户远程观测</td><td><span class="badge b-enduser">终用户</span> <strong>网站、小程序、APK</strong> 的日周更新、评论、节点确认、可选 AI 日报</td></tr>
+          <tr><td>⑤ 售后</td><td>报修入口（图/文/视）+ <strong>派单与回访</strong>（P2 可轻量，以基线为准）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>图例（交付物类型）</h2>
+      <div class="legend">
+        <div class="leg-item"><span class="leg-swatch sw-enduser"></span><span><span class="badge b-enduser">终用户可见</span> 业主/客户在 <strong>H5、网站、微信小程序、专属 APK</strong> 上能直接使用（与 RFP 二-4、三-移动端一致）</span></div>
+        <div class="leg-item"><span class="leg-swatch sw-biz"></span><span><span class="badge b-biz">管理/项目端可见</span> 施工经理、工长、总包、管理员在管理后台/运营端能演示</span></div>
+        <div class="leg-item"><span class="leg-swatch sw-delivery"></span><span><span class="badge b-delivery">随验收移交</span> 交付给甲方信息/IT 的制品、文档、脚本、制品包</span></div>
+        <div class="leg-item"><span class="leg-swatch sw-internal"></span><span><span class="badge b-internal">仅内部/研发</span> 不直接作为对客演示，但验收时可查阅</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>一、分阶段可演示内容（与对甲方公开节奏一致）</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>不晚于</th>
+            <th>可见对象</th>
+            <th>能演示/看到什么</th>
+            <th>用户侧是否可见</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-biz">
+            <td>2026-05-07</td>
+            <td>甲方管理/信息部门</td>
+            <td>《需求基线》确认件、<strong>测试环境入口</strong>、主流程线框</td>
+            <td><span class="badge b-internal">内部为主</span> 终用户一般尚未开放账号</td>
+          </tr>
+          <tr class="row-biz">
+            <td>2026-05-14</td>
+            <td>管理端 + 技术对接</td>
+            <td>图档上传、<strong>Gemini 多模态</strong>结构化结果落库、任务绑定</td>
+            <td><span class="badge b-biz">管理/项目端</span> 在后台可见 AI 区</td>
+          </tr>
+          <tr class="row-biz">
+            <td>2026-05-21</td>
+            <td>项目管理人员</td>
+            <td>派工 → 整改/验收<strong>全流程</strong>、规则引擎与异常单、管理后台主页面</td>
+            <td><span class="badge b-biz">管理/项目端</span> 业主端仍可能未开通</td>
+          </tr>
+          <tr class="row-enduser" style="outline: 2px solid #10b981; outline-offset: -1px;">
+            <td><strong>2026-05-28</strong></td>
+            <td><strong>客户 / 业主（测试号）</strong></td>
+            <td><strong>项目专属 H5/网站</strong> 必达：进度、影像、异常、节点；<strong>工程内聊天</strong>；<strong>实时</strong>刷新；<strong>微信小程序</strong> 与 H5 同能力为<strong>强建议同批联调</strong>（以当期资源为准）</td>
+            <td><span class="badge b-enduser">终用户可见</span> 首批「看得见的交付物」；含网站必达、小程序按排期</td>
+          </tr>
+          <tr class="row-enduser">
+            <td>2026-06-04</td>
+            <td>客户 + 管理端</td>
+            <td><strong>微信小程序</strong>（提审/体验或正式，以微信侧为准）+ 专属 <strong>APK</strong>、下载页/短链/二维码；与网站<strong>同源</strong>进度与聊天</td>
+            <td><span class="badge b-enduser">终用户可见</span> 满足 RFP「小程序或 App」双端验收</td>
+          </tr>
+          <tr class="row-delivery">
+            <td>2026-06-11 前</td>
+            <td>甲方 + 受训人</td>
+            <td>全链路（样板项目）、双场培训、验收用例、交付包与文档包</td>
+            <td><span class="badge b-delivery">随验收移交</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>二、交付物清单（按「谁能看见」强标识）</h2>
+      <p class="lead" style="margin-bottom: 12px;">下列与《交付工期与清单_5月1日启动》一致，本页仅作<strong>可见性</strong>分层。绿色行 = 业主/客户能直接感知的系统能力或界面。</p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 32%;">交付物</th>
+            <th style="width: 18%;">类型标识</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-biz">
+            <td>Web 管理后台（构建产物、访问方式）</td>
+            <td><span class="badge b-biz">管理/项目端可见</span></td>
+            <td>RFP「+ 网页管理后台」：排班、任务、问题、材料/TOC、AI 结果、权限；不默认对业主开放账号。</td>
+          </tr>
+          <tr class="row-enduser">
+            <td><strong>项目专属 H5/网站 + 客户视图</strong></td>
+            <td><span class="badge b-enduser">终用户可见</span></td>
+            <td>二-4 客户远程观测：日/周更新、照片+说明、评论提问、节点确认；权限脱敏后对外。</td>
+          </tr>
+          <tr class="row-enduser">
+            <td><strong>微信小程序</strong>（与 H5/网站同源 API）</td>
+            <td><span class="badge b-enduser">终用户可见</span></td>
+            <td>满足 RFP「三、移动端：微信小程序或 App」中的 <strong>小程序</strong> 线；含发版/体验码/提审材料（以微信审核周期为准，不阻塞后端验收）。</td>
+          </tr>
+          <tr class="row-enduser">
+            <td><strong>工程内聊天（按项目频道）</strong></td>
+            <td><span class="badge b-enduser">终用户可见</span></td>
+            <td>与进度同入口或独立 Tab；@任务/问题视实现为准。</td>
+          </tr>
+          <tr class="row-enduser">
+            <td><strong>实时推送</strong>（WSS / SSE 展示进度/消息变化）</td>
+            <td><span class="badge b-enduser">终用户可见</span></td>
+            <td>页面「自动刷新/待办数变化」等，属于客户/管理端可感知体验。</td>
+          </tr>
+          <tr class="row-enduser">
+            <td><strong>专属 Android APK + 安装说明页/二维码</strong></td>
+            <td><span class="badge b-enduser">终用户可见</span></td>
+            <td>RFP「或 App」线：安装后与网站/小程序 <strong>同源</strong>能力（按基线范围）。</td>
+          </tr>
+          <tr class="row-biz">
+            <td>多模态分析结果（在任务/影像详情中的解读区）</td>
+            <td><span class="badge b-biz">管理/项目端</span> / 若对客户开放则 <span class="badge b-enduser">终用户可见</span></td>
+            <td>默认在管理端最完整；是否对客户展示「摘要/结论」由基线定。</td>
+          </tr>
+          <tr class="row-delivery">
+            <td>后端包/镜像、DB 初始化、对象存储、网关路由说明</td>
+            <td><span class="badge b-delivery">随验收移交</span></td>
+            <td>给甲方技术/信息部门；不对业主直晒。</td>
+          </tr>
+          <tr class="row-delivery">
+            <td>《系统功能说明》《操作手册》《测试/验收报告》等</td>
+            <td><span class="badge b-delivery">随验收移交</span></td>
+            <td>可复印给各角色；内容含客户操作章节即属「用户能照着用」的交付。</td>
+          </tr>
+          <tr class="row-internal">
+            <td>代码仓库/压缩包、线框与 Figma 链接、接口文档</td>
+            <td><span class="badge b-internal">仅内部/研发</span></td>
+            <td>二开/审计用，业主一般不接触。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+      <h2>三、一句结论（可转发甲方）</h2>
+      <p class="lead" style="color: #0f172a;">
+        <strong>5 月 7 日前</strong>：先有可登录的 Demo/测试环境；<br />
+        <strong>5 月 21 日前</strong>：管理侧可「一条龙」验收演示（含多模态）；<br />
+        <strong>5 月 28 日前</strong>：<span style="color: #047857; font-weight: 800;">客户/业主在网页上即可看到进度+聊天+实时</span>，并<strong>尽量同批</strong>提供可体验的<strong>微信小程序</strong>；<br />
+        <strong>6 月 4 日前</strong>：<strong>微信小程序 + 专属 APK</strong> 与网站 <strong>同源可验</strong>，覆盖 RFP「小程序或 App」；<strong>6 月 11 日前</strong>：整体具备验收与移交条件。
+      </p>
+    </div>
+
+    <footer>与《需求原文》五大模块+《交付工期与清单_5月1日启动》配套 · 以双方签字《需求基线》为准</footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>装修设计公司全链路方案（详细版）</title>
+  <style>
+    :root {
+      --fd-black: #04060a;
+      --fd-ink: #0a1220;
+      --fd-blue-1: #0f2347;
+      --fd-blue-2: #1a3d63;
+      --fd-blue-3: #1e4a7a;
+      --fd-gold: #c9a44a;
+      --fd-gold-2: #e8c76b;
+      --tx-bg: #e8edf4;
+      --tx-title: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: linear-gradient(180deg, #dbe4f0 0%, var(--tx-bg) 28%); color: #1a1f2e; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; line-height: 1.56; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 16px 16px 64px; }
+    .top { background: linear-gradient(150deg, var(--fd-black) 0%, var(--fd-blue-1) 42%, var(--fd-blue-3) 100%); color: #f8fafc; border-radius: 12px; padding: 24px 28px; margin-bottom: 18px; text-align: center; }
+    .logo { width: 68px; height: 68px; object-fit: contain; border-radius: 8px; display: block; margin: 0 auto 10px; }
+    .top h1 { margin: 0 0 8px; font-size: 1.35rem; font-family: var(--tx-title); font-weight: 800; }
+    .top p { margin: 0; color: #d8e4f7; font-size: 14px; }
+    .toc { background: #fff; border: 1px solid rgba(15,35,71,.12); border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; }
+    .toc h2 { margin: 0 0 8px; font-size: 17px; text-align: center; color: var(--fd-ink); font-family: var(--tx-title); font-weight: 800; }
+    .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 22px; font-size: 14px; }
+    @media (max-width: 840px) { .toc ol { columns: 1; } }
+    .toc a { color: var(--fd-blue-2); text-decoration: none; font-weight: 600; }
+    .card { background: #fff; border: 1px solid rgba(15,35,71,.08); border-radius: 12px; padding: 20px 22px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(4,6,20,.06); }
+    h2.sect { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--fd-gold); color: var(--fd-ink); text-align: center; font-size: 19px; font-family: var(--tx-title); font-weight: 800; scroll-margin-top: 12px; }
+    h3 { margin: 14px 0 8px; font-size: 16px; color: #1e3a4a; }
+    p { margin: 8px 0; font-size: 14px; }
+    ul { margin: 4px 0 10px 20px; }
+    li { margin: 4px 0; font-size: 14px; }
+    .muted { color: #64748b; font-size: 13px; }
+    .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #fef3c7; color: #7c2d12; margin-left: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.8px; }
+    th, td { border: 1px solid #e2e8f0; padding: 8px 9px; text-align: left; vertical-align: top; }
+    th { background: linear-gradient(180deg, #ebe6dc, #e0d9ce); color: var(--fd-ink); }
+    tr:nth-child(even) { background: #fafafa; }
+    tr.price-total td { background: #f0e9dc; font-weight: 800; color: var(--fd-ink); }
+    .flow { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin: 8px 0; }
+    .flow p { margin: 4px 0; font-size: 13px; }
+    .hl { color: var(--fd-blue-2); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top">
+      <img class="logo" src="logo.jpeg" width="68" height="68" alt="标识" />
+      <h1>装修设计公司全链路数字化方案（详细版）</h1>
+      <p>获客 → 设计初稿 → 销售成交 → AI施工交付与售后，全流程围绕装修公司实际业务</p>
+    </div>
+
+    <div class="toc" id="toc">
+      <h2>章节目录</h2>
+      <ol>
+        <li><a href="#sec-bg">一、项目背景与需求范围</a></li>
+        <li><a href="#sec-map">二、需求要点与方案落实</a></li>
+        <li><a href="#sec-func">三、功能清单与说明（含页面清单）</a></li>
+        <li><a href="#sec-impl">四、技术实现方案</a></li>
+        <li><a href="#sec-role">五、角色与权限</a></li>
+        <li><a href="#sec-dfd">六、总体数据流程图</a></li>
+        <li><a href="#sec-sched">七、交付计划（每阶段2周）与可视成果</a></li>
+        <li><a href="#sec-ship">八、交付物清单与使用对象</a></li>
+        <li><a href="#sec-biz">九、商务与验收说明</a></li>
+      </ol>
+    </div>
+
+    <div class="card" id="sec-bg">
+      <h2 class="sect">一、项目背景与需求范围</h2>
+      <p>本方案面向<strong>装修设计公司</strong>（家装/工装）完整经营链路：前端获客、内容生产、销售转化，后端施工交付与售后服务。目标是把单点经验驱动升级为可复制、可追踪、可优化的系统驱动。</p>
+      <h3>1）核心业务目标</h3>
+      <ul>
+        <li><strong>获客侧</strong>：提升有效咨询与留资质量，降低无效咨询和运营内耗。</li>
+        <li><strong>销售侧</strong>：提高转化率、缩短签约周期，降低漏跟与断档。</li>
+        <li><strong>交付侧</strong>：施工过程透明化、沟通留痕化、风险前置化、售后可追溯。</li>
+      </ul>
+      <h3>2）系统范围（四大系统）</h3>
+      <ul>
+        <li>媒体平台智能获客系统</li>
+        <li>AI 自动设计初稿系统</li>
+        <li>AI 销售成交赋能系统</li>
+        <li>AI 施工实时聊天监控与售后系统（沿用原方案核心）</li>
+      </ul>
+      <h3>3）江浙沪场景重点</h3>
+      <p class="muted">覆盖家装主流户型（90内刚需、100-130改善、130-160四房、160+大平层/叠墅）与二手房旧改、婚房、精装软改、小商业工装等高频场景。</p>
+    </div>
+
+    <div class="card" id="sec-map">
+      <h2 class="sect">二、需求要点与方案落实</h2>
+      <table>
+        <thead><tr><th>需求要点</th><th>方案落实</th></tr></thead>
+        <tbody>
+          <tr><td>多平台获客分散、咨询丢失</td><td>统一获客中台聚合评论/私信/线索，自动去重、打标、分配</td></tr>
+          <tr><td>设计排期慢，营销节奏受限</td><td>AI设计初稿系统按活动参数批量出图，素材自动入库并联动发布</td></tr>
+          <tr><td>销售团队能力差异大</td><td>AI实时话术、画像分析、跟进提醒、复盘建议，标准化成交动作</td></tr>
+          <tr><td>签约后客户感知与施工协同断层</td><td>一客一专属App + 小程序/H5 + 管理后台同源，实时进度与沟通贯通</td></tr>
+          <tr><td>售后与施工数据割裂</td><td>项目主数据贯通，报修/工单与施工节点关联，形成闭环留痕</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-func">
+      <h2 class="sect">三、功能清单与说明（含页面清单）</h2>
+
+      <h3>A. 媒体平台智能获客系统 <span class="tag">重点</span></h3>
+      <table>
+        <thead><tr><th>模块</th><th>功能点</th><th>AI自动化</th></tr></thead>
+        <tbody>
+          <tr><td>账号与平台管理</td><td>多平台账号接入、权限分组、统一发布</td><td>平台规则识别与发布风险提示</td></tr>
+          <tr><td>内容运营</td><td>选题库、排期、分发、发布历史</td><td>热点抓取、选题推荐、文案改写</td></tr>
+          <tr><td>咨询承接</td><td>评论/私信聚合、会话分配、异常过滤</td><td>意图识别、自动首轮回复、无效过滤</td></tr>
+          <tr><td>线索中台</td><td>去重、打标、意向评级、自动分配</td><td>自动优先级排序与SLA提醒</td></tr>
+          <tr><td>效果看板</td><td>曝光/咨询/留资/到店/签约漏斗</td><td>自动归因、ROI估算、异常波动预警</td></tr>
+        </tbody>
+      </table>
+      <h4>页面清单</h4>
+      <table>
+        <thead><tr><th>端</th><th>页面</th><th>页面用途</th></tr></thead>
+        <tbody>
+          <tr><td>后台</td><td>平台账号总览</td><td>账号状态、权限、分组管理</td></tr>
+          <tr><td>后台</td><td>选题与排期中心</td><td>热点、选题、自动发布计划</td></tr>
+          <tr><td>后台</td><td>内容编辑与分发页</td><td>一稿多端改写与分平台发布</td></tr>
+          <tr><td>后台</td><td>咨询会话中心</td><td>评论/私信聚合、人工接管与话术辅助</td></tr>
+          <tr><td>后台</td><td>线索池与分配页</td><td>线索分层、派发、SLA配置</td></tr>
+          <tr><td>后台</td><td>渠道效果看板</td><td>漏斗转化与ROI分析</td></tr>
+          <tr><td>移动端</td><td>运营提醒页</td><td>发布提醒、咨询预警、线索提醒</td></tr>
+        </tbody>
+      </table>
+
+      <h3>B. AI 自动设计初稿系统 <span class="tag">重点</span></h3>
+      <p><strong>江浙沪户型模板策略：</strong>按 90内刚需、100-130改善、130-160四房、160+大平层/叠墅、二手旧改、婚房首装、精装软改、小商业工装等场景自动匹配模板与文案框架。</p>
+      <table>
+        <thead><tr><th>模块</th><th>功能点</th><th>AI自动化</th></tr></thead>
+        <tbody>
+          <tr><td>模板中心</td><td>风格分类、户型标签、字段参数</td><td>按户型+预算+城市+风格自动推荐模板</td></tr>
+          <tr><td>初稿生成</td><td>输入活动主题/卖点/权益一键出图</td><td>文案+版式联动，多版本候选</td></tr>
+          <tr><td>批量改版</td><td>替换权益/价格/时间并导出多规格</td><td>自动适配平台尺寸与文案长度</td></tr>
+          <tr><td>素材治理</td><td>版本、标签、有效期、活动绑定</td><td>自动归档与过期提醒</td></tr>
+          <tr><td>发布联动</td><td>素材推送到获客中台</td><td>自动匹配目标渠道与发布时间</td></tr>
+        </tbody>
+      </table>
+      <h4>页面清单</h4>
+      <table>
+        <thead><tr><th>端</th><th>页面</th><th>页面用途</th></tr></thead>
+        <tbody>
+          <tr><td>后台</td><td>模板库页面</td><td>模板分类、场景与字段管理</td></tr>
+          <tr><td>后台</td><td>AI出图工作台</td><td>输入参数并生成多版初稿</td></tr>
+          <tr><td>后台</td><td>批量改版页</td><td>批量替换参数并导出</td></tr>
+          <tr><td>后台</td><td>素材资产库</td><td>版本、标签、活动关联管理</td></tr>
+          <tr><td>后台</td><td>发布联动页</td><td>素材推送与渠道匹配</td></tr>
+        </tbody>
+      </table>
+
+      <h3>C. AI 销售成交赋能系统 <span class="tag">重点</span></h3>
+      <table>
+        <thead><tr><th>模块</th><th>功能点</th><th>AI自动化</th></tr></thead>
+        <tbody>
+          <tr><td>线索承接</td><td>客户档案、跟进记录、分配机制</td><td>自动意向评分与优先级排序</td></tr>
+          <tr><td>会话辅助</td><td>话术推荐、异议应答、报价解释</td><td>语义识别后实时推荐应答</td></tr>
+          <tr><td>跟进管理</td><td>回访计划、任务节点、超时预警</td><td>自动节奏编排与提醒</td></tr>
+          <tr><td>成交工具</td><td>方案摘要、权益对比、促单文案</td><td>自动生成客户定制材料</td></tr>
+          <tr><td>复盘训练</td><td>会话复盘、案例库、训练建议</td><td>自动识别失分点并输出改进动作</td></tr>
+        </tbody>
+      </table>
+      <h4>页面清单</h4>
+      <table>
+        <thead><tr><th>端</th><th>页面</th><th>页面用途</th></tr></thead>
+        <tbody>
+          <tr><td>后台</td><td>销售工作台</td><td>今日线索、待跟进、优先客户</td></tr>
+          <tr><td>后台</td><td>客户详情页</td><td>画像、咨询历史、关注点与风险点</td></tr>
+          <tr><td>后台</td><td>AI话术助手页</td><td>实时问答建议与应答模板</td></tr>
+          <tr><td>后台</td><td>跟进计划页</td><td>回访节奏、任务与预警</td></tr>
+          <tr><td>后台</td><td>成交工具页</td><td>生成报价解读、促单材料</td></tr>
+          <tr><td>后台</td><td>复盘看板页</td><td>失单原因、转化率、训练重点</td></tr>
+          <tr><td>移动端</td><td>销售提醒页</td><td>高意向提醒与待办通知</td></tr>
+        </tbody>
+      </table>
+
+      <h3>D. AI施工与售后系统（原方案核心并入）</h3>
+      <table>
+        <thead><tr><th>模块</th><th>功能点</th><th>AI自动化</th></tr></thead>
+        <tbody>
+          <tr><td>施工识别</td><td>图纸-现场比对、偏差识别、变化留档</td><td>多模态识别 + 规则判定 + 风险提示</td></tr>
+          <tr><td>施工协同</td><td>任务派发、整改、验收、消息待办</td><td>状态机驱动 + 自动提醒 + 超时预警</td></tr>
+          <tr><td>客户观测</td><td>一客一App实时看进度/现场/节点</td><td>事件实时推送 + 节点自动汇总</td></tr>
+          <tr><td>售后工单</td><td>报修、派单、进度、回访、满意度</td><td>自动分类派单 + 跟进节奏提醒</td></tr>
+        </tbody>
+      </table>
+      <h4>页面清单</h4>
+      <table>
+        <thead><tr><th>端</th><th>页面</th><th>页面用途</th></tr></thead>
+        <tbody>
+          <tr><td>客户端（一客一App/H5/小程序）</td><td>项目首页</td><td>实时进度、关键节点、现场动态</td></tr>
+          <tr><td>客户端</td><td>工程沟通页</td><td>在线沟通、评论、节点确认</td></tr>
+          <tr><td>客户端</td><td>报修入口</td><td>提交图文视频报修并查看状态</td></tr>
+          <tr><td>施工端</td><td>任务中心</td><td>领取任务、上传现场、反馈整改</td></tr>
+          <tr><td>管理后台</td><td>项目看板</td><td>进度、风险预警、任务分布</td></tr>
+          <tr><td>管理后台</td><td>验收与整改页</td><td>节点验收、问题闭环、责任追踪</td></tr>
+          <tr><td>管理后台</td><td>售后工单页</td><td>工单分配、时效、回访记录</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-impl">
+      <h2 class="sect">四、技术实现方案</h2>
+      <h3>1）总体架构</h3>
+      <ul>
+        <li>统一网关 + 统一身份（RBAC）+ 统一审计日志。</li>
+        <li>营销域（获客/设计/销售）与交付域（施工/售后）分层部署，可独立扩缩容。</li>
+      </ul>
+      <h3>2）AI能力分层</h3>
+      <ul>
+        <li><strong>生成类AI</strong>：选题、文案、设计初稿、促单文案。</li>
+        <li><strong>理解类AI</strong>：咨询意图识别、意向评级、话术匹配。</li>
+        <li><strong>多模态AI</strong>：施工图/现场图视频比对、报修图文分类。</li>
+      </ul>
+      <h3>3）中台与数据</h3>
+      <ul>
+        <li>线索中台：去重、打标、分配、SLA、跟进留痕。</li>
+        <li>素材中台：模板、版本、活动绑定、渠道适配。</li>
+        <li>项目中台：客户—项目—施工—售后主数据关联。</li>
+      </ul>
+      <h3>4）端侧与发布</h3>
+      <ul>
+        <li>Web管理后台 + 微信小程序 + H5 + 一客一 Android 专属包。</li>
+        <li>CI 出包、白标配置、下载页/体验码管理。</li>
+      </ul>
+      <h3>5）稳定性与合规</h3>
+      <ul>
+        <li>限流、重试、熔断、异步队列承载高峰任务。</li>
+        <li>敏感字段脱敏、分级授权、关键操作审计。</li>
+      </ul>
+    </div>
+
+    <div class="card" id="sec-role">
+      <h2 class="sect">五、角色与权限</h2>
+      <table>
+        <thead><tr><th>角色</th><th>主要系统</th><th>可见范围与操作</th></tr></thead>
+        <tbody>
+          <tr><td>新媒体运营</td><td>获客 + 设计</td><td>内容发布、咨询承接、素材调用、渠道看板</td></tr>
+          <tr><td>设计/品牌</td><td>设计</td><td>模板管理、风格规范、版本控制</td></tr>
+          <tr><td>电销/网销</td><td>销售 + 线索中台</td><td>线索跟进、话术辅助、报价沟通、成交推进</td></tr>
+          <tr><td>销售主管</td><td>销售看板</td><td>分配规则、转化监控、复盘训练</td></tr>
+          <tr><td>施工经理</td><td>施工后台</td><td>任务派发、验收、风险看板、客户可见范围配置</td></tr>
+          <tr><td>客户/业主</td><td>一客一App/H5/小程序</td><td>实时进度、节点确认、沟通、报修</td></tr>
+          <tr><td>售后人员</td><td>工单系统</td><td>报修分单、处理跟踪、回访闭环</td></tr>
+          <tr><td>管理员</td><td>全系统后台</td><td>组织、权限、发布、审计、配置管理</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-dfd">
+      <h2 class="sect">六、总体数据流程图</h2>
+      <div class="flow" role="img" aria-label="总体数据流程图">
+        <p><strong>流量层：</strong>短视频 / 图文社区 / 本地生活 / 社交平台 / 门店渠道</p>
+        <p><strong>→ 接入层：</strong>媒体获客系统（账号接入、统一发布、咨询聚合）</p>
+        <p><strong>→ 内容层：</strong>AI设计系统（模板库、初稿生成、批量改版）→ 素材库</p>
+        <p><strong>→ 线索层：</strong>线索中台（去重、打标、评级、自动分配、SLA）</p>
+        <p><strong>→ 成交层：</strong>AI销售系统（话术、画像、提醒、促单、复盘）</p>
+        <p><strong>→ 经营层：</strong>渠道ROI看板（曝光→咨询→留资→到店→签约）</p>
+        <p><strong>→ 交付层：</strong>签约客户进入AI施工与售后系统（项目立项、施工协同、售后工单）</p>
+      </div>
+      <h3>核心数据主键流向</h3>
+      <table>
+        <thead><tr><th>主键对象</th><th>产生位置</th><th>流向</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>内容ID</td><td>获客/设计系统</td><td>看板、报表</td><td>统计单内容转化</td></tr>
+          <tr><td>线索ID</td><td>线索中台</td><td>销售系统、经营看板</td><td>贯穿分配、跟进、成交分析</td></tr>
+          <tr><td>客户ID</td><td>销售系统</td><td>施工系统、售后系统</td><td>打通签约前后生命周期</td></tr>
+          <tr><td>项目ID</td><td>施工系统</td><td>客户端、售后、后台</td><td>进度、节点、验收、售后关联</td></tr>
+          <tr><td>会话ID</td><td>获客/销售系统</td><td>复盘模块</td><td>话术优化与训练</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-sched">
+      <h2 class="sect">七、交付计划（每阶段2周）与建设方可视成果</h2>
+      <p><strong>8周 / 4阶段 / 每阶段2周</strong>。以下以启动日 T0 为例，签约后按实际日期平移。</p>
+      <table>
+        <thead><tr><th>阶段</th><th>周期</th><th>主要建设内容</th><th>建设方可视成果</th></tr></thead>
+        <tbody>
+          <tr><td>第1阶段</td><td>T0~T0+2周</td><td>需求冻结、账号接入、模板与数据结构初始化、基础看板</td><td>后台可登录、平台接入清单、模板初版、流程图确认</td></tr>
+          <tr><td>第2阶段</td><td>T0+2~T0+4周</td><td>获客自动化、AI初稿、线索中台、销售工作台基础版</td><td>获客分发可跑、AI出图可用、线索可分配</td></tr>
+          <tr><td>第3阶段</td><td>T0+4~T0+6周</td><td>销售AI增强、施工侧联动、客户端可视与实时沟通</td><td>高意向跟进闭环、客户端可看进度与节点</td></tr>
+          <tr><td>第4阶段</td><td>T0+6~T0+8周</td><td>售后工单、全链路看板、UAT与培训、验收材料</td><td>全链路联调完成、验收用例与操作手册交付</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-ship">
+      <h2 class="sect">八、交付物清单与使用对象</h2>
+      <table>
+        <thead><tr><th>交付物</th><th>使用对象</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>媒体获客后台</td><td>运营/管理层</td><td>多平台管理、分发、咨询聚合、线索入口</td></tr>
+          <tr><td>AI设计后台与素材库</td><td>运营/设计</td><td>模板管理、AI初稿、批量改版、素材治理</td></tr>
+          <tr><td>AI销售系统</td><td>电销/销售/主管</td><td>话术辅助、画像、跟进节奏、复盘看板</td></tr>
+          <tr><td>一客一客户端（App/H5/小程序）</td><td>客户/业主</td><td>实时进度、节点、沟通、报修</td></tr>
+          <tr><td>施工管理后台</td><td>施工经理/管理员</td><td>派工、验收、风险看板、权限管理</td></tr>
+          <tr><td>售后工单系统</td><td>售后/客服</td><td>报修分配、处理跟踪、回访</td></tr>
+          <tr><td>技术与交付文档包</td><td>建设方信息化</td><td>接口说明、部署说明、操作手册、验收报告</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="sec-biz">
+      <h2 class="sect">九、商务与验收说明</h2>
+      <table>
+        <thead><tr><th>模块</th><th>建议价（元）</th><th>备注</th></tr></thead>
+        <tbody>
+          <tr><td>媒体平台智能获客系统</td><td>10,000</td><td>平台数量、账号规模、托管深度增加会拉升</td></tr>
+          <tr><td>AI 自动设计初稿系统</td><td>20,000</td><td>按你要求调整为 2 万；模板与规格复杂度高会增加</td></tr>
+          <tr><td>AI 销售成交赋能系统</td><td>10,000</td><td>语音/企微/CRM深度集成可上调</td></tr>
+          <tr><td>统一线索中台 + 联调培训</td><td>10,000</td><td>跨系统接口、主数据与权限联调</td></tr>
+          <tr class="price-total"><td>以上四项增项合计</td><td>50,000</td><td>以合同边界清单与验收口径为准</td></tr>
+        </tbody>
+      </table>
+      <h3>验收原则</h3>
+      <ul>
+        <li>按阶段验收：每阶段结束提供可演示成果与验收记录。</li>
+        <li>按用例验收：关键业务链路必须可跑通并留痕。</li>
+        <li>按角色验收：主要角色页面与功能可用、权限正确。</li>
+        <li>按数据验收：线索、客户、项目、工单主键贯通正确。</li>
+      </ul>
+    </div>
+
+    <p style="text-align:center"><a href="#toc">↑ 返回章节目录</a></p>
+  </div>
+</body>
+</html>
