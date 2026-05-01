@@ -351,6 +351,85 @@
       font-weight: 900;
       color: var(--blue);
     }
+
+    .load-info {
+      padding: 12px 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      color: #1e3a5f;
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .bim-panel {
+      border-left: 4px solid #4338ca;
+    }
+    .bim-panel > h2 {
+      border-left-color: #4338ca;
+    }
+    .bim-body p {
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: #334155;
+    }
+    .bim-body ul {
+      margin: 8px 0 12px;
+      padding-left: 20px;
+      font-size: 14px;
+      color: #475569;
+    }
+    .bim-body li {
+      margin-bottom: 6px;
+    }
+    table.bim-cmp {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin: 12px 0 16px;
+      min-width: 640px;
+    }
+    table.bim-cmp th,
+    table.bim-cmp td {
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+    table.bim-cmp th {
+      background: #f1f5f9;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .gen-panel .gen-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--blue);
+      background: #fff;
+      color: var(--blue);
+      text-decoration: none;
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-d));
+      border-color: transparent;
+      color: var(--ink);
+    }
+    .btn:hover {
+      opacity: 0.92;
+    }
   </style>
 </head>
 <body>
@@ -364,12 +443,31 @@
         <a class="secondary" href="/contract-ai.html">合同·采购 AI</a>
         <a class="secondary" href="/scenario-120.html">120㎡ 主线</a>
         <a class="secondary" href="#standardsDeepseek">国标对照 · 环节映射</a>
+        <a class="secondary" href="#bim">BIM 是什么</a>
+        <a class="secondary" href="#genPanel">生成 / 导出 MD</a>
       </div>
     </div>
   </header>
 
   <main>
     <div id="loadErr"></div>
+    <div id="loadInfo" class="load-info" style="display: none"></div>
+
+    <section class="panel bim-panel" id="bim">
+      <h2 id="bimHeadline">BIM 是什么？</h2>
+      <div id="bimBody" class="bim-body"></div>
+    </section>
+
+    <section class="panel gen-panel" id="genPanel">
+      <h2>生成与导出</h2>
+      <p class="muted">
+        在浏览器本地将当前已加载的矩阵数据拼成 Markdown 文件下载（宣讲稿 / 归档）；不经过服务器代写接口。完整书面说明亦可直接下载。
+      </p>
+      <div class="gen-row">
+        <button type="button" class="btn primary" id="btnExportMd">导出本页数据为 Markdown</button>
+        <a class="btn" href="/docs/ai-showcase-guide.md" download="AI智能建造矩阵与验收闸口说明.md">下载完整说明（Markdown）</a>
+      </div>
+    </section>
 
     <section class="panel" id="acceptance">
       <h2 id="accHeadline">AI 验收点 · 交付闸口</h2>
@@ -421,13 +519,193 @@
   </nav>
 
   <script>
+    window.__SHOWCASE_DATA = null;
+
     function esc(s) {
       return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
     }
 
+    function renderBim(d) {
+      var b = d.bim_explainer;
+      var elH = document.getElementById("bimHeadline");
+      var elB = document.getElementById("bimBody");
+      if (!b) {
+        elH.textContent = "BIM 是什么？";
+        elB.innerHTML =
+          '<p class="muted">数据包未包含 <code>bim_explainer</code>。请将最新的 <code>server/ai-construction-showcase.json</code> 同步至接口或 <code>/assets/ai-showcase-fallback.json</code>。</p>';
+        return;
+      }
+      elH.textContent = b.headline || "BIM 是什么？";
+      var rows = (b.cad_vs_bim || [])
+        .map(function (r) {
+          return (
+            "<tr><td>" +
+            esc(r.aspect) +
+            "</td><td>" +
+            esc(r.traditional) +
+            "</td><td>" +
+            esc(r.bim) +
+            "</td></tr>"
+          );
+        })
+        .join("");
+      var table = rows
+        ? '<div class="table-wrap"><table class="bim-cmp"><thead><tr><th>对比维度</th><th>传统二维为主</th><th>BIM / 模型化</th></tr></thead><tbody>' +
+          rows +
+          "</tbody></table></div>"
+        : "";
+      var siteList = (b.on_this_site || [])
+        .map(function (x) {
+          return "<li>" + esc(x) + "</li>";
+        })
+        .join("");
+      elB.innerHTML =
+        "<p>" +
+        esc(b.definition || "") +
+        "</p><p>" +
+        esc(b.not_just_visual || "") +
+        "</p><p>" +
+        esc(b.lod_note || "") +
+        "</p><p>" +
+        esc(b.why_acceptance || "") +
+        "</p>" +
+        table +
+        "<p><strong>在本演示站中的位置</strong></p><ul>" +
+        siteList +
+        "</ul><p>" +
+        esc(b.ai_and_bim || "") +
+        "</p>";
+    }
+
+    function mdLine(s) {
+      return String(s || "").replace(/\r\n/g, "\n");
+    }
+
+    function buildMarkdown(d) {
+      var lines = [];
+      lines.push("# " + mdLine(d.page_title));
+      lines.push("");
+      lines.push(mdLine(d.page_subtitle));
+      lines.push("");
+      var b = d.bim_explainer;
+      if (b) {
+        lines.push("## " + mdLine(b.headline));
+        lines.push("");
+        lines.push(mdLine(b.definition));
+        lines.push("");
+        lines.push(mdLine(b.not_just_visual));
+        lines.push("");
+        lines.push(mdLine(b.lod_note));
+        lines.push("");
+        lines.push(mdLine(b.why_acceptance));
+        lines.push("");
+        lines.push("| 对比维度 | 传统二维为主 | BIM / 模型化 |");
+        lines.push("| --- | --- | --- |");
+        (b.cad_vs_bim || []).forEach(function (r) {
+          lines.push("| " + mdLine(r.aspect) + " | " + mdLine(r.traditional) + " | " + mdLine(r.bim) + " |");
+        });
+        lines.push("");
+        lines.push("### 在本演示站中的入口");
+        (b.on_this_site || []).forEach(function (x) {
+          lines.push("- " + mdLine(x));
+        });
+        lines.push("");
+        lines.push(mdLine(b.ai_and_bim));
+        lines.push("");
+      }
+      lines.push("## AI 验收闸口与合规纲要");
+      lines.push("");
+      var acc = d.ai_acceptance || {};
+      lines.push(mdLine(acc.intro));
+      lines.push("");
+      (acc.compliance_matrix || []).forEach(function (block) {
+        lines.push("### " + mdLine(block.title));
+        (block.items || []).forEach(function (it) {
+          lines.push("- " + mdLine(it));
+        });
+        lines.push("");
+      });
+      lines.push("### 闸口清单");
+      lines.push("");
+      (acc.gates || []).forEach(function (g) {
+        lines.push("#### " + mdLine(g.name) + " · " + mdLine(g.priority));
+        (g.acceptance_points || []).forEach(function (x) {
+          lines.push("- " + mdLine(x));
+        });
+        lines.push("");
+      });
+      lines.push("### 对照模式（证据链）");
+      lines.push("");
+      (acc.comparison_modes || []).forEach(function (m) {
+        lines.push("- **" + mdLine(m.mode) + "** — " + mdLine(m.note));
+      });
+      lines.push("");
+      lines.push("### 与本站模块挂钩");
+      lines.push("");
+      (acc.system_hooks || []).forEach(function (h) {
+        lines.push("- `" + mdLine(h.page) + "`：" + mdLine(h.role));
+      });
+      lines.push("");
+      lines.push("## 国标 / 团标对照（摘录）");
+      lines.push("");
+      var sb = d.standard_benchmarks || {};
+      lines.push(mdLine(sb.caption));
+      lines.push("");
+      (sb.comparison_rows || []).forEach(function (row) {
+        lines.push("- **" + mdLine(row.dimension) + "**：国标侧 " + mdLine(row.gb_family).slice(0, 160) + "…");
+      });
+      lines.push("");
+      lines.push("## DG/TJ08 五大模块概要");
+      lines.push("");
+      (d.dg_modules_extended || []).forEach(function (m) {
+        lines.push(
+          "- **" +
+            mdLine(m.name) +
+            "**（`" +
+            mdLine(m.module_id) +
+            "`）闸口：" +
+            mdLine((m.gates || []).join("、")) +
+            " · 页面：" +
+            mdLine((m.pages || []).join("、"))
+        );
+      });
+      lines.push("");
+      lines.push("## 环节 × 功能矩阵（摘录）");
+      lines.push("");
+      var sfi = d.stage_feature_integration || {};
+      lines.push(mdLine(sfi.caption));
+      lines.push("");
+      (sfi.matrix || []).forEach(function (row) {
+        lines.push("### " + mdLine(row.stage));
+        (row.features || []).forEach(function (f) {
+          lines.push("- " + mdLine(f.weight) + " " + mdLine(f.name) + " — " + mdLine((f.pages || []).join("、")));
+        });
+        lines.push("");
+      });
+      lines.push("## 五维能力矩阵与政策提要");
+      lines.push("");
+      (d.pillars || []).forEach(function (p) {
+        lines.push("### " + mdLine(p.title));
+        (p.points || []).forEach(function (x) {
+          lines.push("- " + mdLine(x));
+        });
+        lines.push("");
+      });
+      (d.policy_refs || []).forEach(function (x) {
+        lines.push("- " + mdLine(x));
+      });
+      lines.push("");
+      lines.push("---");
+      lines.push("");
+      lines.push("*由 ai-showcase.html 页面「导出本页数据为 Markdown」生成。*");
+      return lines.join("\n");
+    }
+
     function render(d) {
+      window.__SHOWCASE_DATA = d;
       document.getElementById("pageTitle").textContent = d.page_title || "AI + 建造";
       document.getElementById("pageSub").textContent = d.page_subtitle || "";
+      renderBim(d);
 
       var acc = d.ai_acceptance || {};
       document.getElementById("accHeadline").textContent = acc.headline || "AI 验收点";
@@ -616,20 +894,64 @@
         .join("");
     }
 
-    fetch("/api/meta/ai-showcase")
-      .then(function (r) {
-        return r.json();
-      })
-      .then(function (j) {
-        if (!j.data) throw new Error("empty");
-        render(j.data);
-      })
-      .catch(function () {
-        var el = document.getElementById("loadErr");
-        el.style.display = "block";
-        el.textContent =
-          "无法加载 /api/meta/ai-showcase，请确认已部署 server/ai-construction-showcase.json 并已重启 Node。";
-      });
+    document.getElementById("btnExportMd").addEventListener("click", function () {
+      var d = window.__SHOWCASE_DATA;
+      if (!d) {
+        alert("数据尚未加载完成。");
+        return;
+      }
+      var md = buildMarkdown(d);
+      var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "ai-showcase-export.md";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    });
+
+    function loadShowcase() {
+      var info = document.getElementById("loadInfo");
+      var err = document.getElementById("loadErr");
+      err.style.display = "none";
+      info.style.display = "none";
+
+      fetch("/api/meta/ai-showcase")
+        .then(function (r) {
+          if (!r.ok) throw new Error("api");
+          return r.json();
+        })
+        .then(function (j) {
+          if (!j || !j.data) throw new Error("empty");
+          return { data: j.data, source: "api" };
+        })
+        .catch(function () {
+          return fetch("/assets/ai-showcase-fallback.json")
+            .then(function (r) {
+              if (!r.ok) throw new Error("fallback");
+              return r.json();
+            })
+            .then(function (doc) {
+              return { data: doc, source: "fallback" };
+            });
+        })
+        .then(function (pack) {
+          render(pack.data);
+          if (pack.source === "fallback") {
+            info.style.display = "block";
+            info.innerHTML =
+              "当前使用<strong>静态数据包</strong>（<code>/assets/ai-showcase-fallback.json</code>）。当接口 <code>/api/meta/ai-showcase</code> 不可用（例如仅静态托管）时自动降级，避免整页空白。若已部署 Node，请将 <code>/api</code> 反向代理到应用进程。";
+          }
+        })
+        .catch(function () {
+          err.style.display = "block";
+          err.innerHTML =
+            "无法加载数据：接口不可用且未找到 <code>/assets/ai-showcase-fallback.json</code>。请将仓库中的 <code>server/ai-construction-showcase.json</code> 复制到 <code>public/assets/ai-showcase-fallback.json</code> 后重新部署。";
+        });
+    }
+
+    loadShowcase();
   </script>
 </body>
 </html>

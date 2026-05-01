@@ -219,6 +219,17 @@ export function getAiConstructionShowcaseMeta() {
   return {
     page_title: "AI + 智能建造（数据未就绪）",
     page_subtitle: "请放置 server/ai-construction-showcase.json",
+    bim_explainer: {
+      headline: "BIM 是什么？",
+      definition:
+        "BIM（建筑信息模型）是带几何与业务属性的数字建筑物表达，用于协同与验收对照。完整文案请部署 ai-construction-showcase.json。",
+      not_just_visual: "",
+      lod_note: "",
+      why_acceptance: "",
+      cad_vs_bim: [],
+      on_this_site: [],
+      ai_and_bim: "",
+    },
     policy_refs: [],
     pillars: [],
     ai_acceptance: {
