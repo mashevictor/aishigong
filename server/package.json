@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "scenario:images": "node scripts/generate-scenario-images.mjs"
+    "scenario:images": "node scripts/generate-scenario-images.mjs",
+    "showcase:deepseek": "node scripts/enrich-ai-showcase-deepseek.mjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

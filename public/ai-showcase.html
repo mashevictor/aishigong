@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI + 智能建造矩阵 · AI 验收闸口（演示）</title>
+  <style>
+    :root {
+      --ink: #0a1220;
+      --gold: #e8c76b;
+      --gold-d: #c9a44a;
+      --blue: #1e4a7a;
+      --p0: #b91c1c;
+      --p1: #c2410c;
+      --ok: #15803d;
+      --muted: #64748b;
+      --card: #fff;
+      --bg: #eef2f7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: linear-gradient(165deg, #dbe4f0, var(--bg));
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    header.hero {
+      background: linear-gradient(110deg, #04060a 0%, var(--blue) 48%, #0c2744 100%);
+      color: #f8fafc;
+      padding: 26px 18px 28px;
+      border-bottom: 4px solid rgba(232, 199, 107, 0.65);
+    }
+    header.hero .inner { max-width: 1120px; margin: 0 auto; }
+    header.hero h1 { margin: 0 0 12px; font-size: clamp(20px, 3.5vw, 28px); font-weight: 900; letter-spacing: 0.02em; }
+    header.hero .sub { margin: 0; font-size: 14px; color: var(--gold); max-width: 920px; opacity: 0.96; }
+    .jump {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .jump a {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 13px;
+      text-decoration: none;
+      border: 2px solid rgba(232, 199, 107, 0.85);
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff8dc;
+    }
+    .jump a.primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-d));
+      color: var(--ink);
+      border-color: transparent;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    }
+    .jump a.secondary {
+      border-color: rgba(248, 250, 252, 0.35);
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+
+    main { max-width: 1120px; margin: 0 auto; padding: 22px 14px 56px; }
+
+    section.panel {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 22px 22px 26px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(15, 35, 71, 0.07);
+      box-shadow: 0 8px 28px rgba(4, 10, 30, 0.07);
+    }
+    section.panel > h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      padding-left: 14px;
+      border-left: 5px solid var(--gold-d);
+    }
+    .muted { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+
+    /* —— AI 验收强调区 —— */
+    #acceptance {
+      border: 2px solid rgba(185, 28, 28, 0.35);
+      background: linear-gradient(180deg, #fffefb 0%, #fff 38%);
+      box-shadow: 0 12px 40px rgba(185, 28, 28, 0.08);
+    }
+    #acceptance > h2 {
+      border-left-color: #b45309;
+      font-size: 20px;
+    }
+    .acc-intro {
+      font-size: 14px;
+      color: #334155;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #fef3c7, #fff);
+      border: 1px solid #fcd34d;
+      margin-bottom: 18px;
+      font-weight: 600;
+    }
+
+    .gate-grid {
+      display: grid;
+      gap: 16px;
+    }
+    @media (min-width: 900px) {
+      .gate-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .gate {
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      background: #fafafa;
+    }
+    .gate-hd {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      background: linear-gradient(90deg, #1e293b, var(--blue));
+      color: #fff;
+    }
+    .gate-hd h3 { margin: 0; font-size: 15px; font-weight: 800; flex: 1; }
+    .pri {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.06em;
+    }
+    .pri.P0 { background: #fecaca; color: var(--p0); }
+    .pri.P1 { background: #fed7aa; color: var(--p1); }
+    .gate-bd { padding: 14px 16px 16px; font-size: 13px; color: #334155; }
+    .gate-bd ul { margin: 0; padding-left: 18px; }
+    .gate-bd li { margin-bottom: 8px; }
+
+    .compliance-matrix {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .cm-card {
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #334155;
+    }
+    .cm-card h4 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: #0f172a;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .cm-card ul { margin: 0; padding-left: 18px; }
+    .cm-card li { margin-bottom: 6px; }
+
+    .triple {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .triple .box {
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 13px;
+    }
+    .triple .box h4 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--blue);
+      letter-spacing: 0.08em;
+    }
+
+    table.hooks {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    table.hooks th, table.hooks td {
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.hooks th { background: #f1f5f9; font-weight: 800; }
+
+    .pillars {
+      display: grid;
+      gap: 14px;
+    }
+    @media (min-width: 760px) {
+      .pillars { grid-template-columns: 1fr 1fr; }
+    }
+    .pillar {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px 18px;
+      background: linear-gradient(165deg, #fff, #fafbfc);
+    }
+    .pillar .tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: #4338ca;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .pillar h3 { margin: 0 0 10px; font-size: 15px; color: var(--ink); }
+    .pillar ul { margin: 0; padding-left: 18px; font-size: 13px; color: #475569; }
+    .pillar li { margin-bottom: 8px; }
+
+    .policy-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .policy-chip {
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      font-weight: 600;
+    }
+
+    nav.foot {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    nav.foot a { color: var(--blue); font-weight: 700; margin: 0 8px; }
+
+    #loadErr {
+      display: none;
+      padding: 14px;
+      background: #fef2f2;
+      color: #b91c1c;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .deep-meta {
+      font-size: 13px;
+      color: #475569;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: 18px;
+      -webkit-overflow-scrolling: touch;
+    }
+    table.bench-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      min-width: 720px;
+    }
+    table.bench-table th,
+    table.bench-table td {
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.bench-table th {
+      background: #f8fafc;
+      font-weight: 800;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    .mod-deep-grid {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    @media (min-width: 900px) {
+      .mod-deep-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .mod-deep-card {
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      padding: 14px 16px;
+      background: #fafafa;
+      font-size: 13px;
+      color: #334155;
+    }
+    .mod-deep-card h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--blue);
+      font-weight: 900;
+    }
+    .mod-deep-card .mid {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .mod-deep-card ul { margin: 6px 0 0; padding-left: 18px; }
+    .mod-deep-card li { margin-bottom: 4px; }
+
+    .stage-block {
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .stage-block h4 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: #0f172a;
+      font-weight: 900;
+    }
+    .feat-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      align-items: baseline;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #475569;
+    }
+    .feat-line .w {
+      flex-shrink: 0;
+      font-weight: 900;
+      color: var(--blue);
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="inner">
+      <h1 id="pageTitle">加载中…</h1>
+      <p class="sub" id="pageSub"></p>
+      <div class="jump">
+        <a class="primary" href="#acceptance">先看：AI 验收闸口 →</a>
+        <a class="secondary" href="/demo.html">演示沙盘</a>
+        <a class="secondary" href="/contract-ai.html">合同·采购 AI</a>
+        <a class="secondary" href="/scenario-120.html">120㎡ 主线</a>
+        <a class="secondary" href="#standardsDeepseek">国标对照 · 环节映射</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="loadErr"></div>
+
+    <section class="panel" id="acceptance">
+      <h2 id="accHeadline">AI 验收点 · 交付闸口</h2>
+      <p class="acc-intro" id="accIntro"></p>
+      <div class="compliance-matrix" id="complianceMatrix"></div>
+      <div class="gate-grid" id="gates"></div>
+      <div class="triple">
+        <div class="box">
+          <h4>对照模式（证据链）</h4>
+          <div id="compareModes"></div>
+        </div>
+        <div class="box">
+          <h4>与本站模块挂钩（演示）</h4>
+          <table class="hooks">
+            <thead><tr><th>页面</th><th>验收价值链角色</th></tr></thead>
+            <tbody id="hooksBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="standardsDeepseek">
+      <h2>国标 / 团标对照 · 五大模块深化 · 环节映射</h2>
+      <div class="deep-meta" id="deepseekMetaBlock"></div>
+      <h3 style="margin:0 0 8px;font-size:15px;color:var(--ink);font-weight:900">标准对照表（演示骨架）</h3>
+      <p class="muted" id="benchmarkCaption"></p>
+      <div class="table-wrap" id="benchmarkTableWrap"></div>
+      <h3 style="margin:22px 0 10px;font-size:15px;color:var(--ink);font-weight:900">DG/TJ08 五大模块 × 证据链 × DeepSeek 辅助（叙事）</h3>
+      <div class="mod-deep-grid" id="modulesExtended"></div>
+      <h3 style="margin:22px 0 10px;font-size:15px;color:var(--ink);font-weight:900">环节 × 功能映射矩阵</h3>
+      <p class="muted" id="stageMatrixCaption"></p>
+      <div id="stageMatrixWrap"></div>
+    </section>
+
+    <section class="panel" id="pillarsWrap">
+      <h2>AI + 建造 · 五维能力矩阵</h2>
+      <p class="muted">对应推广话术：数字化设计 → 智能装备 → 过程管控 → 绿色安全 → 生态人才；可按听众删减讲解。</p>
+      <div class="pillars" id="pillars"></div>
+      <h3 style="margin:22px 0 10px;font-size:14px;color:var(--muted);letter-spacing:0.12em">政策与导向（提要）</h3>
+      <div class="policy-row" id="policyRefs"></div>
+    </section>
+  </main>
+
+  <nav class="foot">
+    <a href="/portal.html">门户</a>
+    <a href="/manager.html">经理指挥中心</a>
+    <a href="/materials.html">材料影像</a>
+    <a href="/index.html">主站长页</a>
+  </nav>
+
+  <script>
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+    }
+
+    function render(d) {
+      document.getElementById("pageTitle").textContent = d.page_title || "AI + 建造";
+      document.getElementById("pageSub").textContent = d.page_subtitle || "";
+
+      var acc = d.ai_acceptance || {};
+      document.getElementById("accHeadline").textContent = acc.headline || "AI 验收点";
+      document.getElementById("accIntro").textContent = acc.intro || "";
+
+      document.getElementById("complianceMatrix").innerHTML = (acc.compliance_matrix || [])
+        .map(function (block) {
+          var items = (block.items || [])
+            .map(function (x) {
+              return "<li>" + esc(x) + "</li>";
+            })
+            .join("");
+          return (
+            '<div class="cm-card"><h4>' +
+            esc(block.title || "") +
+            "</h4><ul>" +
+            items +
+            "</ul></div>"
+          );
+        })
+        .join("");
+
+      document.getElementById("gates").innerHTML = (acc.gates || [])
+        .map(function (g) {
+          return (
+            '<div class="gate"><div class="gate-hd"><h3>' +
+            esc(g.name) +
+            '</h3><span class="pri ' +
+            esc(g.priority || "") +
+            '">' +
+            esc(g.priority || "") +
+            "</span></div><div class=\"gate-bd\"><ul>" +
+            (g.acceptance_points || [])
+              .map(function (x) {
+                return "<li>" + esc(x) + "</li>";
+              })
+              .join("") +
+            "</ul></div></div>"
+          );
+        })
+        .join("");
+
+      document.getElementById("compareModes").innerHTML = (acc.comparison_modes || [])
+        .map(function (m) {
+          return (
+            "<p style=\"margin:0 0 10px\"><strong>" +
+            esc(m.mode) +
+            "</strong> — " +
+            esc(m.note) +
+            "</p>"
+          );
+        })
+        .join("");
+
+      document.getElementById("hooksBody").innerHTML = (acc.system_hooks || [])
+        .map(function (h) {
+          return (
+            "<tr><td>" +
+            esc(h.page) +
+            "</td><td>" +
+            esc(h.role) +
+            "</td></tr>"
+          );
+        })
+        .join("");
+
+      var meta = d.deepseek_meta || {};
+      var metaHtml =
+        (meta.usage_note ? "<div>" + esc(meta.usage_note) + "</div>" : "") +
+        (meta.generated_hint ? "<div style=\"margin-top:8px;color:#64748b;font-size:12px\">" + esc(meta.generated_hint) + "</div>" : "") +
+        (meta.allowed_pages_count != null
+          ? "<div style=\"margin-top:8px;font-size:12px;color:#475569\">路由白名单页面数：<strong>" +
+            esc(String(meta.allowed_pages_count)) +
+            "</strong>（public/*.html 扫描）</div>"
+          : "");
+      document.getElementById("deepseekMetaBlock").innerHTML = metaHtml || "<span class=\"muted\">（未配置 deepseek_meta）</span>";
+
+      var sb = d.standard_benchmarks || {};
+      document.getElementById("benchmarkCaption").textContent = sb.caption || "";
+      var crows = sb.comparison_rows || [];
+      if (crows.length) {
+        document.getElementById("benchmarkTableWrap").innerHTML =
+          "<table class=\"bench-table\"><thead><tr><th>维度</th><th>国标 / 通用参照</th><th>上海团标与 AI 叙事</th><th>本站落地</th></tr></thead><tbody>" +
+          crows
+            .map(function (row) {
+              return (
+                "<tr><td>" +
+                esc(row.dimension) +
+                "</td><td>" +
+                esc(row.gb_family) +
+                "</td><td>" +
+                esc(row.shanghai_dg) +
+                "</td><td>" +
+                esc(row.system_hook) +
+                "</td></tr>"
+              );
+            })
+            .join("") +
+          "</tbody></table>";
+      } else {
+        document.getElementById("benchmarkTableWrap").innerHTML = "";
+      }
+
+      document.getElementById("modulesExtended").innerHTML = (d.dg_modules_extended || [])
+        .map(function (m) {
+          var aiFns = (m.ai_functions || [])
+            .map(function (x) {
+              return "<li>" + esc(x) + "</li>";
+            })
+            .join("");
+          var gates = (m.gates || []).join(" · ");
+          var pages = (m.pages || []).join(" · ");
+          return (
+            '<article class="mod-deep-card"><h4>' +
+            esc(m.name || "") +
+            " <span style=\"color:#94a3b8;font-weight:700\">(" +
+            esc(m.module_id || "") +
+            ")</span></h4>" +
+            '<p class="mid">' +
+            esc(m.dg_slot || "") +
+            "</p>" +
+            "<p><strong>国标锚点</strong> — " +
+            esc(m.gb_anchor || "") +
+            "</p>" +
+            "<p><strong>证据链</strong> — " +
+            esc(m.evidence_chain || "") +
+            "</p>" +
+            "<p><strong>缺失风险</strong> — " +
+            esc(m.risk_if_gap || "") +
+            "</p>" +
+            "<p><strong>闸口</strong> — " +
+            esc(gates) +
+            " · <strong>页面</strong> — " +
+            esc(pages) +
+            "</p>" +
+            "<ul>" +
+            aiFns +
+            "</ul></article>"
+          );
+        })
+        .join("");
+
+      var sfi = d.stage_feature_integration || {};
+      document.getElementById("stageMatrixCaption").textContent = sfi.caption || "";
+      document.getElementById("stageMatrixWrap").innerHTML = (sfi.matrix || [])
+        .map(function (row) {
+          var feats = (row.features || [])
+            .map(function (f) {
+              return (
+                '<div class="feat-line"><span class="w">' +
+                esc(f.weight || "") +
+                "</span><span><strong>" +
+                esc(f.name) +
+                "</strong> — " +
+                esc((f.pages || []).join(" · ")) +
+                "</span></div>"
+              );
+            })
+            .join("");
+          return '<div class="stage-block"><h4>' + esc(row.stage || "") + "</h4>" + feats + "</div>";
+        })
+        .join("");
+
+      document.getElementById("pillars").innerHTML = (d.pillars || [])
+        .map(function (p) {
+          return (
+            '<article class="pillar"><div class="tag">' +
+            esc(p.tag) +
+            "</div><h3>" +
+            esc(p.title) +
+            "</h3><ul>" +
+            (p.points || [])
+              .map(function (x) {
+                return "<li>" + esc(x) + "</li>";
+              })
+              .join("") +
+            "</ul></article>"
+          );
+        })
+        .join("");
+
+      document.getElementById("policyRefs").innerHTML = (d.policy_refs || [])
+        .map(function (x) {
+          return '<span class="policy-chip">' + esc(x) + "</span>";
+        })
+        .join("");
+    }
+
+    fetch("/api/meta/ai-showcase")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (j) {
+        if (!j.data) throw new Error("empty");
+        render(j.data);
+      })
+      .catch(function () {
+        var el = document.getElementById("loadErr");
+        el.style.display = "block";
+        el.textContent =
+          "无法加载 /api/meta/ai-showcase，请确认已部署 server/ai-construction-showcase.json 并已重启 Node。";
+      });
+  </script>
+</body>
+</html>

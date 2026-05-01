@@ -3,115 +3,544 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>施工经理看板 · AI 施工监控系统</title>
+  <meta name="referrer" content="no-referrer" />
+  <title>施工经理指挥中心 · AI 施工协同</title>
   <style>
-    :root { --ink:#0a1220; --gold:#e8c76b; }
-    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:linear-gradient(180deg,#dbe4f0,#e8edf4); color:#1a1f2e; }
-    header { background:linear-gradient(135deg,#04060a,#1a3d63); color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; }
-    header a { color:#fde68a; font-weight:700; text-decoration:none; }
-    .wrap { max-width:1000px; margin:0 auto; padding:16px; }
-    .card { background:#fff; border-radius:12px; padding:16px 18px; margin-bottom:14px; border:1px solid rgba(15,35,71,.08); }
-    h2 { margin:0 0 10px; font-size:16px; border-bottom:2px solid #c9a44a; padding-bottom:6px; color:var(--ink); }
-    .stats { display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; }
-    .pill { background:#f1f5f9; border-radius:10px; padding:12px 16px; min-width:120px; border:1px solid #e2e8f0; }
-    .pill b { display:block; font-size:22px; color:#0f172a; }
-    .pill span { font-size:12px; color:#64748b; }
-    label { font-size:13px; color:#475569; }
-    select, button.primary { font:inherit; padding:8px 12px; border-radius:8px; }
-    select { border:1px solid #cbd5e1; margin-right:8px; }
-    button.primary { cursor:pointer; border:none; font-weight:800; background:linear-gradient(135deg,#e8c76b,#c9a44a); color:#0a1220; }
-    table { width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
-    th, td { border:1px solid #e2e8f0; padding:8px; text-align:left; }
-    th { background:#ebe6dc; }
-    pre { background:#f8fafc; padding:12px; border-radius:8px; font-size:12px; overflow:auto; max-height:280px; }
-    .muted { color:#64748b; font-size:13px; }
-    input { padding:8px; border-radius:8px; border:1px solid #cbd5e1; margin-right:8px; }
+    :root {
+      --ink: #0a1220;
+      --gold: #e8c76b;
+      --gold-d: #c9a44a;
+      --bg: #e8edf4;
+      --card: #ffffff;
+      --accent: #1e4a7a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: linear-gradient(165deg, #dbe4f0 0%, var(--bg) 40%);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    header.site {
+      background: linear-gradient(120deg, #04060a 0%, var(--accent) 55%, #0f2744 100%);
+      color: #f8fafc;
+      padding: 18px 20px;
+      border-bottom: 3px solid rgba(232, 199, 107, 0.55);
+      box-shadow: 0 8px 28px rgba(4, 10, 30, 0.35);
+    }
+    header.site .inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header.site h1 {
+      margin: 0;
+      font-size: clamp(18px, 3vw, 22px);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    header.site .sub {
+      margin: 6px 0 0;
+      font-size: 13px;
+      opacity: 0.92;
+      color: var(--gold);
+      max-width: 520px;
+    }
+    header.site nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    header.site nav a {
+      color: #fde68a;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(253, 230, 138, 0.35);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    header.site nav a:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px 16px 56px;
+    }
+
+    .login-panel {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 22px 24px;
+      border: 1px solid rgba(15, 35, 71, 0.08);
+      box-shadow: 0 6px 24px rgba(4, 10, 30, 0.07);
+      margin-bottom: 18px;
+    }
+    .login-panel h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      border-left: 4px solid var(--gold-d);
+      padding-left: 12px;
+    }
+    .hint {
+      font-size: 13px;
+      color: #64748b;
+    }
+    .login-panel .hint {
+      margin: 0 0 14px;
+    }
+    .login-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .login-row input {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font: inherit;
+      min-width: 140px;
+    }
+    button.primary {
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gold), var(--gold-d));
+      color: var(--ink);
+      font-size: 14px;
+    }
+    button.primary:hover {
+      filter: brightness(1.03);
+    }
+    #err {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fef2f2;
+      color: #b91c1c;
+      font-size: 13px;
+      display: none;
+    }
+
+    #dash.hidden {
+      display: none;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 18px;
+    }
+    .toolbar label {
+      font-size: 12px;
+      color: #64748b;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .toolbar select {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font: inherit;
+      min-width: 240px;
+      background: var(--card);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .kpi {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(15, 35, 71, 0.06);
+      box-shadow: 0 4px 16px rgba(4, 10, 30, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--gold), var(--gold-d));
+      border-radius: 4px 0 0 4px;
+    }
+    .kpi .num {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.15;
+    }
+    .kpi .lbl {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+    .kpi .hint2 {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 8px;
+    }
+
+    .panel {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(15, 35, 71, 0.07);
+      box-shadow: 0 4px 18px rgba(4, 10, 30, 0.05);
+    }
+    .panel h2 {
+      margin: 0 0 16px;
+      font-size: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(201, 164, 74, 0.55);
+      color: var(--ink);
+    }
+
+    .bars {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 88px 1fr 52px;
+      gap: 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+    @media (max-width: 520px) {
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .bar-name {
+      color: #475569;
+      font-weight: 600;
+    }
+    .bar-track {
+      height: 12px;
+      background: #f1f5f9;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+    .bar-val {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .colors .bar-fill.c0 { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+    .colors .bar-fill.c1 { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .colors .bar-fill.c2 { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .colors .bar-fill.c3 { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .colors .bar-fill.c4 { background: linear-gradient(90deg, #22c55e, #4ade80); }
+
+    .proj-strip {
+      font-size: 13px;
+      color: #475569;
+      background: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px dashed #cbd5e1;
+      margin-bottom: 16px;
+    }
+    .proj-strip strong {
+      color: var(--ink);
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .quick a {
+      display: block;
+      padding: 14px 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--ink);
+      border: 1px solid #e2e8f0;
+      background: linear-gradient(145deg, #fafbfc, #fff);
+      font-weight: 700;
+      font-size: 14px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .quick a:hover {
+      border-color: var(--gold-d);
+      box-shadow: 0 4px 14px rgba(30, 74, 122, 0.12);
+    }
+    .quick a span {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    #whoBar {
+      font-size: 13px;
+      color: #e2e8f0;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <strong>施工经理看板</strong>
-    <div>
-      <span id="who" class="muted" style="color:#e2e8f0"></span>
-      <button type="button" class="primary" id="btnGo">登录并加载</button>
-      <a href="/portal.html">门户</a>
-      <a href="/index.html">主站</a>
+  <header class="site">
+    <div class="inner">
+      <div>
+        <h1>施工经理指挥中心</h1>
+        <p class="sub">滨江花园 120㎡ 等项目的任务吞吐、材料与影像归档、未关闭工单一览。面向客户汇报时可切至 <a href="/demo.html" style="color:#fff;text-decoration:underline">演示沙盘</a>。</p>
+      </div>
+      <div style="text-align:right">
+        <div id="whoBar"></div>
+        <nav style="margin-top:10px;justify-content:flex-end">
+          <a href="/demo.html">演示沙盘</a>
+          <a href="/ai-showcase.html">AI 验收矩阵</a>
+          <a href="/contract-ai.html">合同·采购 AI</a>
+          <a href="/materials.html">材料·影像</a>
+          <a href="/tickets.html">质保工单</a>
+          <a href="/portal.html">门户</a>
+        </nav>
+      </div>
     </div>
   </header>
-  <div class="wrap">
-    <div class="card">
-      <input id="u" placeholder="用户名" />
-      <input id="p" type="password" placeholder="密码" />
-      <p class="muted" style="margin:8px 0 0">汇总当前账号可访问项目的任务状态分布、材料条数、现场影像条数与未关闭工单数。</p>
-      <pre id="err" hidden style="color:#b91c1c"></pre>
-    </div>
-    <div class="card" id="dash" hidden>
-      <h2>筛选项目</h2>
-      <div>
-        <label>项目 </label>
-        <select id="proj"><option value="">全部可见项目</option></select>
-        <button type="button" class="primary" id="btnRefresh">刷新汇总</button>
+
+  <main>
+    <section class="login-panel" id="loginPanel">
+      <h2>身份校验</h2>
+      <p class="hint">演示推荐账号 <code>jingli</code>，密码 <code>demo123</code>。登录后下方看板自动汇总您有权限的项目。</p>
+      <div class="login-row">
+        <input id="u" placeholder="用户名（如 jingli）" autocomplete="username" />
+        <input id="p" type="password" placeholder="密码" autocomplete="current-password" />
+        <button type="button" class="primary" id="btnGo">登录并刷新看板</button>
       </div>
-      <div class="stats" id="pills"></div>
-      <h2 style="margin-top:18px">任务状态分布</h2>
-      <table id="tbl"><thead><tr><th>状态</th><th>数量</th></tr></thead><tbody></tbody></table>
-      <h2 style="margin-top:18px">原始 JSON（调试）</h2>
-      <pre id="raw"></pre>
+      <div id="err"></div>
+    </section>
+
+    <div id="dash" class="hidden">
+      <div class="toolbar">
+        <div>
+          <label>数据范围</label>
+          <select id="proj">
+            <option value="">全部可见项目</option>
+          </select>
+        </div>
+        <button type="button" class="primary" id="btnRefresh">刷新数据</button>
+      </div>
+
+      <div class="proj-strip" id="projContext" hidden>
+        <strong>当前视图：</strong><span id="projContextTxt">—</span>
+      </div>
+
+      <div class="kpi-grid" id="kpis"></div>
+
+      <section class="panel">
+        <h2>任务状态分布</h2>
+        <p class="hint" style="margin:0 0 14px;color:#64748b;font-size:13px">按工作流状态统计在选范围内任务条数；条带长度为占比。</p>
+        <div class="bars colors" id="taskBars"></div>
+      </section>
+
+      <section class="panel">
+        <h2>下一步操作</h2>
+        <div class="quick">
+          <a href="/ai-showcase.html">AI 验收闸口 · 五维矩阵 <span>BIM/影像对照、隐蔽至质保清单</span></a>
+          <a href="/contract-ai.html">合同与采购 AI 管控 <span>价差、供应商比选、工时偏差演示</span></a>
+          <a href="/materials.html">材料与现场影像 <span>核对进场批次、上传/查看工地照片</span></a>
+          <a href="/tickets.html">售后与报修工单 <span>渗漏、异响、色差等问题闭环</span></a>
+          <a href="/worker.html">工人极简视图 <span>向班组展示每日任务与影像只读</span></a>
+          <a href="/client.html">客户 H5 视图 <span>业主端进度条与影像墙</span></a>
+        </div>
+      </section>
     </div>
-  </div>
+  </main>
+
   <script>
     var T = "aishigong_token";
-    function tok() { return localStorage.getItem(T) || ""; }
-    function h() { return { Authorization: "Bearer " + tok(), "Content-Type": "application/json" }; }
-    function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+    var STATUS_ORDER = ["待派发", "进行中", "待验收", "整改中", "已完成"];
+
+    function tok() {
+      return localStorage.getItem(T) || "";
+    }
+    function esc(s) {
+      return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+    }
+
+    function showErr(t) {
+      var el = document.getElementById("err");
+      if (!t) {
+        el.style.display = "none";
+        el.textContent = "";
+        return;
+      }
+      el.style.display = "block";
+      el.textContent = t;
+    }
 
     function loginThen(cb) {
-      document.getElementById("err").hidden = false;
-      document.getElementById("err").textContent = "登录中…";
+      showErr("登录中…");
       fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: document.getElementById("u").value.trim(), password: document.getElementById("p").value })
-      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        body: JSON.stringify({
+          username: document.getElementById("u").value.trim(),
+          password: document.getElementById("p").value,
+        }),
+      })
+        .then(function (r) {
+          return r.json().then(function (j) {
+            return { ok: r.ok, j: j };
+          });
+        })
         .then(function (x) {
-          if (!x.ok || !x.j.data) { document.getElementById("err").textContent = x.j.error || "失败"; return; }
+          if (!x.ok || !x.j.data) {
+            showErr(x.j.error || "登录失败");
+            return;
+          }
           localStorage.setItem(T, x.j.data.token);
-          document.getElementById("who").textContent = x.j.data.user.name + "（" + x.j.data.user.role + "）";
-          document.getElementById("err").hidden = true;
+          document.getElementById("whoBar").textContent =
+            x.j.data.user.name + " · " + x.j.data.user.role;
+          document.getElementById("loginPanel").style.display = "none";
+          showErr("");
           cb();
         });
     }
 
+    function sumTasks(ts) {
+      var n = 0;
+      Object.keys(ts || {}).forEach(function (k) {
+        n += Number(ts[k]) || 0;
+      });
+      return n;
+    }
+
+    function renderDashboard(d) {
+      document.getElementById("dash").classList.remove("hidden");
+
+      var mats = Number(d.materials_count) || 0;
+      var photos = Number(d.site_photos_count) || 0;
+      var tickets = Number(d.open_tickets) || 0;
+      var ts = d.tasks_by_status || {};
+      var totalTasks = sumTasks(ts);
+      var done = Number(ts["已完成"]) || 0;
+      var flowPct =
+        totalTasks > 0 ? Math.round((done / totalTasks) * 1000) / 10 : 0;
+
+      document.getElementById("kpis").innerHTML =
+        '<div class="kpi"><div class="num">' +
+        esc(String(totalTasks)) +
+        '</div><div class="lbl">任务总计（所选范围）</div><div class="hint2">已完成 ' +
+        esc(String(done)) +
+        " 条 · 完工占比约 " +
+        esc(String(flowPct)) +
+        "%</div></div>" +
+        '<div class="kpi"><div class="num">' +
+        esc(String(mats)) +
+        '</div><div class="lbl">材料 TOC 行数</div><div class="hint2">到货、验收与用量说明条目</div></div>' +
+        '<div class="kpi"><div class="num">' +
+        esc(String(photos)) +
+        '</div><div class="lbl">现场影像条数</div><div class="hint2">按项目归档的效果图 / 实拍</div></div>' +
+        '<div class="kpi"><div class="num">' +
+        esc(String(tickets)) +
+        '</div><div class="lbl">未关闭工单</div><div class="hint2">待受理 / 处理中 / 待回访</div></div>';
+
+      var pid = document.getElementById("proj").value;
+      var plist = d.projects || [];
+      var ctx = document.getElementById("projContext");
+      var ctxTxt = document.getElementById("projContextTxt");
+      if (pid) {
+        var pr = plist.find(function (p) {
+          return String(p.id) === String(pid);
+        });
+        ctx.hidden = false;
+        ctxTxt.textContent = pr
+          ? pr.name + "（" + (pr.code || "#" + pr.id) + "）"
+          : "单个项目 #" + pid;
+      } else {
+        ctx.hidden = false;
+        ctxTxt.textContent =
+          "汇总账号可见的 " + plist.length + " 个项目 · 可在下拉框切换单项";
+      }
+
+      var ordered = STATUS_ORDER.slice();
+      Object.keys(ts).forEach(function (k) {
+        if (ordered.indexOf(k) < 0) ordered.push(k);
+      });
+      var barIx = 0;
+      var barsHtml = ordered.map(function (status) {
+        var cnt = Number(ts[status]) || 0;
+        var pct = totalTasks > 0 ? Math.round((cnt / totalTasks) * 1000) / 10 : 0;
+        var cls = "c" + Math.min(barIx++, 4);
+        return (
+          '<div class="bar-row"><div class="bar-name">' +
+          esc(status) +
+          '</div><div class="bar-track"><div class="bar-fill ' +
+          cls +
+          '" style="width:' +
+          (totalTasks ? pct : 0) +
+          '%"></div></div><div class="bar-val">' +
+          esc(String(cnt)) +
+          "</div></div>"
+        );
+      }).join("");
+
+      document.getElementById("taskBars").innerHTML =
+        barsHtml ||
+        '<p style="color:#64748b;margin:0">暂无任务数据。</p>';
+    }
+
     function loadSummary() {
       var pid = document.getElementById("proj").value;
-      var q = pid ? ("?project_id=" + encodeURIComponent(pid)) : "";
+      var q = pid ? "?project_id=" + encodeURIComponent(pid) : "";
       fetch("/api/dashboard/summary" + q, { headers: { Authorization: "Bearer " + tok() } })
-        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (r) {
+          return r.json().then(function (j) {
+            return { ok: r.ok, j: j };
+          });
+        })
         .then(function (x) {
           if (!x.ok) {
-            document.getElementById("err").hidden = false;
-            document.getElementById("err").textContent = x.j.error || "加载失败";
+            showErr(x.j.error || "加载失败");
             return;
           }
-          document.getElementById("err").hidden = true;
-          var d = x.j.data;
-          document.getElementById("dash").hidden = false;
-          document.getElementById("raw").textContent = JSON.stringify(d, null, 2);
-          document.getElementById("pills").innerHTML =
-            '<div class="pill"><b>' + esc(String(d.materials_count)) + '</b><span>材料条目</span></div>' +
-            '<div class="pill"><b>' + esc(String(d.site_photos_count)) + '</b><span>现场影像</span></div>' +
-            '<div class="pill"><b>' + esc(String(d.open_tickets)) + '</b><span>未关闭工单</span></div>';
-          var tb = document.querySelector("#tbl tbody");
-          var ts = d.tasks_by_status || {};
-          tb.innerHTML = Object.keys(ts).map(function (k) {
-            return "<tr><td>" + esc(k) + "</td><td>" + esc(String(ts[k])) + "</td></tr>";
-          }).join("") || "<tr><td colspan=\"2\">无任务</td></tr>";
+          showErr("");
+          renderDashboard(x.j.data || {});
         });
     }
 
     function fillProjects() {
       fetch("/api/projects", { headers: { Authorization: "Bearer " + tok() } })
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          return r.json();
+        })
         .then(function (j) {
           var sel = document.getElementById("proj");
           var cur = sel.value;
@@ -119,7 +548,7 @@
           (j.data || []).forEach(function (p) {
             var o = document.createElement("option");
             o.value = String(p.id);
-            o.textContent = p.name + " (#" + p.id + ")";
+            o.textContent = (p.code ? p.code + " · " : "") + p.name;
             sel.appendChild(o);
           });
           sel.value = cur;
@@ -127,18 +556,28 @@
     }
 
     document.getElementById("btnGo").onclick = function () {
-      loginThen(function () { fillProjects(); loadSummary(); });
+      loginThen(function () {
+        fillProjects();
+        loadSummary();
+      });
     };
-    document.getElementById("btnRefresh").onclick = function () { loadSummary(); };
-    document.getElementById("proj").onchange = function () { loadSummary(); };
+    document.getElementById("btnRefresh").onclick = function () {
+      loadSummary();
+    };
+    document.getElementById("proj").onchange = function () {
+      loadSummary();
+    };
 
     if (tok()) {
-      fetch("/api/me", { headers: { Authorization: "Bearer " + tok() } }).then(function (r) { return r.json(); }).then(function (j) {
-        if (j.data) {
-          document.getElementById("who").textContent = j.data.name + "（" + j.data.role + "）";
-          fillProjects();
-          loadSummary();
-        }
+      fetch("/api/me", { headers: { Authorization: "Bearer " + tok() } }).then(function (r) {
+        return r.json();
+      }).then(function (j) {
+        if (!j.data) return;
+        document.getElementById("whoBar").textContent =
+          j.data.name + " · " + j.data.role;
+        document.getElementById("loginPanel").style.display = "none";
+        fillProjects();
+        loadSummary();
       });
     }
   </script>

@@ -1,0 +1,233 @@
+{
+  "project_code": "PRJ-DEMO-001",
+  "project_title": "滨江花园 · 120㎡ 全案精装（演示）",
+  "currency": "CNY",
+  "currency_symbol": "¥",
+  "contract": {
+    "contract_no": "AI-SG-2026-BJHY-0318",
+    "party_owner": "王业主（甲方）",
+    "party_contractor": "演示华东整装科技有限公司（乙方）",
+    "sign_place": "上海市杨浦区（演示）",
+    "signed_date": "2026-03-18",
+    "planned_start": "2026-03-25",
+    "planned_completion": "2026-06-28",
+    "warranty_months": 24,
+    "contract_amount_tax_included": 385000,
+    "change_ceiling_pct": 8,
+    "deposit_pct": 30,
+    "retention_pct": 5,
+    "payment_milestones": [
+      { "node": "合同签订", "ratio_pct": 30, "trigger": "进场前" },
+      { "node": "水电隐蔽验收", "ratio_pct": 25, "trigger": "监理签认 + 影像归档" },
+      { "node": "泥木中期验收", "ratio_pct": 25, "trigger": "吊顶封闭前复核" },
+      { "node": "竣工验收", "ratio_pct": 15, "trigger": "保洁交付单" },
+      { "node": "质保金释放", "ratio_pct": 5, "trigger": "质保期满无争议" }
+    ],
+    "scope_highlights": [
+      "全屋硬装（不含拆旧垃圾外运以外的建筑垃圾清运）",
+      "厨卫全套（橱柜、洁具、淋浴隔断演示清单）",
+      "全屋地暖演示区间",
+      "断桥铝窗 12㎡ 演示工程量"
+    ],
+    "risk_reservation_sample": "单价包干清单见附件；大宗材料价差±5%以内不调差，超出部分须签证并经 AI 比价复核后方可入账。",
+    "ai_contract_capabilities": [
+      {
+        "title": "条款结构化",
+        "detail": "合同及附件 OCR → 结构化字段（价款、工期、罚则、变更上限），支持语义检索与版本比对。"
+      },
+      {
+        "title": "变更签证风控",
+        "detail": "签证描述与采购明细交叉校验：数量 × 单价是否存在拆分计价；超出合同±8%自动标记人工复核。"
+      },
+      {
+        "title": "付款里程碑对齐",
+        "detail": "对照任务「待验收」状态与影像证据链，生成付款节点就绪度评分，降低过早拨付风险。"
+      },
+      {
+        "title": "供应商一致性",
+        "detail": "中标品牌 / 批次号 / 检测报告摘要入库；到货签收照片与文本比对防串换。"
+      },
+      {
+        "title": "AI 验收闸口联动",
+        "detail": "隐蔽 / 中期 / 竣工 / 质保四闸口：BIM 与施工图节点摘要 ↔ 现场影像语义标签；未满足复核清单则下调付款就绪度评分。宣讲详见 ai-showcase.html。"
+      }
+    ]
+  },
+  "ai_price_control_summary": {
+    "headline": "AI 价格管控本月小结（演示数据）",
+    "bullets": [
+      "触发价差复核 14 条，自动驳回不合理增补 3 条（占比 21%）",
+      "橱柜品类完成三家比价语义摘要，推荐中标与项目经理手工结论一致率 92%",
+      "工时偏差超过阈值工种 2 类（油漆、安装），已推送经理看板预警"
+    ],
+    "kpis": [
+      { "label": "清单覆盖率", "value": "96%", "hint": "预算科目 ↔ 到货单行映射" },
+      { "label": "异常价差拦截", "value": "¥ 18.6k", "hint": "演示累计建议节约" },
+      { "label": "合同检索问答", "value": "238 次", "hint": "自然语言查条款 · 留痕" }
+    ]
+  },
+  "materials_variance": [
+    {
+      "item_name": "客厅地砖",
+      "spec": "600×600 仿古防滑",
+      "zone": "客厅",
+      "planned_qty": 58,
+      "actual_qty": 61,
+      "unit": "㎡",
+      "planned_unit_price": 128,
+      "actual_unit_price": 119,
+      "planned_amount": 7424,
+      "actual_amount": 7259,
+      "supplier_planned": "战略清单 · 华东瓷砖城 A 批次",
+      "supplier_actual": "本地服务商 · 调换优等批次",
+      "variance_pct_qty": 5.2,
+      "variance_pct_amount": -2.2,
+      "ai_verdict": "数量增补在±8%损耗条款内；单价下调 AI 比对三家均价支撑充分 → 放行。"
+    },
+    {
+      "item_name": "主卧实木复合地板",
+      "spec": "橡木色 ENF",
+      "zone": "主卧",
+      "planned_qty": 22,
+      "actual_qty": 22,
+      "unit": "㎡",
+      "planned_unit_price": 268,
+      "actual_unit_price": 285,
+      "planned_amount": 5896,
+      "actual_amount": 6270,
+      "supplier_planned": "厂供 · 南区仓库",
+      "supplier_actual": "厂供 · 南区仓库（批次升级）",
+      "variance_pct_qty": 0,
+      "variance_pct_amount": 6.3,
+      "ai_verdict": "单价上浮触发预警 → 附件检测报告等级升级解释一致 → 建议签署迷你签证。"
+    },
+    {
+      "item_name": "整体橱柜（延米）",
+      "spec": "石英石台面 ENF 柜体",
+      "zone": "厨房",
+      "planned_qty": 5.2,
+      "actual_qty": 5.2,
+      "unit": "延米",
+      "planned_unit_price": 3150,
+      "actual_unit_price": 2980,
+      "planned_amount": 16380,
+      "actual_amount": 15496,
+      "supplier_planned": "橱柜三家比价 · 清单价",
+      "supplier_actual": "志邦演示 · 活动锁定价",
+      "variance_pct_qty": 0,
+      "variance_pct_amount": -5.4,
+      "ai_verdict": "AI 语义比价抽取水槽台下盆升级为标配 → 总价仍低于上限 → 合规。"
+    },
+    {
+      "item_name": "全屋乳胶漆五合一",
+      "spec": "可调色 · 哑光",
+      "zone": "全屋",
+      "planned_qty": 28,
+      "actual_qty": 32,
+      "unit": "桶",
+      "planned_unit_price": 420,
+      "actual_unit_price": 418,
+      "planned_amount": 11760,
+      "actual_amount": 13376,
+      "supplier_planned": "集采 · 建材连锁",
+      "supplier_actual": "集采 · 建材连锁（色差复核补漆）",
+      "variance_pct_qty": 14.3,
+      "variance_pct_amount": 13.7,
+      "ai_verdict": "桶数偏差 >10% → 标记「展厅小样色差工单」联动影像 → 暂缓超额入账待回访。"
+    },
+    {
+      "item_name": "断桥铝窗",
+      "spec": "双层中空 12㎡",
+      "zone": "阳台",
+      "planned_qty": 12,
+      "actual_qty": 12,
+      "unit": "㎡",
+      "planned_unit_price": 780,
+      "actual_unit_price": 765,
+      "planned_amount": 9360,
+      "actual_amount": 9180,
+      "supplier_planned": "窗厂直营",
+      "supplier_actual": "窗厂直营 · 型材批次一致",
+      "variance_pct_qty": 0,
+      "variance_pct_amount": -1.9,
+      "ai_verdict": "到货扫码型材编号与合同附件匹配 → 自动核销。"
+    }
+  ],
+  "suppliers_board": [
+    {
+      "trade": "全屋橱柜",
+      "shortlisted": ["欧派演示", "志邦演示", "本地工厂 A"],
+      "quoted_low": 52000,
+      "quoted_high": 68800,
+      "awarded": "志邦演示",
+      "contract_price": 59800,
+      "lead_time_days": 42,
+      "ai_score": 88,
+      "ai_notes": "交付 SLA、台下盆工艺提及频次与差评语义较低；推荐与项目经理评分对齐。"
+    },
+    {
+      "trade": "地暖管材",
+      "shortlisted": ["品牌甲 PE-RT", "品牌乙 PB", "进口演示线"],
+      "quoted_low": 9200,
+      "quoted_high": 13800,
+      "awarded": "品牌甲 PE-RT",
+      "contract_price": 10480,
+      "lead_time_days": 7,
+      "ai_score": 91,
+      "ai_notes": "检测报告 NLP 抽取抗压与蠕变指标占优；防伪二维码溯源通过率 100%。"
+    },
+    {
+      "trade": "淋浴隔断",
+      "shortlisted": ["本地钢化厂", "广东淋浴房演示"],
+      "quoted_low": 2800,
+      "quoted_high": 4100,
+      "awarded": "广东淋浴房演示",
+      "contract_price": 3680,
+      "lead_time_days": 18,
+      "ai_score": 84,
+      "ai_notes": "钢化序列号与合同备注厚度一致；溢价部分来自防爆膜选配。"
+    }
+  ],
+  "labor_hours": [
+    {
+      "trade": "水电班组",
+      "planned_hours": 240,
+      "logged_hours": 256,
+      "unit": "工时",
+      "bench_pct": 6.7,
+      "ai_note": "开槽增量与户型微调日志对齐 → 建议计入下期模板。"
+    },
+    {
+      "trade": "瓦工班组",
+      "planned_hours": 320,
+      "logged_hours": 305,
+      "unit": "工时",
+      "bench_pct": -4.7,
+      "ai_note": "工序并行优化；瓷砖损耗低于预算阈。"
+    },
+    {
+      "trade": "木工班组",
+      "planned_hours": 280,
+      "logged_hours": 268,
+      "unit": "工时",
+      "bench_pct": -4.3,
+      "ai_note": "吊顶模块化提前排版。"
+    },
+    {
+      "trade": "油漆班组",
+      "planned_hours": 360,
+      "logged_hours": 392,
+      "unit": "工时",
+      "bench_pct": 8.9,
+      "ai_note": "色差整改二次打磨 → 与客户工单关联。"
+    },
+    {
+      "trade": "安装收尾",
+      "planned_hours": 200,
+      "logged_hours": 218,
+      "unit": "工时",
+      "bench_pct": 9.0,
+      "ai_note": "洁具微调孔位；影像打卡时间与工时吻合。"
+    }
+  ]
+}

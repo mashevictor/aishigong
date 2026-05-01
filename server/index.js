@@ -46,7 +46,11 @@ import {
   dashboardSummaryForUser,
 } from "./db.js";
 import { signUserToken, authMiddleware, getJwtSecret, roleMiddleware } from "./auth.js";
-import { getScenario120Meta } from "./media.js";
+import {
+  getScenario120Meta,
+  getProcurementAiDemoMeta,
+  getAiConstructionShowcaseMeta,
+} from "./media.js";
 import { wavespeedTextToImage } from "./lib/wavespeed-generate.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -279,6 +283,14 @@ app.get("/api/meta/scenario", (_req, res) => {
   res.json({ data: getScenario120Meta() });
 });
 
+app.get("/api/meta/procurement-ai", (_req, res) => {
+  res.json({ data: getProcurementAiDemoMeta() });
+});
+
+app.get("/api/meta/ai-showcase", (_req, res) => {
+  res.json({ data: getAiConstructionShowcaseMeta() });
+});
+
 app.get("/api/meta/delivery", (_req, res) => {
   res.json({
     data: {
@@ -297,6 +309,16 @@ app.get("/api/meta/delivery", (_req, res) => {
         { path: "/index.html", deliverable: "方案正文 + 施工协同工作台 + AI", audience: "全员 / 演示" },
         { path: "/manager.html", deliverable: "施工经理数据看板（任务/材料/工单汇总）", audience: "经理 / 演示" },
         { path: "/worker.html", deliverable: "工人极简（任务 + 现场影像只读）", audience: "工人 / 经理 / 管理" },
+        {
+          path: "/ai-showcase.html",
+          deliverable: "AI + 建造五维矩阵 · AI 验收闸口（BIM/影像/清单对照）讲解页",
+          audience: "投标 / 展厅大屏 / 主管汇报",
+        },
+        {
+          path: "/contract-ai.html",
+          deliverable: "施工合同 + 材料/供应商价差 + 工时对比 · AI 管控演示",
+          audience: "经理 / 商务 / 签约讲解",
+        },
         { path: "/materials.html", deliverable: "材料 TOC + 现场影像归档", audience: "项目成员" },
         { path: "/tickets.html", deliverable: "售后质保工单", audience: "客户 / 售后 / 管理 等" },
         { path: "/admin.html", deliverable: "Web 管理后台", audience: "管理/项目" },
@@ -308,6 +330,8 @@ app.get("/api/meta/delivery", (_req, res) => {
         { prefix: "/api/auth", note: "登录鉴权" },
         { prefix: "/api/portal/modules", note: "门户模块清单（按角色过滤）" },
         { prefix: "/api/meta/scenario", note: "120㎡ 演示场景 JSON（签约讲解可与 scenario-120.html 同屏）" },
+        { prefix: "/api/meta/procurement-ai", note: "合同/采购/工时 AI 管控演示 JSON（contract-ai.html）" },
+        { prefix: "/api/meta/ai-showcase", note: "AI+建造矩阵与验收闸口 JSON（ai-showcase.html）" },
         { prefix: "/api/projects,/api/tasks,/api/messages", note: "业务协同（RBAC + 项目授权）" },
         { prefix: "/api/materials,/api/site-photos,/api/tickets", note: "材料、影像、售后工单" },
         { prefix: "/api/dashboard/summary", note: "经理看板汇总" },

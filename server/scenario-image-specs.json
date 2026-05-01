@@ -9,6 +9,15 @@
     "工序要点": "鞋柜深化图纸、强弱电点位避让、地面找平"
   },
   {
+    "id": "entry-site",
+    "zone": "玄关",
+    "photo_kind": "现场实拍",
+    "caption": "玄关｜现场 · 强弱电槽开槽与鞋柜基层放线",
+    "fallback_url": "https://picsum.photos/seed/aishi-entry-site/960/540",
+    "prompt_en": "Photorealistic renovation site photo, Chinese apartment entryway, wall slots for electrical conduit, chalk lines on floor for cabinet base, dust and tools, documentary smartphone style",
+    "工序要点": "线管弯径、点位与柜体厚度核对、地面标高移交"
+  },
+  {
     "id": "living-eff",
     "zone": "客厅",
     "photo_kind": "效果图",
@@ -34,6 +43,15 @@
     "fallback_url": "https://picsum.photos/seed/aishi-dining-eff/960/540",
     "prompt_en": "Photorealistic dining area open plan, island dining table integrated with kitchen side, pendant lights above table, sideboard with glass doors, warm wood tones, Nordic minimalist Chinese home, interior photography 8k",
     "工序要点": "岛台电位、吊灯悬挂点结构加固"
+  },
+  {
+    "id": "dining-site",
+    "zone": "餐厅",
+    "photo_kind": "现场实拍",
+    "caption": "餐厅｜现场 · 地坪找平后放样·顶面吊杆定位",
+    "fallback_url": "https://picsum.photos/seed/aishi-dining-site/960/540",
+    "prompt_en": "Photorealistic construction interior, dining area before finish, laser level line on wall, ceiling suspension rods marked, concrete floor sealed, renovation mess, wide angle documentary",
+    "工序要点": "餐边柜电位、吊灯悬挂点打孔避梁、地面平整度 2m 靠尺"
   },
   {
     "id": "kitchen-eff",
@@ -79,6 +97,15 @@
     "fallback_url": "https://picsum.photos/seed/aishi-bed2-eff/960/540",
     "prompt_en": "Photorealistic small bedroom study combo, tatami platform bed with storage, desk by window, bookshelf wall, light wood and white, cozy compact Chinese apartment room render 8k",
     "工序要点": "榻榻米预留检修口、书桌护眼灯光位置"
+  },
+  {
+    "id": "second-bed-site",
+    "zone": "次卧",
+    "photo_kind": "现场实拍",
+    "caption": "次卧｜现场 · 榻榻米基层木工打底·收口预留",
+    "fallback_url": "https://picsum.photos/seed/aishi-bed2-site/960/540",
+    "prompt_en": "Photorealistic renovation photo, small bedroom tatami wood frame platform construction, MDF base before panels, measuring tape and circular saw blur background, realistic Chinese apartment site",
+    "工序要点": "榻榻米检修口盖板、地暖分水器避让、窗台石衔接"
   },
   {
     "id": "bath-eff",

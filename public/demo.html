@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer" />
   <title>120㎡ 户型 · 客户演示沙盘｜一键进入各角色</title>
   <style>
     :root {
@@ -39,6 +40,19 @@
       border-radius: 999px;
       background: rgba(0, 0, 0, 0.35);
       border: 1px solid rgba(232, 199, 107, 0.45);
+    }
+    .badge-row a {
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: rgba(254, 243, 199, 0.95);
+      border: 1px solid rgba(234, 179, 8, 0.85);
+      color: #78350f;
+      font-weight: 900;
+      text-decoration: none;
+    }
+    .badge-row a:hover {
+      filter: brightness(1.05);
     }
     main { max-width: 1080px; margin: 0 auto; padding: 18px 14px 48px; }
 
@@ -125,6 +139,21 @@
       font-size: 12px;
       color: #475569;
       flex: 1;
+    }
+    .compare-placeholder .ph-inner {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+      font-size: 42px;
+      opacity: 0.85;
+    }
+    .compare-placeholder figcaption code {
+      font-size: 11px;
+      background: #f8fafc;
+      padding: 2px 6px;
+      border-radius: 4px;
     }
     .compare .tag {
       display: inline-block;
@@ -266,6 +295,7 @@
       <span>隐蔽 → 硬装 → 安装交付</span>
       <span>PRJ-DEMO-001</span>
       <span>Wavespeed / 实拍对照数据同源</span>
+      <a href="/ai-showcase.html">重点：AI 验收闸口 · BIM/影像对照</a>
     </div>
   </header>
 
@@ -299,6 +329,8 @@
     ·
     <code>?goto=materials</code>
     <br />
+    <a href="/contract-ai.html">合同·材料·工时 AI 管控</a>
+    ·
     <a href="/scenario-120.html">展开图文说明页 scenario-120</a>
     ·
     <a href="/portal.html">传统门户（模块网格）</a>
@@ -482,16 +514,37 @@
         return a[0];
       }
 
-      function pickSite(items) {
-        var order = ["现场实拍", "整改前后"];
-        for (var i = 0; i < order.length; i++) {
-          var hit = items.find(function (g) {
-            return (g.photo_kind || "") === order[i];
-          });
-          if (hit) return hit;
-        }
-        return items.find(function (g) {
-          return (g.photo_kind || "").indexOf("现场") >= 0 || (g.photo_kind || "").indexOf("整改") >= 0;
+      function urlOk(g) {
+        var u = g && g.url ? String(g.url).trim() : "";
+        return u.indexOf("http") === 0 || u.indexOf("/") === 0;
+      }
+
+      /** 右侧优先现场/整改；若无则选用与左侧不同 URL 的其它条目；避免仅有效果图时出现空白裂图 */
+      function pickRightPhoto(items, fx) {
+        var fxUrl = fx && fx.url ? fx.url : "";
+        var hit = items.find(function (g) {
+          return (g.photo_kind || "") === "现场实拍" && urlOk(g);
+        });
+        if (hit) return hit;
+        hit = items.find(function (g) {
+          return (g.photo_kind || "") === "整改前后" && urlOk(g);
+        });
+        if (hit) return hit;
+        hit = items.find(function (g) {
+          var k = g.photo_kind || "";
+          return (k.indexOf("现场") >= 0 || k.indexOf("整改") >= 0) && urlOk(g) && g.url !== fxUrl;
+        });
+        if (hit) return hit;
+        hit = items.find(function (g) {
+          return (
+            urlOk(g) &&
+            g.url !== fxUrl &&
+            (g.photo_kind || "").indexOf("效果") < 0
+          );
+        });
+        if (hit) return hit;
+        return items.find(function (g, ix) {
+          return ix > 0 && urlOk(g) && g.url !== fxUrl;
         });
       }
 
@@ -517,7 +570,7 @@
         return (
           '<figure><img src="' +
           esc(one.url) +
-          "\" alt=\"\" loading=\"lazy\" onerror=\"this.src='/assets/demo/concrete.svg'\"/><figcaption><span class=\"tag " +
+          "\" alt=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer\" onerror=\"this.src='/assets/demo/concrete.svg'\"/><figcaption><span class=\"tag " +
           tagCls +
           '">' +
           esc(tag) +
@@ -532,17 +585,29 @@
         );
       }
 
+      function figRight(zone, items, fx) {
+        var site = pickRightPhoto(items, fx);
+        if (site && urlOk(site)) return fig(site, "live", "现场 / 整改");
+        return (
+          '<figure class="compare-ph compare-placeholder">' +
+          '<div class="ph-inner">···</div><figcaption>' +
+          '<span class="tag live">现场 / 整改</span>' +
+          '「' +
+          esc(zone) +
+          '」尚无可用实拍条目：请确认已部署最新 <code>scenario-image-specs.json</code>，并在服务器运行 <code>npm run scenario:images</code> 生成新 ID（entry-site / dining-site / second-bed-site）。当前仍可先看左侧效果图。</figcaption></figure>'
+        );
+      }
+
       el.innerHTML = zoneOrder
         .map(function (zone, ri) {
           var items = itemsForZone(zone);
           var fx = pickFx(items);
-          var site = pickSite(items);
           return (
             '<div class="room-block"><div class="room-head">' +
             esc(zone) +
             '</div><div class="compare">' +
             fig(fx, "fx", "效果图") +
-            fig(site, "live", "现场 / 整改") +
+            figRight(zone, items, fx) +
             "</div>" +
             microTimelineHtml(ri, items) +
             "</div>"

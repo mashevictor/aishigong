@@ -1156,6 +1156,13 @@ const PORTAL_MODULES = [
     roles: ["*"],
     tag: "场景",
   },
+  {
+    key: "aiShowcase",
+    title: "AI + 建造矩阵 · 验收闸口",
+    path: "/ai-showcase.html",
+    roles: ["*"],
+    tag: "验收·BIM",
+  },
   { key: "proposal", title: "方案与工作台", path: "/index.html", roles: ["*"], tag: "全文+AI" },
   { key: "manager", title: "施工经理看板", path: "/manager.html", roles: ["*"], tag: "汇总" },
   {
@@ -1164,6 +1171,13 @@ const PORTAL_MODULES = [
     path: "/worker.html",
     roles: ["工人", "施工经理", "管理员"],
     tag: "任务",
+  },
+  {
+    key: "contractAi",
+    title: "合同·采购·工时 AI 管控",
+    path: "/contract-ai.html",
+    roles: ["*"],
+    tag: "价差·供应商",
   },
   { key: "materials", title: "材料与现场影像", path: "/materials.html", roles: ["*"], tag: "TOC" },
   { key: "tickets", title: "售后工单", path: "/tickets.html", roles: ["*"], tag: "质保" },
@@ -1760,12 +1774,16 @@ export async function clientProjectOverview(user, projectId) {
   if (!pid) throw new Error("project_id 无效");
   const plist = await listProjectsForUser(user);
   const proj = plist.find((p) => Number(p.id) === pid);
-  const cover_image_url =
-    proj?.cover_image_url ||
-    (proj?.code === SCENARIO_DEMO_PROJECT_CODE
-      ? DEMO_PROJECT_COVERS[SCENARIO_DEMO_PROJECT_CODE]
-      : null) ||
-    null;
+  let cover_image_url = proj?.cover_image_url || null;
+  if (proj?.code === SCENARIO_DEMO_PROJECT_CODE) {
+    const fxLiving = SCENARIO_120_GALLERY.find(
+      (g) => g.zone === "客厅" && String(g.photo_kind || "").includes("效果")
+    );
+    cover_image_url =
+      fxLiving?.url ||
+      DEMO_PROJECT_COVERS[SCENARIO_DEMO_PROJECT_CODE] ||
+      cover_image_url;
+  }
   const tasks = await listTasksForUser(user, pid);
   const milestones = tasks
     .filter((t) => ["待验收", "已完成"].includes(t.status))

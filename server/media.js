@@ -133,7 +133,14 @@ export function getScenario120Meta() {
       {
         role: "项目经理",
         summary: "派单与验收节点、材料到货核对、看板汇总异常工单与任务状态分布。",
-        pages: ["/portal.html", "/manager.html", "/materials.html", "/index.html"],
+        pages: [
+          "/portal.html",
+          "/manager.html",
+          "/ai-showcase.html",
+          "/contract-ai.html",
+          "/materials.html",
+          "/index.html",
+        ],
       },
       {
         role: "工人",
@@ -152,9 +159,74 @@ export function getScenario120Meta() {
       },
     ],
     typical_issues: [
-      "卫生间地漏异响 / 坡度积水 → 工单 + 整改影像",
+      "隐蔽验收 AI：管线/BIM 摘要 vs 现场影像标签不一致 → 触发复核清单",
+      "卫生间地漏异响 / 坡度积水 → 工单 + 整改影像（质保验收对照）",
       "阳台窗框渗水 → 雨后现场拍照 + 工单优先级 P0",
-      "乳胶漆色差 → 任务「整改中」+ 现场比对照片",
+      "乳胶漆色差 → 竣工 AI 比对小样 + 任务「整改中」留痕",
     ],
+  };
+}
+
+function loadProcurementAiDemoDoc() {
+  const p = join(__dirname, "procurement-ai-demo.json");
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+/** 施工合同 / 材料价差 / 供应商比选 / 工时对比演示 JSON（GET /api/meta/procurement-ai） */
+export function getProcurementAiDemoMeta() {
+  const doc = loadProcurementAiDemoDoc();
+  if (doc) return doc;
+  return {
+    project_code: "PRJ-DEMO-001",
+    project_title: "采购 AI 演示数据未就绪",
+    currency_symbol: "¥",
+    contract: {
+      contract_no: "—",
+      party_owner: "—",
+      party_contractor: "—",
+      signed_date: "—",
+      contract_amount_tax_included: 0,
+      scope_highlights: ["请在 server 目录放置 procurement-ai-demo.json"],
+      ai_contract_capabilities: [],
+      payment_milestones: [],
+    },
+    ai_price_control_summary: { headline: "", bullets: [], kpis: [] },
+    materials_variance: [],
+    suppliers_board: [],
+    labor_hours: [],
+  };
+}
+
+function loadAiConstructionShowcaseDoc() {
+  const p = join(__dirname, "ai-construction-showcase.json");
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+/** AI + 建造五维度 + AI 验收闸口演示（GET /api/meta/ai-showcase） */
+export function getAiConstructionShowcaseMeta() {
+  const doc = loadAiConstructionShowcaseDoc();
+  if (doc) return doc;
+  return {
+    page_title: "AI + 智能建造（数据未就绪）",
+    page_subtitle: "请放置 server/ai-construction-showcase.json",
+    policy_refs: [],
+    pillars: [],
+    ai_acceptance: {
+      headline: "AI 验收点",
+      intro: "",
+      gates: [],
+      comparison_modes: [],
+      system_hooks: [],
+    },
   };
 }
