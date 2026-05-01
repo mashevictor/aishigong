@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS projects (
   client_name VARCHAR(255) DEFAULT NULL,
   status VARCHAR(32) NOT NULL DEFAULT '进行中',
   progress_pct TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  cover_image_url VARCHAR(512) DEFAULT NULL,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -52,9 +53,14 @@ CREATE TABLE IF NOT EXISTS ai_logs (
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ---------------------------- 演示数据（按 code 幂等插入项目） ----------------------------
-INSERT IGNORE INTO projects (code, name, client_name, status, progress_pct) VALUES
-('PRJ-DEMO-001', '样板工程 · 滨江精装', '演示客户 A', '进行中', 62),
-('PRJ-DEMO-002', '办公楼改造试点', '演示总包 B', '待验收', 94);
+INSERT IGNORE INTO projects (code, name, client_name, status, progress_pct, cover_image_url) VALUES
+('PRJ-DEMO-001', '样板工程 · 滨江精装', '演示客户 A', '进行中', 62, 'https://picsum.photos/seed/aishi-site1/1200/675'),
+('PRJ-DEMO-002', '办公楼改造试点', '演示总包 B', '待验收', 94, 'https://picsum.photos/seed/aishi-site2/1200/675');
+
+UPDATE projects SET cover_image_url = 'https://picsum.photos/seed/aishi-site1/1200/675'
+ WHERE code = 'PRJ-DEMO-001' AND (cover_image_url IS NULL OR TRIM(cover_image_url) = '');
+UPDATE projects SET cover_image_url = 'https://picsum.photos/seed/aishi-site2/1200/675'
+ WHERE code = 'PRJ-DEMO-002' AND (cover_image_url IS NULL OR TRIM(cover_image_url) = '');
 
 -- 任务：同一项目 + 标题不存在时才插入
 INSERT INTO tasks (project_id, title, assignee_role, status, priority, due_date)

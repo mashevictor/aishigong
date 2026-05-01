@@ -2,6 +2,7 @@ import mysql from "mysql2/promise";
 import path from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcrypt";
+import { DEMO_PROJECT_COVERS, DEMO_GALLERY } from "./media.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -33,6 +34,7 @@ function initMockDataset() {
       client_name: "演示客户 A",
       status: "进行中",
       progress_pct: 62,
+      cover_image_url: DEMO_PROJECT_COVERS["PRJ-DEMO-001"],
       updated_at: new Date().toISOString().slice(0, 19).replace("T", " "),
     },
     {
@@ -42,6 +44,7 @@ function initMockDataset() {
       client_name: "演示总包 B",
       status: "待验收",
       progress_pct: 94,
+      cover_image_url: DEMO_PROJECT_COVERS["PRJ-DEMO-002"],
       updated_at: new Date().toISOString().slice(0, 19).replace("T", " "),
     },
   ];
@@ -150,6 +153,11 @@ async function ensureMysqlSchema(conn) {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+  try {
+    await conn.query(`ALTER TABLE projects ADD COLUMN cover_image_url VARCHAR(512) NULL`);
+  } catch (e) {
+    if (e.code !== "ER_DUP_FIELDNAME") throw e;
+  }
   await conn.query(`
     CREATE TABLE IF NOT EXISTS project_members (
       user_id INT NOT NULL,
@@ -259,11 +267,25 @@ async function seedUsersAndMembers(conn) {
   }
 }
 
+async function patchDemoCoverUrls(conn) {
+  const u1 = DEMO_PROJECT_COVERS["PRJ-DEMO-001"];
+  const u2 = DEMO_PROJECT_COVERS["PRJ-DEMO-002"];
+  await conn.query(
+    `UPDATE projects SET cover_image_url = ? WHERE code = 'PRJ-DEMO-001' AND (cover_image_url IS NULL OR TRIM(cover_image_url) = '')`,
+    [u1]
+  );
+  await conn.query(
+    `UPDATE projects SET cover_image_url = ? WHERE code = 'PRJ-DEMO-002' AND (cover_image_url IS NULL OR TRIM(cover_image_url) = '')`,
+    [u2]
+  );
+}
+
 async function seedDemo(conn) {
   await conn.query(
-    `INSERT INTO projects (code, name, client_name, status, progress_pct) VALUES
-     ('PRJ-DEMO-001', '样板工程 · 滨江精装', '演示客户 A', '进行中', 62),
-     ('PRJ-DEMO-002', '办公楼改造试点', '演示总包 B', '待验收', 94)`
+    `INSERT INTO projects (code, name, client_name, status, progress_pct, cover_image_url) VALUES
+     ('PRJ-DEMO-001', '样板工程 · 滨江精装', '演示客户 A', '进行中', 62, ?),
+     ('PRJ-DEMO-002', '办公楼改造试点', '演示总包 B', '待验收', 94, ?)`,
+    [DEMO_PROJECT_COVERS["PRJ-DEMO-001"], DEMO_PROJECT_COVERS["PRJ-DEMO-002"]]
   );
   await conn.query(
     `INSERT INTO tasks (project_id, title, description, assignee_role, status, priority, due_date) VALUES
@@ -304,6 +326,7 @@ export async function initDb(env) {
     if (rows[0].c === 0) {
       await seedDemo(conn);
     }
+    await patchDemoCoverUrls(conn);
     await seedUsersAndMembers(conn);
     conn.release();
     mockMode = false;
@@ -362,7 +385,7 @@ export async function listProjectsForUser(user) {
   const ids = await mysqlAccessibleProjectIds(user);
   if (!ids || ids.length === 0) return [];
   const [rows] = await pool.query(
-    `SELECT id, code, name, client_name, status, progress_pct,
+    `SELECT id, code, name, client_name, status, progress_pct, cover_image_url,
             DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
      FROM projects WHERE id IN (${ids.map(() => "?").join(",")}) ORDER BY id`,
     ids
@@ -625,7 +648,7 @@ export async function adminListAllProjects() {
     return mockProjects.map((p) => ({ ...p }));
   }
   const [rows] = await pool.query(
-    `SELECT id, code, name, client_name, status, progress_pct,
+    `SELECT id, code, name, client_name, status, progress_pct, cover_image_url,
             DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
      FROM projects ORDER BY id`
   );
@@ -639,6 +662,7 @@ export async function adminCreateProject(payload) {
   const client_name = String(payload.client_name || "").trim() || null;
   const status = String(payload.status || "进行中").trim();
   const progress_pct = Math.min(100, Math.max(0, Number(payload.progress_pct) || 0));
+  const cover_image_url = String(payload.cover_image_url || "").trim() || null;
 
   if (mockMode || !pool) {
     if (mockProjects.some((p) => p.code === code)) throw new Error("项目编码已存在");
@@ -650,17 +674,18 @@ export async function adminCreateProject(payload) {
       client_name,
       status,
       progress_pct,
+      cover_image_url,
       updated_at: new Date().toISOString().slice(0, 19).replace("T", " "),
     };
     mockProjects.push(row);
     return row;
   }
   const [r] = await pool.query(
-    `INSERT INTO projects (code, name, client_name, status, progress_pct) VALUES (?,?,?,?,?)`,
-    [code, name, client_name, status, progress_pct]
+    `INSERT INTO projects (code, name, client_name, status, progress_pct, cover_image_url) VALUES (?,?,?,?,?,?)`,
+    [code, name, client_name, status, progress_pct, cover_image_url]
   );
   const [rows] = await pool.query(
-    `SELECT id, code, name, client_name, status, progress_pct,
+    `SELECT id, code, name, client_name, status, progress_pct, cover_image_url,
             DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
      FROM projects WHERE id = ?`,
     [r.insertId]
@@ -688,6 +713,11 @@ export async function adminUpdateProject(id, payload) {
     fields.push("progress_pct = ?");
     vals.push(Math.min(100, Math.max(0, Number(payload.progress_pct))));
   }
+  if (payload.cover_image_url != null) {
+    fields.push("cover_image_url = ?");
+    const c = String(payload.cover_image_url).trim();
+    vals.push(c || null);
+  }
   if (fields.length === 0) throw new Error("无更新字段");
 
   if (mockMode || !pool) {
@@ -697,13 +727,14 @@ export async function adminUpdateProject(id, payload) {
     if (payload.client_name != null) p.client_name = String(payload.client_name).trim() || null;
     if (payload.status != null) p.status = String(payload.status).trim();
     if (payload.progress_pct != null) p.progress_pct = Math.min(100, Math.max(0, Number(payload.progress_pct)));
+    if (payload.cover_image_url != null) p.cover_image_url = String(payload.cover_image_url).trim() || null;
     p.updated_at = new Date().toISOString().slice(0, 19).replace("T", " ");
     return { ...p };
   }
   vals.push(pid);
   await pool.query(`UPDATE projects SET ${fields.join(", ")} WHERE id = ?`, vals);
   const [rows] = await pool.query(
-    `SELECT id, code, name, client_name, status, progress_pct,
+    `SELECT id, code, name, client_name, status, progress_pct, cover_image_url,
             DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
      FROM projects WHERE id = ?`,
     [pid]
@@ -792,6 +823,9 @@ export async function adminListAiLogs(limit) {
 export async function clientProjectOverview(user, projectId) {
   const pid = Number(projectId);
   if (!pid) throw new Error("project_id 无效");
+  const plist = await listProjectsForUser(user);
+  const proj = plist.find((p) => Number(p.id) === pid);
+  const cover_image_url = proj?.cover_image_url || null;
   const tasks = await listTasksForUser(user, pid);
   const milestones = tasks
     .filter((t) => ["待验收", "已完成"].includes(t.status))
@@ -802,7 +836,27 @@ export async function clientProjectOverview(user, projectId) {
       priority: t.priority,
     }));
   const openTasks = tasks.filter((t) => t.status !== "已完成").length;
-  return { project_id: pid, open_tasks: openTasks, milestones };
+  return {
+    project_id: pid,
+    cover_image_url,
+    gallery: DEMO_GALLERY,
+    open_tasks: openTasks,
+    milestones,
+  };
+}
+
+/** 工作台一站拉齐：项目（含封面）+ 模拟图库 + 管理员可看 AI 留痕预览 */
+export async function getMediaDashboard(user) {
+  const projects = await listProjectsForUser(user);
+  let ai_preview = [];
+  if (user.role === "管理员") {
+    ai_preview = await adminListAiLogs(8);
+  }
+  return {
+    projects,
+    gallery: DEMO_GALLERY,
+    ai_preview,
+  };
 }
 
 export function envPath() {

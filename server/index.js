@@ -27,6 +27,7 @@ import {
   adminRemoveMember,
   adminListAiLogs,
   clientProjectOverview,
+  getMediaDashboard,
 } from "./db.js";
 import { signUserToken, authMiddleware, getJwtSecret, roleMiddleware } from "./auth.js";
 
@@ -175,7 +176,8 @@ app.get("/api/meta/delivery", (_req, res) => {
         { prefix: "/api/auth", note: "登录鉴权" },
         { prefix: "/api/projects,/api/tasks,/api/messages", note: "业务协同（RBAC + 项目授权）" },
         { prefix: "/api/admin/*", note: "管理后台（仅管理员）" },
-        { prefix: "/api/client/overview", note: "客户视图聚合" },
+        { prefix: "/api/client/overview", note: "客户视图聚合（封面+图库+里程碑）" },
+        { prefix: "/api/media/dashboard", note: "工作台数据一览（项目封面+演示图库+AI留痕）" },
         { prefix: "/api/stream/events", note: "SSE 心跳（实时通道占位）" },
         { prefix: "/api/ai/chat,/api/ai/image", note: "文生文 / 文生图" },
       ],
@@ -272,6 +274,14 @@ app.get("/api/client/overview", requireAuth, async (req, res) => {
     res.json({ data });
   } catch (e) {
     res.status(400).json({ error: e.message });
+  }
+});
+
+app.get("/api/media/dashboard", requireAuth, async (req, res) => {
+  try {
+    res.json({ data: await getMediaDashboard(req.user) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 

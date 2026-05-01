@@ -140,6 +140,15 @@
     .msg-item .body { color: #0f172a; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .wb-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 10px; }
+    .wb-gallery figure { margin: 0; background: #f8fafc; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .wb-gallery img { width: 100%; height: 110px; object-fit: cover; display: block; }
+    .wb-gallery figcaption { padding: 6px 8px; font-size: 12px; color: #334155; line-height: 1.35; }
+    .wb-proj-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+    .wb-proj-cards article { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+    .wb-proj-cards img { width: 100%; height: 120px; object-fit: cover; display: block; }
+    .wb-proj-cards .pd { padding: 10px 12px; font-size: 13px; }
+    .wb-ai-strip { font-size: 12px; color: #475569; margin-top: 10px; line-height: 1.5; }
     @media print {
       @page { margin: 10mm; }
       .app-nav { display: none !important; }
@@ -609,12 +618,19 @@
           <button type="button" class="primary" id="btnReloadData">刷新数据</button>
           <label>当前项目 <select id="wbProject"></select></label>
         </div>
+        <div class="card" style="margin-bottom:14px;background:#fff;border:1px solid rgba(15,35,71,.08);border-radius:12px;padding:14px 16px">
+          <h3 style="margin:0 0 8px;font-size:16px;color:var(--fd-ink)">数据链路一览 · 项目封面与模拟现场图库</h3>
+          <p class="muted" style="margin:0 0 8px">后端 <code>/api/media/dashboard</code>：有权看到的<strong>项目封面</strong> + 全角色可见的<strong>演示影像</strong>；管理员另附<strong>AI 调用留痕</strong>摘要。</p>
+          <div class="wb-proj-cards" id="wbProjCards"></div>
+          <div class="wb-gallery" id="wbGalleryGrid"></div>
+          <div class="wb-ai-strip" id="wbAiStrip"></div>
+        </div>
         <div class="grid-2">
           <div>
-            <h3 style="margin-top:0">我的项目</h3>
+            <h3 style="margin-top:0">我的项目（表格）</h3>
             <div style="overflow:auto">
               <table id="tblProjects">
-                <thead><tr><th>ID</th><th>编码</th><th>名称</th><th>客户</th><th>状态</th><th>进度</th></tr></thead>
+                <thead><tr><th>封面</th><th>ID</th><th>编码</th><th>名称</th><th>客户</th><th>状态</th><th>进度</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -789,7 +805,8 @@
         updateWorkbenchLayout(true);
         Promise.all([
           fetch(apiBase() + "/api/projects", { headers: authHeaders() }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }),
-          fetch(apiBase() + "/api/tasks", { headers: authHeaders() }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          fetch(apiBase() + "/api/tasks", { headers: authHeaders() }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }),
+          fetch(apiBase() + "/api/media/dashboard", { headers: authHeaders() }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         ]).then(function (arr) {
           if (!arr[0].ok || !arr[1].ok) {
             if (arr[0].j && arr[0].j.error && String(arr[0].j.error).indexOf("未登录") >= 0) {
@@ -800,6 +817,30 @@
           }
           var pj = arr[0].j.data || [];
           var tk = arr[1].j.data || [];
+          var dash = arr[2].ok && arr[2].j.data ? arr[2].j.data : null;
+          var fb = "/assets/demo/concrete.svg";
+          var galEl = document.getElementById("wbGalleryGrid");
+          var cardEl = document.getElementById("wbProjCards");
+          var aiEl = document.getElementById("wbAiStrip");
+          if (dash && galEl) {
+            galEl.innerHTML = (dash.gallery || []).map(function (g) {
+              return "<figure><img src=\"" + esc(g.url) + "\" alt=\"\" loading=\"lazy\" onerror=\"this.src='" + fb + "'\"/><figcaption>" + esc(g.caption) + "</figcaption></figure>";
+            }).join("");
+          }
+          if (dash && cardEl) {
+            cardEl.innerHTML = (dash.projects || []).map(function (p) {
+              var u = p.cover_image_url || fb;
+              return "<article><img src=\"" + esc(u) + "\" alt=\"\" loading=\"lazy\" onerror=\"this.src='" + fb + "'\"/><div class=\"pd\"><strong>" + esc(p.code) + "</strong><br/>" + esc(p.name) + "<br/><span class=\"muted\">进度 " + (p.progress_pct != null ? p.progress_pct : 0) + "%</span></div></article>";
+            }).join("") || "<p class=\"muted\">暂无可见项目</p>";
+          }
+          if (dash && aiEl) {
+            var logs = dash.ai_preview || [];
+            aiEl.innerHTML = logs.length
+              ? "<strong>AI 留痕（管理员）</strong><br/>" + logs.map(function (a) {
+                return esc(a.created_at || "") + " · " + esc(a.kind) + " · " + esc((a.result_summary || a.prompt || "").slice(0, 120));
+              }).join("<br/>")
+              : "<span class=\"muted\">AI 留痕：仅管理员显示；可在「多模态结论区」看完整列表。</span>";
+          }
           if (badge && refreshBadge) {
             fetch(apiBase() + "/api/health")
               .then(function (r) { return r.json(); })
@@ -813,8 +854,11 @@
           var sel = document.getElementById("wbProject");
           if (!ptbody || !ttbody || !sel) return;
 
+          var fb2 = "/assets/demo/concrete.svg";
           ptbody.innerHTML = pj.map(function (p) {
-            return "<tr><td>" + p.id + "</td><td>" + esc(p.code) + "</td><td>" + esc(p.name) + "</td><td>" + esc(p.client_name || "") + "</td><td>" + esc(p.status) + "</td><td>" + (p.progress_pct != null ? p.progress_pct + "%" : "") + "</td></tr>";
+            var u = p.cover_image_url || fb2;
+            var th = "<img src=\"" + esc(u) + "\" alt=\"\" style=\"width:56px;height:40px;object-fit:cover;border-radius:6px\" loading=\"lazy\" onerror=\"this.src='" + fb2 + "'\"/>";
+            return "<tr><td>" + th + "</td><td>" + p.id + "</td><td>" + esc(p.code) + "</td><td>" + esc(p.name) + "</td><td>" + esc(p.client_name || "") + "</td><td>" + esc(p.status) + "</td><td>" + (p.progress_pct != null ? p.progress_pct + "%" : "") + "</td></tr>";
           }).join("");
 
           var cur = sel.value;

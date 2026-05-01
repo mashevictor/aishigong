@@ -61,9 +61,10 @@
           <div><label>编码</label><input id="npCode" placeholder="PRJ-XXX" /></div>
           <div><label>名称</label><input id="npName" /></div>
           <div><label>客户</label><input id="npClient" /></div>
+          <div style="flex:1;min-width:220px"><label>封面图 URL（可 https 外链或 /assets/demo/*.svg）</label><input id="npCover" placeholder="https://picsum.photos/seed/x/1200/675" style="width:100%" /></div>
           <button type="button" class="primary" id="btnNewProj">新建项目</button>
         </div>
-        <table id="tblProj" style="margin-top:12px"><thead><tr><th>ID</th><th>编码</th><th>名称</th><th>进度%</th><th>操作</th></tr></thead><tbody></tbody></table>
+        <table id="tblProj" style="margin-top:12px"><thead><tr><th>封面</th><th>ID</th><th>编码</th><th>名称</th><th>进度%</th><th>操作</th></tr></thead><tbody></tbody></table>
       </div>
       <div class="card">
         <h2>项目成员授权</h2>
@@ -122,8 +123,11 @@
       });
       fetch("/api/admin/projects",{headers:h()}).then(function(r){return r.json();}).then(function(j){
         var tb=document.querySelector("#tblProj tbody");
+        var fb="/assets/demo/concrete.svg";
         tb.innerHTML=(j.data||[]).map(function(p){
-          return "<tr data-id=\""+p.id+"\"><td>"+p.id+"</td><td>"+esc(p.code)+"</td><td>"+esc(p.name)+"</td><td>"+p.progress_pct+"</td><td><button type=\"button\" class=\"inc\">进度+5</button></td></tr>";
+          var u=p.cover_image_url||fb;
+          var th="<img src=\""+String(u).replace(/\"/g,"")+"\" style=\"width:56px;height:40px;object-fit:cover;border-radius:6px\" onerror=\"this.src='"+fb+"'\"/>";
+          return "<tr data-id=\""+p.id+"\"><td>"+th+"</td><td>"+p.id+"</td><td>"+esc(p.code)+"</td><td>"+esc(p.name)+"</td><td>"+p.progress_pct+"</td><td><button type=\"button\" class=\"inc\">进度+5</button></td></tr>";
         }).join("");
         tb.querySelectorAll("tr").forEach(function(tr){
           tr.querySelector(".inc").onclick=function(){
@@ -141,6 +145,7 @@
         code:document.getElementById("npCode").value.trim(),
         name:document.getElementById("npName").value.trim(),
         client_name:document.getElementById("npClient").value.trim(),
+        cover_image_url:document.getElementById("npCover").value.trim(),
         status:"进行中",
         progress_pct:0
       })}).then(function(r){return r.json();}).then(function(j){

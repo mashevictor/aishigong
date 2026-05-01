@@ -43,13 +43,22 @@
     </div>
 
     <div id="app" hidden>
+      <div class="card" style="padding:0;overflow:hidden">
+        <img id="cover" src="/assets/demo/concrete.svg" alt="项目封面" style="width:100%;max-height:220px;object-fit:cover;display:block" />
+        <div style="padding:12px 16px 0">
+          <label>我的项目</label>
+          <select id="proj"></select>
+        </div>
+      </div>
       <div class="card">
-        <label>我的项目</label>
-        <select id="proj"></select>
         <div id="progWrap" style="margin-top:12px">
           <div style="display:flex;justify-content:space-between;font-size:13px"><span>整体进度</span><span id="pct"></span></div>
           <div class="progress"><div class="bar" id="bar" style="width:0%"></div></div>
         </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">现场影像（演示数据）</h3>
+        <div id="cgallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:8px"></div>
       </div>
       <div class="card">
         <h3 style="margin-top:0">节点与留痕</h3>
@@ -98,16 +107,29 @@
 
     function refresh(){
       var pid=document.getElementById("proj").value;
+      var fb="/assets/demo/concrete.svg";
       fetch("/api/projects",{headers:h()}).then(function(r){return r.json();}).then(function(j){
         var p=(j.data||[]).find(function(x){ return String(x.id)===String(pid); });
         if(p){
           document.getElementById("pct").textContent=p.progress_pct+"%";
           document.getElementById("bar").style.width=p.progress_pct+"%";
+          var cv=document.getElementById("cover");
+          cv.src=p.cover_image_url||fb;
+          cv.onerror=function(){ cv.src=fb; };
         }
       });
       fetch("/api/client/overview?project_id="+encodeURIComponent(pid),{headers:h()}).then(function(r){return r.json();}).then(function(j){
         if(j.error){ document.getElementById("mile").innerHTML="<p style=\"color:#b91c1c\">"+esc(j.error)+"</p>"; return; }
-        var ms=j.data.milestones||[];
+        var d=j.data||{};
+        var cv=document.getElementById("cover");
+        if(d.cover_image_url){ cv.src=d.cover_image_url; cv.onerror=function(){ cv.src=fb; }; }
+        var gal=document.getElementById("cgallery");
+        if(gal){
+          gal.innerHTML=(d.gallery||[]).map(function(g){
+            return "<div style=\"border-radius:10px;overflow:hidden;border:1px solid #e2e8f0\"><img src=\""+String(g.url).replace(/\"/g,"")+"\" style=\"width:100%;height:88px;object-fit:cover\" loading=\"lazy\" onerror=\"this.src='"+fb+"'\"/><div style=\"font-size:11px;padding:4px 6px;color:#475569\">"+esc(g.caption)+"</div></div>";
+          }).join("")||"<p class=\"muted\">暂无图库</p>";
+        }
+        var ms=d.milestones||[];
         document.getElementById("mile").innerHTML=ms.length?ms.map(function(m){
           return "<div class=\"tl-item\"><div class=\"tl-meta\">"+esc(m.status)+" · 截止 "+esc(m.due_date||"-")+"</div><div>"+esc(m.title)+"</div></div>";
         }).join(""):"<p style=\"color:#64748b\">暂无里程碑级任务</p>";
