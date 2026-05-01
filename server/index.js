@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import {
@@ -58,7 +59,8 @@ const corsOrigins = rawOrigins
   ? rawOrigins.split(",").map((s) => s.trim()).filter(Boolean)
   : null;
 
-if (String(process.env.TRUST_PROXY || "").toLowerCase() === "true" || prod) {
+/** 仅在置于 Nginx 等反代之后设为 true；直连 IP:端口访问时不要打开，否则会误判客户端 IP 并触发限流校验异常 */
+if (String(process.env.TRUST_PROXY || "").toLowerCase() === "true") {
   app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS || 1) || 1);
 }
 
@@ -66,6 +68,7 @@ app.use(
   helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
   })
 );
 
@@ -77,8 +80,7 @@ app.use(
   )
 );
 
-const trustProxyEnabled =
-  String(process.env.TRUST_PROXY || "").toLowerCase() === "true" || prod;
+const trustProxyEnabled = String(process.env.TRUST_PROXY || "").toLowerCase() === "true";
 const rateLimitTrustProxyOpt = trustProxyEnabled ? { validate: { trustProxy: true } } : {};
 
 const apiLimiter = rateLimit({
@@ -104,6 +106,12 @@ app.use(express.json({ limit: "2mb" }));
 
 const publicDir = path.join(__dirname, "..", "public");
 const rootDir = path.join(__dirname, "..");
+const indexHtmlPath = path.join(publicDir, "index.html");
+if (!fs.existsSync(indexHtmlPath)) {
+  console.error("[fatal] 未找到首页文件:", indexHtmlPath);
+  console.error("请完整部署仓库：public/ 必须与 server/ 在同一级目录（例如 /var/www/aishigong/public）。");
+  process.exit(1);
+}
 
 const serveRepoRoot =
   String(process.env.SERVE_REPO_ROOT || "").toLowerCase() === "true" ||
