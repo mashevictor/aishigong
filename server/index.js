@@ -3,7 +3,22 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { initDb, listProjects, listTasks, logAi, envPath, isMockDb } from "./db.js";
+import {
+  initDb,
+  logAi,
+  envPath,
+  isMockDb,
+  findUserByUsername,
+  verifyPassword,
+  listProjectsForUser,
+  listTasksForUser,
+  createTaskForUser,
+  updateTaskStatusForUser,
+  listMessagesForUser,
+  createMessageForUser,
+  WORKFLOW_STATUSES,
+} from "./db.js";
+import { signUserToken, authMiddleware, getJwtSecret } from "./auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,31 +38,116 @@ app.use(express.static(rootDir));
 
 await initDb(process.env);
 
+const requireAuth = authMiddleware(process.env);
+
 app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
     db: isMockDb() ? "mock" : "mysql",
     port: PORT,
+    auth: Boolean(getJwtSecret(process.env)),
   });
 });
 
-app.get("/api/projects", async (_req, res) => {
+app.post("/api/auth/login", async (req, res) => {
+  if (!getJwtSecret(process.env)) {
+    return res.status(503).json({ error: "未配置 JWT_SECRET，无法登录" });
+  }
+  const username = String(req.body?.username || "").trim();
+  const password = String(req.body?.password || "");
+  if (!username || !password) {
+    return res.status(400).json({ error: "请输入用户名和密码" });
+  }
   try {
-    const rows = await listProjects();
+    const row = await findUserByUsername(username);
+    if (!row || !(await verifyPassword(row, password))) {
+      return res.status(401).json({ error: "用户名或密码错误" });
+    }
+    const user = {
+      id: row.id,
+      username: row.username,
+      display_name: row.display_name,
+      role: row.role,
+    };
+    const token = signUserToken(process.env, user);
+    res.json({
+      data: {
+        token,
+        user: { id: user.id, username: user.username, name: user.display_name, role: user.role },
+      },
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message || "login failed" });
+  }
+});
+
+app.get("/api/me", requireAuth, (req, res) => {
+  res.json({
+    data: { id: req.user.uid, username: req.user.username, name: req.user.name, role: req.user.role },
+  });
+});
+
+app.get("/api/projects", requireAuth, async (req, res) => {
+  try {
+    const rows = await listProjectsForUser(req.user);
     res.json({ data: rows });
   } catch (e) {
     res.status(500).json({ error: e.message || "list projects failed" });
   }
 });
 
-app.get("/api/tasks", async (req, res) => {
+app.get("/api/tasks", requireAuth, async (req, res) => {
   try {
     const projectId = req.query.project_id ? String(req.query.project_id) : "";
-    const rows = await listTasks(projectId ? Number(projectId) : null);
+    const rows = await listTasksForUser(req.user, projectId ? Number(projectId) : null);
     res.json({ data: rows });
   } catch (e) {
     res.status(500).json({ error: e.message || "list tasks failed" });
   }
+});
+
+app.post("/api/tasks", requireAuth, async (req, res) => {
+  try {
+    const row = await createTaskForUser(req.user, req.body || {});
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message || "create task failed" });
+  }
+});
+
+app.patch("/api/tasks/:id", requireAuth, async (req, res) => {
+  try {
+    const status = String(req.body?.status || "").trim();
+    const row = await updateTaskStatusForUser(req.user, req.params.id, status);
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message || "update task failed" });
+  }
+});
+
+app.get("/api/messages", requireAuth, async (req, res) => {
+  try {
+    const projectId = String(req.query.project_id || "");
+    const rows = await listMessagesForUser(req.user, projectId);
+    res.json({ data: rows });
+  } catch (e) {
+    res.status(400).json({ error: e.message || "list messages failed" });
+  }
+});
+
+app.post("/api/messages", requireAuth, async (req, res) => {
+  try {
+    const projectId = req.body?.project_id;
+    const body = req.body?.body;
+    const row = await createMessageForUser(req.user, projectId, body);
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message || "send message failed" });
+  }
+});
+
+app.get("/api/meta/workflow", (_req, res) => {
+  res.json({ data: { statuses: WORKFLOW_STATUSES } });
 });
 
 app.post("/api/ai/chat", async (req, res) => {

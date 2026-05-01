@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 施工实时聊天监控系统 - 方案汇总 · 演示站</title>
+  <title>AI 施工实时聊天监控系统 - 方案与业务演示</title>
   <style>
     :root {
       --fd-black: #04060a;
@@ -132,6 +132,14 @@
     }
     .img-out { max-width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #e2e8f0; }
     .status-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: #e0e7ff; color: #3730a3; }
+    .workbench-userbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .workbench-userbar .who { font-weight: 800; color: var(--fd-ink); }
+    .msg-box { max-height: 280px; overflow: auto; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; background: #f8fafc; }
+    .msg-item { margin-bottom: 10px; font-size: 13px; line-height: 1.45; }
+    .msg-item .meta { color: #64748b; font-size: 12px; margin-bottom: 2px; }
+    .msg-item .body { color: #0f172a; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
     @media print {
       @page { margin: 10mm; }
       .app-nav { display: none !important; }
@@ -181,8 +189,8 @@
 </head>
 <body>
   <nav class="app-nav" aria-label="站点导航">
+    <button type="button" data-view="view-workbench">工作台（登录 · 项目 · 任务 · 聊天）</button>
     <button type="button" class="active" data-view="view-doc">方案汇总</button>
-    <button type="button" data-view="view-data">业务数据（MySQL / 模拟）</button>
     <button type="button" data-view="view-chat">AI 文生文（DeepSeek）</button>
     <button type="button" data-view="view-img">AI 文生图（Wavespeed）</button>
     <span class="hint" id="healthHint"></span>
@@ -573,33 +581,67 @@
   </div>
   </div>
 
-  <div id="view-data" class="view">
+  <div id="view-workbench" class="view">
     <div class="container panel-tools">
-      <div class="card">
-        <h2 class="sect">业务数据</h2>
-        <p class="muted">数据来自 MySQL（需在项目根目录 <code>.env</code> 配置 <code>MYSQL_*</code>）；连接失败或未配置时自动使用内置模拟数据。</p>
-        <p><span class="status-pill" id="dbBadge">检测中…</span></p>
+      <div class="card" id="wbLoginCard">
+        <h2 class="sect">工作台登录</h2>
+        <p class="muted">对应方案中的<strong>多角色 · RBAC · 项目授权 · 工作流任务 · 工程内聊天</strong>。演示账号密码均为 <code>demo123</code>：<code>admin</code>（管理员）、<code>jingli</code>（施工经理）、<code>gongren</code>（工人）、<code>kehu</code>（客户）、<code>zongbao</code>（总包）、<code>shouhou</code>（售后）。需在根目录 <code>.env</code> 配置 <code>JWT_SECRET</code>（≥16 字符）及可选 <code>MYSQL_*</code>。</p>
         <div class="row">
-          <button type="button" class="primary" id="btnReloadData">刷新列表</button>
-          <label>筛选任务：<select id="taskProjectFilter"><option value="">全部项目</option></select></label>
+          <label>用户名 <input type="text" id="wbUser" autocomplete="username" /></label>
+          <label>密码 <input type="password" id="wbPass" autocomplete="current-password" /></label>
+          <button type="button" class="primary" id="wbBtnLogin">登录</button>
         </div>
+        <div class="out-box" id="wbLoginErr" hidden></div>
       </div>
-      <div class="card">
-        <h3 style="margin-top:0">项目列表</h3>
-        <div style="overflow:auto">
-          <table id="tblProjects">
-            <thead><tr><th>ID</th><th>编码</th><th>名称</th><th>客户</th><th>状态</th><th>进度</th><th>更新</th></tr></thead>
-            <tbody></tbody>
-          </table>
+
+      <div class="card" id="wbApp" hidden>
+        <div class="workbench-userbar">
+          <span class="who" id="wbWho"></span>
+          <span class="status-pill" id="dbBadge">数据源</span>
+          <button type="button" class="primary" id="wbBtnLogout">退出</button>
+          <button type="button" class="primary" id="btnReloadData">刷新数据</button>
+          <label>当前项目 <select id="wbProject"></select></label>
         </div>
-      </div>
-      <div class="card">
-        <h3 style="margin-top:0">任务列表</h3>
-        <div style="overflow:auto">
-          <table id="tblTasks">
-            <thead><tr><th>ID</th><th>项目</th><th>标题</th><th>角色</th><th>状态</th><th>优先级</th><th>截止</th></tr></thead>
-            <tbody></tbody>
-          </table>
+        <div class="grid-2">
+          <div>
+            <h3 style="margin-top:0">我的项目</h3>
+            <div style="overflow:auto">
+              <table id="tblProjects">
+                <thead><tr><th>ID</th><th>编码</th><th>名称</th><th>客户</th><th>状态</th><th>进度</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <h3>新建任务</h3>
+            <p class="muted">状态链：<strong>待派发 → 进行中 → 待验收 → 整改中 → 已完成</strong></p>
+            <label>标题</label>
+            <input type="text" id="wbNewTitle" placeholder="简要描述任务" />
+            <label style="display:block;margin-top:8px">说明</label>
+            <textarea id="wbNewDesc" placeholder="可选：验收标准、附图链接等"></textarea>
+            <div class="row">
+              <label>角色 <input type="text" id="wbNewRole" placeholder="如 工人 / 施工经理" /></label>
+              <label>优先级 <input type="text" id="wbNewPri" value="P1" style="max-width:6em" /></label>
+              <label>截止 <input type="date" id="wbNewDue" /></label>
+              <button type="button" class="primary" id="wbBtnNewTask">提交任务</button>
+            </div>
+          </div>
+          <div>
+            <h3 style="margin-top:0">工程聊天（当前项目）</h3>
+            <div class="msg-box" id="wbMsgList"></div>
+            <label style="display:block;margin-top:10px">发送消息</label>
+            <textarea id="wbMsgBody" placeholder="输入现场协调、验收疑问等"></textarea>
+            <div class="row">
+              <button type="button" class="primary" id="wbBtnSend">发送</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px;padding:16px;background:#fff;border-radius:12px;border:1px solid rgba(15,35,71,.08);">
+          <h3 style="margin-top:0">任务列表（可改状态）</h3>
+          <div style="overflow:auto">
+            <table id="tblTasks">
+              <thead><tr><th>ID</th><th>项目</th><th>标题</th><th>说明</th><th>角色</th><th>状态</th><th>P</th><th>截止</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -640,84 +682,30 @@
 
   <script>
     (function () {
+      var TOKEN_KEY = "aishigong_token";
       var views = document.querySelectorAll(".view");
       var buttons = document.querySelectorAll(".app-nav button[data-view]");
-
-      function show(id) {
-        views.forEach(function (v) {
-          v.classList.toggle("active", v.id === id);
-        });
-        buttons.forEach(function (b) {
-          b.classList.toggle("active", b.getAttribute("data-view") === id);
-        });
-      }
-
-      buttons.forEach(function (b) {
-        b.addEventListener("click", function () {
-          show(b.getAttribute("data-view"));
-          if (b.getAttribute("data-view") === "view-data") loadBusinessData();
-        });
-      });
+      var workflowStatuses = ["待派发", "进行中", "待验收", "整改中", "已完成"];
+      var msgTimer = null;
 
       function apiBase() {
         return "";
       }
 
-      fetch(apiBase() + "/api/health")
-        .then(function (r) { return r.json(); })
-        .then(function (j) {
-          var el = document.getElementById("healthHint");
-          if (!el) return;
-          el.textContent = "后端 " + (j.ok ? "在线" : "异常") + " · 数据：" + (j.db === "mysql" ? "MySQL" : "模拟");
-        })
-        .catch(function () {
-          var el = document.getElementById("healthHint");
-          if (el) el.textContent = "无法连接后端，请运行 npm start（server 目录）";
-        });
+      function getToken() {
+        return localStorage.getItem(TOKEN_KEY) || "";
+      }
 
-      function loadBusinessData() {
-        var badge = document.getElementById("dbBadge");
-        Promise.all([
-          fetch(apiBase() + "/api/projects").then(function (r) { return r.json(); }),
-          fetch(apiBase() + "/api/tasks").then(function (r) { return r.json(); })
-        ]).then(function (arr) {
-          var pj = arr[0].data || [];
-          var tk = arr[1].data || [];
-          if (badge) {
-            fetch(apiBase() + "/api/health")
-              .then(function (r) { return r.json(); })
-              .then(function (h) {
-                badge.textContent = h.db === "mysql" ? "数据源：MySQL" : "数据源：内存模拟";
-              })
-              .catch(function () { badge.textContent = "数据源：未知"; });
-          }
-          var ptbody = document.querySelector("#tblProjects tbody");
-          var ttbody = document.querySelector("#tblTasks tbody");
-          var sel = document.getElementById("taskProjectFilter");
-          if (!ptbody || !ttbody || !sel) return;
+      function setToken(t) {
+        if (t) localStorage.setItem(TOKEN_KEY, t);
+        else localStorage.removeItem(TOKEN_KEY);
+      }
 
-          ptbody.innerHTML = pj.map(function (p) {
-            return "<tr><td>" + p.id + "</td><td>" + esc(p.code) + "</td><td>" + esc(p.name) + "</td><td>" + esc(p.client_name || "") + "</td><td>" + esc(p.status) + "</td><td>" + (p.progress_pct != null ? p.progress_pct + "%" : "") + "</td><td>" + esc(p.updated_at || "") + "</td></tr>";
-          }).join("");
-
-          var opts = '<option value="">全部项目</option>' + pj.map(function (p) {
-            return '<option value="' + p.id + '">' + esc(p.code + " · " + p.name) + "</option>";
-          }).join("");
-          sel.innerHTML = opts;
-
-          function renderTasks(filterId) {
-            var rows = filterId ? tk.filter(function (t) { return String(t.project_id) === String(filterId); }) : tk;
-            ttbody.innerHTML = rows.map(function (t) {
-              return "<tr><td>" + t.id + "</td><td>" + esc(String(t.project_id)) + "</td><td>" + esc(t.title) + "</td><td>" + esc(t.assignee_role || "") + "</td><td>" + esc(t.status) + "</td><td>" + esc(t.priority || "") + "</td><td>" + esc(t.due_date || "") + "</td></tr>";
-            }).join("");
-          }
-
-          sel.onchange = function () { renderTasks(sel.value); };
-          renderTasks("");
-        }).catch(function (e) {
-          if (badge) badge.textContent = "加载失败";
-          console.error(e);
-        });
+      function authHeaders() {
+        var t = getToken();
+        var h = { "Content-Type": "application/json" };
+        if (t) h.Authorization = "Bearer " + t;
+        return h;
       }
 
       function esc(s) {
@@ -728,7 +716,275 @@
           .replace(/"/g, "&quot;");
       }
 
-      document.getElementById("btnReloadData").addEventListener("click", loadBusinessData);
+      function show(id) {
+        views.forEach(function (v) {
+          v.classList.toggle("active", v.id === id);
+        });
+        buttons.forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-view") === id);
+        });
+        if (msgTimer) {
+          clearInterval(msgTimer);
+          msgTimer = null;
+        }
+        if (id === "view-workbench" && getToken()) {
+          loadWorkbench(true);
+          msgTimer = setInterval(function () { loadMessagesOnly(); }, 5000);
+        }
+      }
+
+      buttons.forEach(function (b) {
+        b.addEventListener("click", function () {
+          show(b.getAttribute("data-view"));
+        });
+      });
+
+      fetch(apiBase() + "/api/health")
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var el = document.getElementById("healthHint");
+          if (!el) return;
+          var db = j.db === "mysql" ? "MySQL" : "模拟";
+          var au = j.auth ? "JWT 已配置" : "未配置 JWT";
+          el.textContent = "后端 " + (j.ok ? "在线" : "异常") + " · " + db + " · " + au;
+        })
+        .catch(function () {
+          var el = document.getElementById("healthHint");
+          if (el) el.textContent = "无法连接后端，请运行 npm start（server 目录）";
+        });
+
+      fetch(apiBase() + "/api/meta/workflow")
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j.data && j.data.statuses && j.data.statuses.length) workflowStatuses = j.data.statuses;
+        })
+        .catch(function () {});
+
+      function updateWorkbenchLayout(loggedIn) {
+        var loginCard = document.getElementById("wbLoginCard");
+        var app = document.getElementById("wbApp");
+        if (!loginCard || !app) return;
+        if (loggedIn) {
+          loginCard.hidden = true;
+          app.hidden = false;
+        } else {
+          loginCard.hidden = false;
+          app.hidden = true;
+        }
+      }
+
+      function loadWorkbench(refreshBadge) {
+        var badge = document.getElementById("dbBadge");
+        if (!getToken()) {
+          updateWorkbenchLayout(false);
+          return;
+        }
+        updateWorkbenchLayout(true);
+        Promise.all([
+          fetch(apiBase() + "/api/projects", { headers: authHeaders() }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }),
+          fetch(apiBase() + "/api/tasks", { headers: authHeaders() }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        ]).then(function (arr) {
+          if (!arr[0].ok || !arr[1].ok) {
+            if (arr[0].j && arr[0].j.error && String(arr[0].j.error).indexOf("未登录") >= 0) {
+              setToken("");
+              updateWorkbenchLayout(false);
+            }
+            return;
+          }
+          var pj = arr[0].j.data || [];
+          var tk = arr[1].j.data || [];
+          if (badge && refreshBadge) {
+            fetch(apiBase() + "/api/health")
+              .then(function (r) { return r.json(); })
+              .then(function (h) {
+                badge.textContent = h.db === "mysql" ? "数据源：MySQL" : "数据源：内存模拟";
+              })
+              .catch(function () { badge.textContent = "数据源：未知"; });
+          }
+          var ptbody = document.querySelector("#tblProjects tbody");
+          var ttbody = document.querySelector("#tblTasks tbody");
+          var sel = document.getElementById("wbProject");
+          if (!ptbody || !ttbody || !sel) return;
+
+          ptbody.innerHTML = pj.map(function (p) {
+            return "<tr><td>" + p.id + "</td><td>" + esc(p.code) + "</td><td>" + esc(p.name) + "</td><td>" + esc(p.client_name || "") + "</td><td>" + esc(p.status) + "</td><td>" + (p.progress_pct != null ? p.progress_pct + "%" : "") + "</td></tr>";
+          }).join("");
+
+          var cur = sel.value;
+          sel.innerHTML = pj.map(function (p) {
+            return '<option value="' + p.id + '">' + esc(p.code + " · " + p.name) + "</option>";
+          }).join("");
+          if (cur && pj.some(function (p) { return String(p.id) === String(cur); })) sel.value = cur;
+          else if (pj[0]) sel.value = String(pj[0].id);
+
+          function statusSelect(t) {
+            var opts = workflowStatuses.map(function (s) {
+              return '<option value="' + esc(s) + '"' + (s === t.status ? " selected" : "") + ">" + esc(s) + "</option>";
+            }).join("");
+            return '<select data-task="' + t.id + '" class="wb-task-status">' + opts + "</select>";
+          }
+
+          function renderTasks() {
+            var pid = sel.value;
+            var rows = pid ? tk.filter(function (t) { return String(t.project_id) === String(pid); }) : tk;
+            ttbody.innerHTML = rows.map(function (t) {
+              return "<tr><td>" + t.id + "</td><td>" + esc(String(t.project_id)) + "</td><td>" + esc(t.title) + "</td><td>" + esc(t.description || "") + "</td><td>" + esc(t.assignee_role || "") + "</td><td>" + statusSelect(t) + "</td><td>" + esc(t.priority || "") + "</td><td>" + esc(t.due_date || "") + "</td></tr>";
+            }).join("");
+            ttbody.querySelectorAll(".wb-task-status").forEach(function (el) {
+              el.addEventListener("change", function () {
+                var id = el.getAttribute("data-task");
+                var st = el.value;
+                fetch(apiBase() + "/api/tasks/" + id, {
+                  method: "PATCH",
+                  headers: authHeaders(),
+                  body: JSON.stringify({ status: st })
+                })
+                  .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+                  .then(function (x) {
+                    if (!x.ok) alert(x.j.error || "更新失败");
+                    else loadWorkbench(false);
+                  });
+              });
+            });
+          }
+
+          sel.onchange = function () {
+            renderTasks();
+            loadMessagesOnly();
+          };
+          renderTasks();
+          loadMessagesOnly();
+        }).catch(function (e) {
+          if (badge) badge.textContent = "加载失败";
+          console.error(e);
+        });
+      }
+
+      function loadMessagesOnly() {
+        var sel = document.getElementById("wbProject");
+        var box = document.getElementById("wbMsgList");
+        if (!getToken() || !sel || !box || !sel.value) return;
+        fetch(apiBase() + "/api/messages?project_id=" + encodeURIComponent(sel.value), { headers: authHeaders() })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (x) {
+            if (!x.ok) return;
+            var list = x.j.data || [];
+            box.innerHTML = list.map(function (m) {
+              return '<div class="msg-item"><div class="meta">' + esc(m.display_name || m.username || "") + " · " + esc(m.created_at || "") + "</div><div class=\"body\">" + esc(m.body || "") + "</div></div>";
+            }).join("") || '<p class="muted">暂无消息</p>';
+            box.scrollTop = box.scrollHeight;
+          })
+          .catch(function () {});
+      }
+
+      document.getElementById("wbBtnLogin").addEventListener("click", function () {
+        var err = document.getElementById("wbLoginErr");
+        var u = document.getElementById("wbUser").value.trim();
+        var p = document.getElementById("wbPass").value;
+        err.hidden = false;
+        err.textContent = "登录中…";
+        fetch(apiBase() + "/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p })
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (x) {
+            if (!x.ok) {
+              err.textContent = x.j.error || "登录失败";
+              return;
+            }
+            setToken(x.j.data.token);
+            document.getElementById("wbWho").textContent =
+              (x.j.data.user.name || x.j.data.user.username) + "（" + x.j.data.user.role + "）";
+            err.hidden = true;
+            show("view-workbench");
+          })
+          .catch(function (e) {
+            err.textContent = "网络错误：" + e.message;
+          });
+      });
+
+      document.getElementById("wbBtnLogout").addEventListener("click", function () {
+        setToken("");
+        updateWorkbenchLayout(false);
+      });
+
+      document.getElementById("btnReloadData").addEventListener("click", function () {
+        loadWorkbench(true);
+      });
+
+      document.getElementById("wbBtnNewTask").addEventListener("click", function () {
+        var sel = document.getElementById("wbProject");
+        var title = document.getElementById("wbNewTitle").value.trim();
+        if (!sel || !sel.value) {
+          alert("请先选择项目");
+          return;
+        }
+        if (!title) {
+          alert("请填写标题");
+          return;
+        }
+        fetch(apiBase() + "/api/tasks", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            project_id: Number(sel.value),
+            title: title,
+            description: document.getElementById("wbNewDesc").value.trim(),
+            assignee_role: document.getElementById("wbNewRole").value.trim(),
+            priority: document.getElementById("wbNewPri").value.trim() || "P1",
+            due_date: document.getElementById("wbNewDue").value || null,
+            status: "待派发"
+          })
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (x) {
+            if (!x.ok) {
+              alert(x.j.error || "创建失败");
+              return;
+            }
+            document.getElementById("wbNewTitle").value = "";
+            document.getElementById("wbNewDesc").value = "";
+            loadWorkbench(false);
+          });
+      });
+
+      document.getElementById("wbBtnSend").addEventListener("click", function () {
+        var sel = document.getElementById("wbProject");
+        var body = document.getElementById("wbMsgBody").value.trim();
+        if (!sel || !sel.value) return;
+        if (!body) return;
+        fetch(apiBase() + "/api/messages", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({ project_id: Number(sel.value), body: body })
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (x) {
+            if (!x.ok) {
+              alert(x.j.error || "发送失败");
+              return;
+            }
+            document.getElementById("wbMsgBody").value = "";
+            loadMessagesOnly();
+          });
+      });
+
+      if (getToken()) {
+        fetch(apiBase() + "/api/me", { headers: authHeaders() })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j.data) {
+              document.getElementById("wbWho").textContent = (j.data.name || j.data.username) + "（" + j.data.role + "）";
+              updateWorkbenchLayout(true);
+            }
+          })
+          .catch(function () {
+            setToken("");
+            updateWorkbenchLayout(false);
+          });
+      }
 
       document.getElementById("btnChat").addEventListener("click", function () {
         var btn = document.getElementById("btnChat");
