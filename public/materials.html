@@ -94,6 +94,22 @@
       { c: "安全通道", u: "https://picsum.photos/seed/aishi-g6/800/450" },
       { c: "本地占位 SVG", u: "/assets/demo/concrete.svg" }
     ];
+    function mergeScenarioPickUrls() {
+      return fetch("/api/meta/scenario")
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (j) {
+          var gl = (j.data && j.data.gallery) || [];
+          gl.forEach(function (g) {
+            DEMO_URLS.push({
+              c: "[户型] " + (g.zone || "") + " · " + (g.photo_kind || "") + " · " + String(g.caption || "").slice(0, 28),
+              u: g.url,
+            });
+          });
+        })
+        .catch(function () {});
+    }
     function tok() { return localStorage.getItem(T) || ""; }
     function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
 
@@ -205,8 +221,13 @@
         });
     };
 
-    fillImgSelect(document.getElementById("mimgPick"));
-    fillImgSelect(document.getElementById("pimgPick"));
+    function bootPickers() {
+      mergeScenarioPickUrls().finally(function () {
+        fillImgSelect(document.getElementById("mimgPick"));
+        fillImgSelect(document.getElementById("pimgPick"));
+      });
+    }
+    bootPickers();
 
     document.getElementById("btnLogin").onclick = function () { document.getElementById("u").focus(); };
 
@@ -215,6 +236,7 @@
         if (j.data) {
           document.getElementById("who").textContent = j.data.name + "（" + j.data.role + "）";
           document.getElementById("app").hidden = false;
+          bootPickers();
           projects();
         }
       });

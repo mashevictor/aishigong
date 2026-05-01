@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>120㎡ 户型 · 客户演示沙盘｜一键进入各角色</title>
+  <style>
+    :root {
+      --ink: #0a1220;
+      --gold: #e8c76b;
+      --gold-d: #c9a44a;
+      --bg: #e8edf4;
+      --card: #fff;
+      --done: #166534;
+      --pending: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: linear-gradient(165deg, #dbe4f0, var(--bg));
+      color: var(--ink);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+    .hero {
+      background: linear-gradient(135deg, #04060a, #1e4a7a);
+      color: #f8fafc;
+      padding: 28px 18px 32px;
+      text-align: center;
+      border-bottom: 3px solid rgba(232, 199, 107, 0.55);
+    }
+    .hero h1 { margin: 0 0 10px; font-size: clamp(20px, 4vw, 26px); font-weight: 800; }
+    .hero p { margin: 0 auto; max-width: 720px; opacity: 0.92; font-size: 14px; color: var(--gold); }
+    .badge-row { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .badge-row span {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(232, 199, 107, 0.45);
+    }
+    main { max-width: 1080px; margin: 0 auto; padding: 18px 14px 48px; }
+
+    section.card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px 18px 22px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(15, 35, 71, 0.08);
+      box-shadow: 0 4px 14px rgba(4, 10, 30, 0.06);
+    }
+    section.card > h2 {
+      margin: 0 0 14px;
+      font-size: 17px;
+      padding-left: 12px;
+      border-left: 4px solid var(--gold-d);
+    }
+    .muted { color: #64748b; font-size: 13px; margin-top: 0; }
+
+    /* 总工期时间轴 */
+    .master-tl {
+      display: grid;
+      gap: 12px;
+    }
+    @media (min-width: 720px) {
+      .master-tl { grid-template-columns: repeat(3, 1fr); }
+    }
+    .phase {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fafbfc;
+    }
+    .phase .wk {
+      font-size: 11px;
+      font-weight: 800;
+      color: #b45309;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .phase h3 { margin: 0 0 8px; font-size: 15px; color: var(--ink); }
+    .phase ul { margin: 0; padding-left: 18px; font-size: 13px; color: #475569; }
+
+    /* 分房间对照 */
+    .room-grid { display: flex; flex-direction: column; gap: 18px; }
+    .room-block {
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+    .room-head {
+      padding: 12px 14px;
+      background: linear-gradient(90deg, #1e3a5f, #334155);
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+    }
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: #cbd5e1;
+    }
+    @media (max-width: 640px) {
+      .compare { grid-template-columns: 1fr; }
+    }
+    .compare figure {
+      margin: 0;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
+    }
+    .compare img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      background: #f1f5f9;
+    }
+    .compare figcaption {
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #475569;
+      flex: 1;
+    }
+    .compare .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-right: 6px;
+      font-weight: 700;
+    }
+    .tag.fx { background: #fef3c7; color: #92400e; }
+    .tag.live { background: #dcfce7; color: var(--done); }
+    .tag.fix { background: #fee2e2; color: #991b1b; }
+
+    /* 房间细分时间轴 */
+    .room-micro-tl {
+      padding: 12px 14px 16px;
+      background: #fff;
+      border-top: 1px solid #e2e8f0;
+      overflow-x: auto;
+    }
+    .micro-steps {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      min-width: min-content;
+      padding-bottom: 4px;
+    }
+    .micro-step {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 88px;
+      position: relative;
+    }
+    .micro-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #e2e8f0;
+      z-index: 0;
+    }
+    .dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 2px #cbd5e1;
+      position: relative;
+      z-index: 1;
+    }
+    .micro-step.done .dot {
+      background: var(--gold);
+      box-shadow: 0 0 0 2px var(--gold-d);
+    }
+    .micro-step.curr .dot {
+      background: #3b82f6;
+      box-shadow: 0 0 0 2px #1d4ed8;
+    }
+    .micro-step .lbl {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #64748b;
+      text-align: center;
+      line-height: 1.25;
+    }
+    .micro-step .when {
+      font-size: 10px;
+      color: var(--pending);
+      margin-top: 2px;
+    }
+
+    /* 角色大按钮（非顶部导航） */
+    .roles-intro { margin-bottom: 12px; }
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    button.role-btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 14px;
+      padding: 18px 16px;
+      text-align: left;
+      background: linear-gradient(145deg, #fff 0%, #f8fafc 100%);
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 2px 10px rgba(4, 10, 30, 0.05);
+      transition: border-color 0.15s, transform 0.1s;
+    }
+    button.role-btn:hover {
+      border-color: var(--gold-d);
+      transform: translateY(-2px);
+    }
+    button.role-btn:active { transform: translateY(0); }
+    button.role-btn .r-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    button.role-btn .r-sub {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.45;
+    }
+    button.role-btn .r-meta {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #b45309;
+      font-family: ui-monospace, monospace;
+    }
+    button.role-btn:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    footer a { color: #1e4a7a; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>滨江花园 · 120㎡ 全案精装 · 客户演示沙盘</h1>
+    <p>
+      面向汇报：<strong>整体工期 → 分房间对照（效果图 / 现场）</strong> → 各角色在手机上的真实入口。
+      下列大号按钮<strong>一键登录</strong>演示账号（密码统一 <code style="background:rgba(0,0,0,.35);padding:2px 8px;border-radius:6px">demo123</code>），无需手填。
+    </p>
+    <div class="badge-row">
+      <span>隐蔽 → 硬装 → 安装交付</span>
+      <span>PRJ-DEMO-001</span>
+      <span>Wavespeed / 实拍对照数据同源</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" id="rolesFirst">
+      <h2>第一步 · 选择演示视角（点击进入）</h2>
+      <p class="muted roles-intro">
+        与客户讲解时建议顺序：<strong>客户视图</strong>看进度与影像 → <strong>材料影像</strong>看归档 → <strong>项目经理</strong>看工单与汇总 → （可选）工人 / 售后。
+      </p>
+      <div class="role-grid" id="roleButtons"></div>
+    </section>
+
+    <section class="card">
+      <h2>整体施工时间轴（演示日历）</h2>
+      <p class="muted">与系统内「滨江花园」里程碑叙事一致；具体日期可按签约日平滑替换。</p>
+      <div class="master-tl" id="masterTimeline"></div>
+    </section>
+
+    <section class="card">
+      <h2>分房间 · 效果图 ↔ 现场 / 整改（对照）</h2>
+      <p class="muted">左列为设计意向，右列为工地进度或整改记录；数据来自当前服务端场景配置。</p>
+      <div class="room-grid" id="roomCompare"></div>
+    </section>
+  </main>
+
+  <footer>
+    书签直达：
+    <code>?goto=client</code>
+    ·
+    <code>?goto=manager</code>
+    ·
+    <code>?goto=materials</code>
+    <br />
+    <a href="/scenario-120.html">展开图文说明页 scenario-120</a>
+    ·
+    <a href="/portal.html">传统门户（模块网格）</a>
+    ·
+    <a href="/index.html">主站方案长页</a>
+  </footer>
+
+  <script>
+    var T = "aishigong_token";
+    var DEMO_PW = "demo123";
+
+    var ROLES = [
+      {
+        user: "kehu",
+        title: "客户 · 王业主",
+        sub: "远程看封面进度、全屋影像网格、里程碑与留言（手机友好）。",
+        href: "/client.html",
+      },
+      {
+        user: "jingli",
+        title: "项目经理 · 张经理",
+        sub: "任务材料工单汇总看板；适合讲「我们如何盯交付」。",
+        href: "/manager.html",
+      },
+      {
+        user: "gongren",
+        title: "工人 · 李师傅",
+        sub: "极简列表 + 工地影像只读；讲工人每日怎么用。",
+        href: "/worker.html",
+      },
+      {
+        user: "shouhou",
+        title: "售后 · 周售后",
+        sub: "质保工单流转：渗水 / 地漏异响等演示单。",
+        href: "/tickets.html",
+      },
+      {
+        user: "jingli",
+        title: "材料与影像归档",
+        sub: "打开材料 TOC + 现场影像墙（同一演示项目）。",
+        href: "/materials.html",
+      },
+      {
+        user: "admin",
+        title: "管理员（可选）",
+        sub: "项目成员与 AI 调用留痕；签约演示通常后置。",
+        href: "/admin.html",
+      },
+    ];
+
+    function esc(s) {
+      return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+    }
+
+    function loginAndGo(username, href) {
+      return fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username, password: DEMO_PW }),
+      }).then(function (r) {
+        return r.json().then(function (j) {
+          return { ok: r.ok, j: j };
+        });
+      }).then(function (x) {
+        if (!x.ok || !x.j.data || !x.j.data.token) {
+          throw new Error(x.j.error || "登录失败");
+        }
+        localStorage.setItem(T, x.j.data.token);
+        window.location.href = href;
+      });
+    }
+
+    function renderRoleButtons() {
+      var box = document.getElementById("roleButtons");
+      box.innerHTML = ROLES.map(function (r, i) {
+        return (
+          '<button type="button" class="role-btn" data-i="' +
+          i +
+          '"><div class="r-title">' +
+          esc(r.title) +
+          '</div><div class="r-sub">' +
+          esc(r.sub) +
+          '</div><div class="r-meta">账号 ' +
+          esc(r.user) +
+          " · 密码 demo123 · 点击进入</div></button>"
+        );
+      }).join("");
+
+      box.querySelectorAll(".role-btn").forEach(function (btn) {
+        btn.onclick = function () {
+          var r = ROLES[Number(btn.getAttribute("data-i"))];
+          btn.disabled = true;
+          loginAndGo(r.user, r.href).catch(function (e) {
+            btn.disabled = false;
+            alert(e.message || String(e));
+          });
+        };
+      });
+    }
+
+    var WEEK_HINTS = ["第 1–3 周 · 拆改与隐蔽", "第 4–9 周 · 瓦木油", "第 10–14 周 · 安装与交付"];
+
+    /** 每个房间演示用微观工序节点（相对开工日 T） */
+    var ROOM_MICRO_STEPS = [
+      { k: "效果图确认", t: "T+3" },
+      { k: "隐蔽验收", t: "T+18" },
+      { k: "瓦木中期", t: "T+35" },
+      { k: "油漆打磨", t: "T+52" },
+      { k: "安装收尾", t: "T+68" },
+      { k: "竣工验收", t: "T+82" },
+    ];
+
+    function renderMasterTimeline(phases) {
+      var el = document.getElementById("masterTimeline");
+      var list = phases && phases.length ? phases : [{ phase: "筹备", items: ["—"] }];
+      el.innerHTML = list
+        .map(function (p, i) {
+          var wk = WEEK_HINTS[i] || "阶段 " + (i + 1);
+          var lis = (p.items || []).map(function (it) {
+            return "<li>" + esc(it) + "</li>";
+          }).join("");
+          return (
+            '<div class="phase"><div class="wk">' +
+            esc(wk) +
+            "</div><h3>" +
+            esc(p.phase) +
+            "</h3><ul>" +
+            lis +
+            "</ul></div>"
+          );
+        })
+        .join("");
+    }
+
+    function microTimelineHtml(roomIndex, galleryItemsInRoom) {
+      var nFx = galleryItemsInRoom.filter(function (g) {
+        return (g.photo_kind || "").indexOf("效果") >= 0;
+      }).length;
+      var nLive = galleryItemsInRoom.filter(function (g) {
+        var k = g.photo_kind || "";
+        return k.indexOf("现场") >= 0 || k.indexOf("整改") >= 0;
+      }).length;
+      var currIdx = Math.min(ROOM_MICRO_STEPS.length - 1, nFx + nLive + Math.floor(roomIndex / 2));
+
+      return (
+        '<div class="room-micro-tl"><div style="font-size:12px;color:#64748b;margin-bottom:10px">' +
+        "<strong>本房间工序轨迹（演示）</strong> · 根据当前影像条目粗略映射进度节点</div>" +
+        '<div class="micro-steps">' +
+        ROOM_MICRO_STEPS.map(function (step, si) {
+          var done = si < currIdx;
+          var curr = si === currIdx;
+          var cls = done ? "done" : curr ? "curr" : "";
+          return (
+            '<div class="micro-step ' +
+            cls +
+            '"><div class="dot"></div><div class="lbl">' +
+            esc(step.k) +
+            '</div><div class="when">' +
+            esc(step.t) +
+            "</div></div>"
+          );
+        }).join("") +
+        "</div></div>"
+      );
+    }
+
+    function renderRoomCompare(gallery, rooms) {
+      var el = document.getElementById("roomCompare");
+      var zoneOrder = rooms && rooms.length ? rooms : [];
+
+      function itemsForZone(z) {
+        return gallery.filter(function (g) {
+          return g.zone === z;
+        });
+      }
+
+      function pickFx(items) {
+        var a = items.filter(function (g) {
+          return (g.photo_kind || "").indexOf("效果") >= 0;
+        });
+        return a[0];
+      }
+
+      function pickSite(items) {
+        var order = ["现场实拍", "整改前后"];
+        for (var i = 0; i < order.length; i++) {
+          var hit = items.find(function (g) {
+            return (g.photo_kind || "") === order[i];
+          });
+          if (hit) return hit;
+        }
+        return items.find(function (g) {
+          return (g.photo_kind || "").indexOf("现场") >= 0 || (g.photo_kind || "").indexOf("整改") >= 0;
+        });
+      }
+
+      function fig(one, cls, fbCaption) {
+        if (!one || !one.url) {
+          return (
+            '<figure><img src="/assets/demo/concrete.svg" alt="" /><figcaption>' +
+            '<span class="tag ' +
+            cls +
+            '">' +
+            esc(fbCaption) +
+            "</span>暂无配图（查看客户视图或刷新服务端场景缓存）</figcaption></figure>"
+          );
+        }
+        var tag =
+          (one.photo_kind || "").indexOf("效果") >= 0
+            ? "效果图"
+            : (one.photo_kind || "").indexOf("整改") >= 0
+              ? "整改"
+              : "现场";
+        var tagCls =
+          tag === "效果图" ? "fx" : tag === "整改" ? "fix" : "live";
+        return (
+          '<figure><img src="' +
+          esc(one.url) +
+          "\" alt=\"\" loading=\"lazy\" onerror=\"this.src='/assets/demo/concrete.svg'\"/><figcaption><span class=\"tag " +
+          tagCls +
+          '">' +
+          esc(tag) +
+          "</span>" +
+          esc(one.caption || "") +
+          (one.construction_note
+            ? "<br/><span style=\"color:#94a3b8;font-size:11px\">工序要点：" +
+              esc(one.construction_note) +
+              "</span>"
+            : "") +
+          "</figcaption></figure>"
+        );
+      }
+
+      el.innerHTML = zoneOrder
+        .map(function (zone, ri) {
+          var items = itemsForZone(zone);
+          var fx = pickFx(items);
+          var site = pickSite(items);
+          return (
+            '<div class="room-block"><div class="room-head">' +
+            esc(zone) +
+            '</div><div class="compare">' +
+            fig(fx, "fx", "效果图") +
+            fig(site, "live", "现场 / 整改") +
+            "</div>" +
+            microTimelineHtml(ri, items) +
+            "</div>"
+          );
+        })
+        .join("")
+        .trim();
+
+      if (!el.innerHTML) {
+        el.innerHTML =
+          '<p class="muted">未加载到场景数据，请确认服务已启动并可访问 /api/meta/scenario。</p>';
+      }
+    }
+
+    function boot() {
+      renderRoleButtons();
+      fetch("/api/meta/scenario")
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (j) {
+          var d = j.data || {};
+          renderMasterTimeline(d.renovation_phases || []);
+          renderRoomCompare(d.gallery || [], d.rooms || []);
+        })
+        .catch(function () {
+          renderMasterTimeline([]);
+          renderRoomCompare([], []);
+        });
+
+      var GOTO = {
+        client: ["kehu", "/client.html"],
+        manager: ["jingli", "/manager.html"],
+        worker: ["gongren", "/worker.html"],
+        tickets: ["shouhou", "/tickets.html"],
+        materials: ["jingli", "/materials.html"],
+        admin: ["admin", "/admin.html"],
+      };
+      var go = new URLSearchParams(location.search).get("goto");
+      if (go && GOTO[go]) {
+        var pair = GOTO[go];
+        loginAndGo(pair[0], pair[1]).catch(function () {});
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>

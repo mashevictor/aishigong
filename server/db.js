@@ -6,6 +6,9 @@ import { DEMO_PROJECT_COVERS, DEMO_GALLERY, SCENARIO_120_GALLERY } from "./media
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+/** 住宅全案演示项目：客户视图 / 工作台图库 / 现场影像 API 均优先展示中国常见户型（120㎡ 场景） */
+const SCENARIO_DEMO_PROJECT_CODE = "PRJ-DEMO-001";
+
 export const WORKFLOW_STATUSES = ["待派发", "进行中", "待验收", "整改中", "已完成"];
 
 export const SERVICE_TICKET_STATUSES = ["待受理", "处理中", "待回访", "已关闭"];
@@ -1260,16 +1263,40 @@ export async function createMaterialForUser(user, payload) {
   return rows[0];
 }
 
+function scenarioDemoSitePhotosFromGallery(projectId, fallbackCreatedAt) {
+  const ts =
+    fallbackCreatedAt ||
+    new Date().toISOString().slice(0, 19).replace("T", " ");
+  return SCENARIO_120_GALLERY.map((g, i) => ({
+    id: 880001 + i,
+    project_id: projectId,
+    caption: g.caption,
+    image_url: g.url,
+    sort_order: i + 1,
+    zone: g.zone,
+    photo_kind: g.photo_kind,
+    created_at: ts,
+  }));
+}
+
 export async function listSitePhotosForUser(user, projectId) {
   const pid = Number(projectId);
   if (!pid) throw new Error("project_id 无效");
   if (!(await userCanAccessProject(user, pid))) throw new Error("无权查看影像");
 
+  const plist = await listProjectsForUser(user);
+  const proj = plist.find((p) => Number(p.id) === pid);
+  const useScenarioGallery = proj?.code === SCENARIO_DEMO_PROJECT_CODE;
+
   if (mockMode || !pool) {
-    return mockSitePhotos
+    const rows = mockSitePhotos
       .filter((p) => p.project_id === pid)
       .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
       .map((p) => ({ ...p }));
+    if (useScenarioGallery) {
+      return scenarioDemoSitePhotosFromGallery(pid, rows[0]?.created_at);
+    }
+    return rows;
   }
   const [rows] = await pool.query(
     `SELECT id, project_id, caption, image_url, sort_order, zone, photo_kind,
@@ -1277,6 +1304,9 @@ export async function listSitePhotosForUser(user, projectId) {
      FROM site_photos WHERE project_id = ? ORDER BY sort_order, id`,
     [pid]
   );
+  if (useScenarioGallery) {
+    return scenarioDemoSitePhotosFromGallery(pid, rows[0]?.created_at);
+  }
   return rows;
 }
 
@@ -1730,7 +1760,12 @@ export async function clientProjectOverview(user, projectId) {
   if (!pid) throw new Error("project_id 无效");
   const plist = await listProjectsForUser(user);
   const proj = plist.find((p) => Number(p.id) === pid);
-  const cover_image_url = proj?.cover_image_url || null;
+  const cover_image_url =
+    proj?.cover_image_url ||
+    (proj?.code === SCENARIO_DEMO_PROJECT_CODE
+      ? DEMO_PROJECT_COVERS[SCENARIO_DEMO_PROJECT_CODE]
+      : null) ||
+    null;
   const tasks = await listTasksForUser(user, pid);
   const milestones = tasks
     .filter((t) => ["待验收", "已完成"].includes(t.status))
@@ -1744,7 +1779,8 @@ export async function clientProjectOverview(user, projectId) {
   return {
     project_id: pid,
     cover_image_url,
-    gallery: DEMO_GALLERY,
+    gallery:
+      proj?.code === SCENARIO_DEMO_PROJECT_CODE ? SCENARIO_120_GALLERY : DEMO_GALLERY,
     open_tasks: openTasks,
     milestones,
   };
@@ -1759,7 +1795,7 @@ export async function getMediaDashboard(user) {
   }
   return {
     projects,
-    gallery: DEMO_GALLERY,
+    gallery: SCENARIO_120_GALLERY,
     ai_preview,
   };
 }
