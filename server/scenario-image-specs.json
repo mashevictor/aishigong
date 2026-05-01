@@ -13,8 +13,10 @@
     "zone": "玄关",
     "photo_kind": "现场实拍",
     "caption": "玄关｜现场 · 强弱电开槽与鞋柜基层放线（中国板式户型玄关）",
-    "fallback_url": "https://picsum.photos/seed/aishi-entry-site-cn-v3/960/540",
-    "prompt_en": "Photorealistic smartphone documentary photo: narrow entryway foyer typical Chinese slab-type apartment corridor under 1.4m wide feel, beige ceramic floor partly stripped to grey cement dust, yellow PVC electrical conduit along wall with fresh chase grooves for strong and weak current, chalk snap lines marking shoe cabinet footprint against load-bearing wall, temporary bare bulb light, messy buckets trowels ladder safety tape, distant glimpse of PVC-framed sliding glass door typical China developer flat, realistic muted tones not luxury showroom",
+    "fallback_url": "https://picsum.photos/seed/aishi-entry-site-caption-v4/960/540",
+    "prompt_seed": 428811,
+    "prompt_negative_en": "installed shoe cabinet finished carpentry, living room sofa TV wall, bathroom toilet kitchen stove, bedroom bed, rendered VR visualization, western mansion foyer with chandelier, empty pristine staged photo, anime illustration, watermark text",
+    "prompt_en": "DOCUMENTARY JOB SITE PHOTO ONLY NOT INTERIOR DESIGN RENDER. LOCATION narrow entryway corridor Chinese slab apartment typical developer flat 90to140sqm. MUST SHOW simultaneously wall chase grooves freshly cut gray cement dust yellow PVC conduit pipes routed horizontally vertically chalk white snap lines on floor marking future shoe cabinet footprint NO installed cabinet panels yet bare studs optional temporary bulb buckets spades laser spirit level coil on floor PVC sliding door deep background corridor perspective shallow depth cluttered renovation authentic smartphone handheld slight noise NOT glamorous",
     "工序要点": "线管弯径、点位与柜体厚度核对、地面标高移交"
   },
   {
@@ -103,8 +105,10 @@
     "zone": "次卧",
     "photo_kind": "现场实拍",
     "caption": "次卧｜现场 · 榻榻米木基层打底·检修口预留（紧凑次卧）",
-    "fallback_url": "https://picsum.photos/seed/aishi-bed2-site-cn-v3/960/540",
-    "prompt_en": "Photorealistic messy renovation documentary: compact secondary bedroom typical Chinese high-rise flat about 9 to 11 square meters footprint, tatami raised platform timber skeleton framing with plywood substrate exposed, rectangular inspection hatch opening clearly reserved in corner for floor heating manifold access, aluminium sliding window with security grille common China urban residential look, insulation foil along exterior wall visible, electric cables stapled neatly pending finishing, circular saw vacuum hose dust realistic, cramped proportions NOT American master suite",
+    "fallback_url": "https://picsum.photos/seed/aishi-bed2-site-caption-v4/960/540",
+    "prompt_seed": 428813,
+    "prompt_negative_en": "finished tatami woven mats cushions tea table serene japanese showroom bathroom kitchen living room sofa wardrobe doors installed glossy render cartoon empty tidy room without carpentry dust queen bed american suite",
+    "prompt_en": "DOCUMENTARY JOB SITE PHOTO ONLY NOT RENDER NOT DECORATED ROOM. SMALL SECONDARY BEDROOM Chinese flat nine to eleven sqm cramped MUST SHOW tatami raised deck UNDER CONSTRUCTION bare timber joists plywood substrate skeleton rectangular CUTOUT hatch hole panel opening reserved corner for floor heating service NOT covered tatami grass mats dust sawdust handheld circular saw blur insulation foil strips along exterior wall aluminium sliding window security grille wires dangling unfinished harsh fluorescent messy realistic smartphone NO american spacious bedroom NO bunk beds NO bathroom fixtures",
     "工序要点": "榻榻米检修口盖板、地暖分水器避让、窗台石衔接"
   },
   {
@@ -148,8 +152,10 @@
     "zone": "阳台",
     "photo_kind": "现场实拍",
     "caption": "阳台｜现场 · 窗框节点防水涂刷（封闭阳台·中国式晾晒家政区）",
-    "fallback_url": "https://picsum.photos/seed/aishi-balc-site-cn-v3/960/540",
-    "prompt_en": "Photorealistic documentary smartphone photo: enclosed service balcony typical Chinese apartment sealed laundry balcony, aluminium alloy sliding windows with condensation tracks, stacked washer dryer corner wrapped in plastic film, grey matte floor tiles partly laid with spacers, worker wearing ordinary jacket brushing black waterproof coating along interior-side window sill and frame groove junction NOT dangling outside skyscraper, buckets rollers masking tape mop realistic renovation clutter, daylight through glazing showing neighboring slab facade typical China residential compound",
+    "fallback_url": "https://picsum.photos/seed/aishi-balc-site-caption-v4/960/540",
+    "prompt_seed": 428814,
+    "prompt_negative_en": "worker only outside hanging high rise facade rope spider-man exterior wall only scenic sky no balcony interior bathroom bedroom kitchen sofa cartoon pristine showroom lake mountain resort american porch wooden deck suburb villa drone aerial ONLY exterior rope access without enclosed balcony shell",
+    "prompt_en": "DOCUMENTARY JOB SITE PHOTO INSIDE ENCLOSED CHINA SERVICE BALCONY laundry balcony sealed glazing MUST SHOW worker standing INSIDE balcony interior brushing roller liquid waterproof coating onto INNER junction window sill aluminium sliding frame lower track groove corners buckets tar brushes masking tape grey porcelain tiles partly laid laundry washer dryer stacked wrapped plastic nearby neighboring slab building visible through glass realistic cluttered renovation daylight smartphone handheld MUST remain indoor enclosed balcony scene NOT rope suspended exterior facade ONLY NOT scenic landscape NOT bathroom toilet NOT living room sofa NOT rooftop skylight ONLY balcony utility space",
     "工序要点": "发泡胶老化检查、硅酮耐候胶重打、滴水线恢复"
   }
 ]

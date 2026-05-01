@@ -255,9 +255,10 @@ export async function wavespeedTextToImage(prompt, options = {}, env = process.e
  * CLI 用：成功返回 URL，失败抛错（便于脚本中断）。
  * @param {string} prompt
  * @param {NodeJS.ProcessEnv} env
+ * @param {{ negativePrompt?: string, seed?: number, size?: string, extraBody?: Record<string, unknown> }} [options]
  */
-export async function generateWavespeedImage(prompt, env) {
-  const r = await wavespeedTextToImage(prompt, {}, env);
+export async function generateWavespeedImage(prompt, env, options = {}) {
+  const r = await wavespeedTextToImage(prompt, options, env);
   if (!r.success) {
     throw new Error(r.message || "文生图失败");
   }

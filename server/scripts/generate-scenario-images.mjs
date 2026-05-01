@@ -142,7 +142,14 @@ async function main() {
       continue;
     }
     try {
-      const url = await generateWavespeedImage(prompt, process.env);
+      const imgOpts = {};
+      if (s.prompt_negative_en && String(s.prompt_negative_en).trim()) {
+        imgOpts.negativePrompt = String(s.prompt_negative_en).trim();
+      }
+      if (s.prompt_seed != null && Number.isFinite(Number(s.prompt_seed))) {
+        imgOpts.seed = Number(s.prompt_seed);
+      }
+      const url = await generateWavespeedImage(prompt, process.env, imgOpts);
       result[s.id] = url;
       writeFileSync(OUT_PATH, JSON.stringify(result, null, 2), "utf8");
       console.log("  →", url.slice(0, 80) + "…");
