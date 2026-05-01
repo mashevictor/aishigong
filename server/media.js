@@ -1,15 +1,18 @@
 /**
- * 演示用外链图（Picsum 固定 seed，便于稳定加载）+ 本站占位 SVG。
- * 若外网受限，前端可对 img onerror 切换到 /assets/demo/*.svg
+ * 演示用外链图（Picsum 固定 seed）+ 本站占位 SVG。
+ * 「120㎡ 全案装修」场景：区分房间、效果图 vs 现场实拍。
  */
 export const LOCAL_FALLBACK = "/assets/demo/concrete.svg";
 
+/** 主演示项目封面（客厅意向） */
+export const SCENARIO_120_COVER = "https://picsum.photos/seed/aishi-120-living-cover/1200/675";
+
 export const DEMO_PROJECT_COVERS = {
-  "PRJ-DEMO-001": "https://picsum.photos/seed/aishi-site1/1200/675",
-  "PRJ-DEMO-002": "https://picsum.photos/seed/aishi-site2/1200/675",
+  "PRJ-DEMO-001": SCENARIO_120_COVER,
+  "PRJ-DEMO-002": "https://picsum.photos/seed/aishi-office-renov/1200/675",
 };
 
-/** 模拟「现场图库 / 进度影像」——与具体项目可任意关联展示 */
+/** 通用图库（工作台 / 客户视图轮播） */
 export const DEMO_GALLERY = [
   { id: "g1", caption: "模拟·主体结构外立面", url: "https://picsum.photos/seed/aishi-g1/800/450", tags: ["进度", "外观"] },
   { id: "g2", caption: "模拟·钢筋绑扎验收前", url: "https://picsum.photos/seed/aishi-g2/800/450", tags: ["隐蔽工程"] },
@@ -18,3 +21,128 @@ export const DEMO_GALLERY = [
   { id: "g5", caption: "模拟·现场材料堆放区", url: "https://picsum.photos/seed/aishi-g5/800/450", tags: ["材料"] },
   { id: "g6", caption: "模拟·安全通道与围挡", url: "https://picsum.photos/seed/aishi-g6/800/450", tags: ["安全文明"] },
 ];
+
+/**
+ * 120㎡ 演示场景专用图集：房间 ×（效果图｜现场实拍｜整改）
+ * 与客户 / 经理 / 工人端「按房间」对照使用。
+ */
+export const SCENARIO_120_GALLERY = [
+  {
+    zone: "客厅",
+    photo_kind: "效果图",
+    caption: "客厅｜效果图 · 电视墙与无主灯方案",
+    url: "https://picsum.photos/seed/aishi-rm-living-eff/960/540",
+  },
+  {
+    zone: "客厅",
+    photo_kind: "现场实拍",
+    caption: "客厅｜现场 · 吊顶龙骨放线完成",
+    url: "https://picsum.photos/seed/aishi-rm-living-site1/960/540",
+  },
+  {
+    zone: "客厅",
+    photo_kind: "现场实拍",
+    caption: "客厅｜现场 · 地砖铺贴完成·成品保护",
+    url: "https://picsum.photos/seed/aishi-rm-living-site2/960/540",
+  },
+  {
+    zone: "主卧",
+    photo_kind: "效果图",
+    caption: "主卧｜效果图 · 床头背景与衣柜一体化",
+    url: "https://picsum.photos/seed/aishi-rm-bed-eff/960/540",
+  },
+  {
+    zone: "主卧",
+    photo_kind: "现场实拍",
+    caption: "主卧｜现场 · 墙面腻子打磨·等待乳胶漆",
+    url: "https://picsum.photos/seed/aishi-rm-bed-site/960/540",
+  },
+  {
+    zone: "厨房",
+    photo_kind: "效果图",
+    caption: "厨房｜效果图 · U 型橱柜与电器位",
+    url: "https://picsum.photos/seed/aishi-rm-kitch-eff/960/540",
+  },
+  {
+    zone: "厨房",
+    photo_kind: "现场实拍",
+    caption: "厨房｜现场 · 瓷砖铺贴·烟道止逆阀安装",
+    url: "https://picsum.photos/seed/aishi-rm-kitch-site/960/540",
+  },
+  {
+    zone: "卫生间",
+    photo_kind: "效果图",
+    caption: "卫生间｜效果图 · 干湿分离布局",
+    url: "https://picsum.photos/seed/aishi-rm-bath-eff/960/540",
+  },
+  {
+    zone: "卫生间",
+    photo_kind: "现场实拍",
+    caption: "卫生间｜现场 · 防水涂刷第二遍·闭水前",
+    url: "https://picsum.photos/seed/aishi-rm-bath-site1/960/540",
+  },
+  {
+    zone: "卫生间",
+    photo_kind: "整改前后",
+    caption: "卫生间｜整改 · 地漏坡度复查（二次找平）",
+    url: "https://picsum.photos/seed/aishi-rm-bath-fix/960/540",
+  },
+  {
+    zone: "阳台",
+    photo_kind: "效果图",
+    caption: "阳台｜效果图 · 家政柜与洗烘叠放",
+    url: "https://picsum.photos/seed/aishi-rm-balc-eff/960/540",
+  },
+  {
+    zone: "阳台",
+    photo_kind: "现场实拍",
+    caption: "阳台｜现场 · 窗外渗水点外墙涂刷（雨后复查）",
+    url: "https://picsum.photos/seed/aishi-rm-balc-site/960/540",
+  },
+];
+
+export const SCENARIO_120_ROOMS = ["客厅", "主卧", "厨房", "卫生间", "阳台"];
+
+/** 供 /api/meta/scenario 与静态页使用的结构化说明 */
+export function getScenario120Meta() {
+  return {
+    id: "scenario-120",
+    title: "滨江花园 · 120㎡ 全案精装（演示主线）",
+    area_sqm: 120,
+    project_code: "PRJ-DEMO-001",
+    rooms: SCENARIO_120_ROOMS,
+    gallery: SCENARIO_120_GALLERY,
+    role_flow: [
+      {
+        role: "客户",
+        summary: "在业主端查看效果图对照、进度百分比、里程碑与留言；可在质保期提交工单。",
+        pages: ["/portal.html", "/client.html", "/tickets.html"],
+      },
+      {
+        role: "项目经理",
+        summary: "派单与验收节点、材料到货核对、看板汇总异常工单与任务状态分布。",
+        pages: ["/portal.html", "/manager.html", "/materials.html", "/index.html"],
+      },
+      {
+        role: "工人",
+        summary: "极简视图更新任务状态、上传现场影像记录（URL）、查看归属工序。",
+        pages: ["/portal.html", "/worker.html"],
+      },
+      {
+        role: "售后",
+        summary: "受理报修、回访与工单状态流转。",
+        pages: ["/portal.html", "/tickets.html"],
+      },
+      {
+        role: "管理员",
+        summary: "项目与成员授权、封面图、AI 调用留痕与运营统计。",
+        pages: ["/admin.html", "/multimodal.html"],
+      },
+    ],
+    typical_issues: [
+      "卫生间地漏异响 / 坡度积水 → 工单 + 整改影像",
+      "阳台窗框渗水 → 雨后现场拍照 + 工单优先级 P0",
+      "乳胶漆色差 → 任务「整改中」+ 现场比对照片",
+    ],
+  };
+}

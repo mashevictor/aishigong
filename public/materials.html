@@ -128,7 +128,8 @@
         .then(function (j) {
           var box = document.getElementById("photos");
           box.innerHTML = (j.data || []).map(function (p) {
-            return '<figure class="ph"><img src="' + esc(p.image_url) + '" alt="" loading="lazy" onerror="this.src=\'/assets/demo/helmet.svg\'"/><figcaption>' + esc(p.caption) + '</figcaption></figure>';
+            var badge = (p.photo_kind ? "[" + p.photo_kind + "] " : "") + (p.zone ? p.zone + " · " : "");
+            return '<figure class="ph"><img src="' + esc(p.image_url) + '" alt="" loading="lazy" onerror="this.src=\'/assets/demo/helmet.svg\'"/><figcaption><strong>' + esc(badge) + '</strong>' + esc(p.caption) + '</figcaption></figure>';
           }).join("") || '<p class="muted">暂无影像</p>';
         });
     }

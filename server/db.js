@@ -2,7 +2,7 @@ import mysql from "mysql2/promise";
 import path from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcrypt";
-import { DEMO_PROJECT_COVERS, DEMO_GALLERY } from "./media.js";
+import { DEMO_PROJECT_COVERS, DEMO_GALLERY, SCENARIO_120_GALLERY } from "./media.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -33,22 +33,22 @@ let mockTicketIdSeq = 1;
 function initMockDataset() {
   const hash = (p) => bcrypt.hashSync(p, 9);
   mockUserIdSeq = 7;
-  mockMsgIdSeq = 3;
+  mockMsgIdSeq = 20;
   mockProjects = [
     {
       id: 1,
       code: "PRJ-DEMO-001",
-      name: "样板工程 · 滨江精装",
-      client_name: "演示客户 A",
+      name: "滨江花园 3 栋 · 120㎡ 全案精装（演示）",
+      client_name: "王女士 · 自住改善",
       status: "进行中",
-      progress_pct: 62,
+      progress_pct: 58,
       cover_image_url: DEMO_PROJECT_COVERS["PRJ-DEMO-001"],
       updated_at: new Date().toISOString().slice(0, 19).replace("T", " "),
     },
     {
       id: 2,
       code: "PRJ-DEMO-002",
-      name: "办公楼改造试点",
+      name: "科技园办公室 · 局部改造（演示）",
       client_name: "演示总包 B",
       status: "待验收",
       progress_pct: 94,
@@ -60,34 +60,145 @@ function initMockDataset() {
     {
       id: 101,
       project_id: 1,
-      title: "卫生间防水复检",
-      description: "对照图纸检查涂层厚度与闭水记录",
+      zone: "卫生间",
+      title: "【卫生间】防水闭水与 48h 影像存档",
+      description: "第二遍防水完成，闭水试验及楼下渗漏巡检记录上传",
       assignee_role: "施工经理",
       status: "待验收",
       priority: "P0",
-      due_date: "2026-05-08",
+      due_date: "2026-05-14",
       assigned_user_id: null,
     },
     {
       id: 102,
       project_id: 1,
-      title: "木工收口节点拍照上传",
-      description: "按节点清单上传前后对比照片",
+      zone: "卫生间",
+      title: "【卫生间】地漏坡度二次找平（整改）",
+      description: "业主反馈排水偏慢，复核坡度并影像闭环",
       assignee_role: "工人",
-      status: "进行中",
-      priority: "P1",
-      due_date: "2026-05-06",
+      status: "整改中",
+      priority: "P0",
+      due_date: "2026-05-11",
       assigned_user_id: null,
     },
     {
       id: 103,
+      project_id: 1,
+      zone: "客厅",
+      title: "【客厅】吊顶龙骨与灯槽验收",
+      description: "轻钢龙骨间距、吊杆防锈及灯槽尺寸复核",
+      assignee_role: "施工经理",
+      status: "进行中",
+      priority: "P1",
+      due_date: "2026-05-13",
+      assigned_user_id: null,
+    },
+    {
+      id: 104,
+      project_id: 1,
+      zone: "客厅",
+      title: "【客厅】地砖铺贴·成品保护",
+      description: "地暖区域伸缩缝按图施工，保护膜全覆盖",
+      assignee_role: "工人",
+      status: "进行中",
+      priority: "P1",
+      due_date: "2026-05-12",
+      assigned_user_id: null,
+    },
+    {
+      id: 105,
+      project_id: 1,
+      zone: "主卧",
+      title: "【主卧】腻子打磨·乳胶漆调色小样确认",
+      description: "业主签字确认色号后再滚涂",
+      assignee_role: "工人",
+      status: "待派发",
+      priority: "P2",
+      due_date: "2026-05-15",
+      assigned_user_id: null,
+    },
+    {
+      id: 106,
+      project_id: 1,
+      zone: "厨房",
+      title: "【厨房】橱柜复尺与电器电位核对",
+      description: "洗碗机/蒸烤箱电位与橱柜图纸一致",
+      assignee_role: "施工经理",
+      status: "待验收",
+      priority: "P1",
+      due_date: "2026-05-10",
+      assigned_user_id: null,
+    },
+    {
+      id: 107,
+      project_id: 1,
+      zone: "厨房",
+      title: "【厨房】墙地砖铺贴·烟道止逆阀安装",
+      description: "瓷砖空鼓抽检 + 止逆阀固定影像",
+      assignee_role: "工人",
+      status: "已完成",
+      priority: "P1",
+      due_date: "2026-05-07",
+      assigned_user_id: null,
+    },
+    {
+      id: 108,
+      project_id: 1,
+      zone: "阳台",
+      title: "【阳台】窗框外墙渗水点涂刷（雨后复查）",
+      description: "雨后 24h 内侧无水渍即闭环",
+      assignee_role: "售后",
+      status: "进行中",
+      priority: "P0",
+      due_date: "2026-05-09",
+      assigned_user_id: null,
+    },
+    {
+      id: 109,
+      project_id: 1,
+      zone: null,
+      title: "【全屋】木作安装收尾·五金调试",
+      description: "柜门铰链、抽屉阻尼调试",
+      assignee_role: "工人",
+      status: "待派发",
+      priority: "P2",
+      due_date: "2026-05-18",
+      assigned_user_id: null,
+    },
+    {
+      id: 110,
+      project_id: 1,
+      zone: null,
+      title: "【全屋】乳胶漆第一遍·环境监测",
+      description: "温湿度记录附影像",
+      assignee_role: "工人",
+      status: "进行中",
+      priority: "P2",
+      due_date: "2026-05-16",
+      assigned_user_id: null,
+    },
+    {
+      id: 111,
       project_id: 2,
-      title: "幕墙色差 AI 比对",
-      description: "上传现场与样板照片，生成比对结论",
+      zone: null,
+      title: "会议室立面 · 木饰面色差复核",
+      description: "对照封样板材拍照存档",
       assignee_role: "管理员",
       status: "整改中",
       priority: "P0",
       due_date: "2026-05-10",
+      assigned_user_id: null,
+    },
+    {
+      id: 112,
+      project_id: 2,
+      zone: null,
+      title: "强弱电箱挂牌·竣工资料扫描件上传",
+      description: "移交物业备案",
+      assignee_role: "施工经理",
+      status: "待验收",
+      priority: "P2",
+      due_date: "2026-05-20",
       assigned_user_id: null,
     },
   ];
@@ -120,8 +231,8 @@ function initMockDataset() {
       user_id: 2,
       username: "jingli",
       display_name: "张经理",
-      body: "今日防水区闭水试验已安排，请客户侧注意卫生间勿开水阀。",
-      created_at: new Date(Date.now() - 3600_000).toISOString().slice(0, 19).replace("T", " "),
+      body: "【进度同步】客厅地砖保护膜已全覆盖，本周六可进行木工进场交底；请关注群内效果图对照清单。",
+      created_at: new Date(Date.now() - 7200_000).toISOString().slice(0, 19).replace("T", " "),
     },
     {
       id: 2,
@@ -129,41 +240,123 @@ function initMockDataset() {
       user_id: 4,
       username: "kehu",
       display_name: "王业主",
-      body: "收到。下午会过去现场看一下。",
+      body: "收到。周六上午到场。主卧乳胶漆色号还请留小样在现场签字确认。",
+      created_at: new Date(Date.now() - 5400_000).toISOString().slice(0, 19).replace("T", " "),
+    },
+    {
+      id: 3,
+      project_id: 1,
+      user_id: 3,
+      username: "gongren",
+      display_name: "李师傅",
+      body: "【卫生间整改】地漏二次找平已完成，照片已上传影像归档，麻烦经理抽空验收。",
+      created_at: new Date(Date.now() - 3600_000).toISOString().slice(0, 19).replace("T", " "),
+    },
+    {
+      id: 4,
+      project_id: 1,
+      user_id: 6,
+      username: "shouhou",
+      display_name: "周售后",
+      body: "阳台雨后巡检预约周三上午，若不方便我可单独先看外墙一侧并反馈影像。",
       created_at: new Date(Date.now() - 1800_000).toISOString().slice(0, 19).replace("T", " "),
     },
+    {
+      id: 5,
+      project_id: 1,
+      user_id: 2,
+      username: "jingli",
+      display_name: "张经理",
+      body: "全体注意：本周验收节点已同步至经理看板与业主端里程碑，工单请走质保通道便于回访闭环。",
+      created_at: new Date(Date.now() - 600_000).toISOString().slice(0, 19).replace("T", " "),
+    },
   ];
-  mockMatIdSeq = 20;
-  mockPhotoIdSeq = 20;
-  mockTicketIdSeq = 20;
+  mockMatIdSeq = 200;
+  mockPhotoIdSeq = 500;
+  mockTicketIdSeq = 300;
   const ts = () => new Date().toISOString().slice(0, 19).replace("T", " ");
   mockMaterials = [
     {
       id: 11,
       project_id: 1,
-      item_name: "瓷砖",
-      spec: "600×600 仿古",
-      quantity_decimal: 1200,
-      unit: "片",
-      status_note: "已进场约 80%",
+      item_name: "【客厅】地砖 600×600",
+      spec: "仿古防滑",
+      quantity_decimal: 58,
+      unit: "㎡",
+      status_note: "铺贴完成·保洁前",
       image_url: DEMO_GALLERY[4].url,
       updated_at: ts(),
     },
     {
       id: 12,
       project_id: 1,
-      item_name: "乳胶漆",
-      spec: "环保五合一",
-      quantity_decimal: 180,
-      unit: "桶",
-      status_note: "待调色确认",
+      item_name: "【主卧】实木复合地板",
+      spec: "橡木色 ENF",
+      quantity_decimal: 22,
+      unit: "㎡",
+      status_note: "到货验收·含水率记录",
       image_url: null,
       updated_at: ts(),
     },
     {
       id: 13,
+      project_id: 1,
+      item_name: "【厨房】整体橱柜（延米）",
+      spec: "石英石台面",
+      quantity_decimal: 5.2,
+      unit: "延米",
+      status_note: "复尺待下单",
+      image_url: DEMO_GALLERY[3].url,
+      updated_at: ts(),
+    },
+    {
+      id: 14,
+      project_id: 1,
+      item_name: "【卫生间】淋浴隔断",
+      spec: "防爆钢化",
+      quantity_decimal: 1,
+      unit: "套",
+      status_note: "待安装",
+      image_url: null,
+      updated_at: ts(),
+    },
+    {
+      id: 15,
+      project_id: 1,
+      item_name: "【全屋】乳胶漆五合一",
+      spec: "可调色",
+      quantity_decimal: 28,
+      unit: "桶",
+      status_note: "第一遍施工中",
+      image_url: null,
+      updated_at: ts(),
+    },
+    {
+      id: 16,
+      project_id: 1,
+      item_name: "【阳台】断桥铝窗",
+      spec: "双层中空",
+      quantity_decimal: 12,
+      unit: "㎡",
+      status_note: "窗框外墙涂刷复查",
+      image_url: DEMO_GALLERY[5].url,
+      updated_at: ts(),
+    },
+    {
+      id: 17,
+      project_id: 1,
+      item_name: "【辅料】水泥黄沙",
+      spec: "本地化材",
+      quantity_decimal: 1,
+      unit: "批",
+      status_note: "按批次进场",
+      image_url: null,
+      updated_at: ts(),
+    },
+    {
+      id: 18,
       project_id: 2,
-      item_name: "电缆 YJV",
+      item_name: "电缆 YJV（办公改造）",
       spec: "3×25+1×16",
       quantity_decimal: 850,
       unit: "米",
@@ -173,37 +366,33 @@ function initMockDataset() {
     },
   ];
   mockSitePhotos = [
-    {
-      id: 21,
+    ...SCENARIO_120_GALLERY.map((g, i) => ({
+      id: 40 + i,
       project_id: 1,
-      caption: DEMO_GALLERY[0].caption,
-      image_url: DEMO_GALLERY[0].url,
-      sort_order: 1,
+      caption: g.caption,
+      image_url: g.url,
+      sort_order: i + 1,
+      zone: g.zone,
+      photo_kind: g.photo_kind,
       created_at: ts(),
-    },
+    })),
     {
-      id: 22,
-      project_id: 1,
-      caption: DEMO_GALLERY[3].caption,
-      image_url: DEMO_GALLERY[3].url,
-      sort_order: 2,
-      created_at: ts(),
-    },
-    {
-      id: 23,
+      id: 399,
       project_id: 2,
-      caption: DEMO_GALLERY[1].caption,
+      caption: "办公区｜现场 · 强弱电桥架敷设",
       image_url: DEMO_GALLERY[1].url,
-      sort_order: 1,
+      sort_order: 99,
+      zone: "公区",
+      photo_kind: "现场实拍",
       created_at: ts(),
     },
   ];
   mockTickets = [
     {
-      id: 31,
+      id: 301,
       project_id: 1,
-      title: "洗手间地漏异响",
-      description: "夜间有异响，需上门排查",
+      title: "【卫生间】地漏排水偏慢且有异响",
+      description: "夜间用水后有咕噜声，怀疑坡度或下水接口",
       category: "报修",
       status: "处理中",
       priority: "P1",
@@ -211,10 +400,10 @@ function initMockDataset() {
       created_at: ts(),
     },
     {
-      id: 32,
+      id: 302,
       project_id: 1,
-      title: "阳台渗水复查",
-      description: "雨后内侧墙角有水渍",
+      title: "【阳台】雨后窗台内侧渗水痕迹",
+      description: "需外墙涂刷与内侧腻子修补方案",
       category: "报修",
       status: "待受理",
       priority: "P0",
@@ -222,10 +411,32 @@ function initMockDataset() {
       created_at: ts(),
     },
     {
-      id: 33,
+      id: 303,
+      project_id: 1,
+      title: "【客厅】乳胶漆与展厅小样色差",
+      description: "自然光下对比照片已上传",
+      category: "报修",
+      status: "待回访",
+      priority: "P2",
+      created_by_user_id: 4,
+      created_at: ts(),
+    },
+    {
+      id: 304,
+      project_id: 1,
+      title: "【厨房】台面开孔与油烟机管道干涉",
+      description: "安装队次日到场复核",
+      category: "报修",
+      status: "进行中",
+      priority: "P1",
+      created_by_user_id: 6,
+      created_at: ts(),
+    },
+    {
+      id: 305,
       project_id: 2,
-      title: "门禁面板划痕",
-      description: "交付验收时发现轻微划痕",
+      title: "门禁读卡器支架松动",
+      description: "交付巡检发现",
       category: "质保",
       status: "待回访",
       priority: "P2",
@@ -295,6 +506,7 @@ async function ensureMysqlSchema(conn) {
   for (const [col, def] of [
     ["description", "TEXT NULL"],
     ["assigned_user_id", "INT NULL"],
+    ["zone", "VARCHAR(64) NULL"],
   ]) {
     try {
       await conn.query(`ALTER TABLE tasks ADD COLUMN ${col} ${def}`);
@@ -347,6 +559,16 @@ async function ensureMysqlSchema(conn) {
       CONSTRAINT fk_photo_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+  for (const [col, def] of [
+    ["zone", "VARCHAR(64) NULL"],
+    ["photo_kind", "VARCHAR(32) NULL"],
+  ]) {
+    try {
+      await conn.query(`ALTER TABLE site_photos ADD COLUMN ${col} ${def}`);
+    } catch (e) {
+      if (e.code !== "ER_DUP_FIELDNAME") throw e;
+    }
+  }
   await conn.query(`
     CREATE TABLE IF NOT EXISTS service_tickets (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -447,41 +669,85 @@ async function seedDemoExtras(conn) {
 
   await conn.query(
     `INSERT INTO materials (project_id, item_name, spec, quantity_decimal, unit, status_note, image_url) VALUES
-     (?, '瓷砖', '600×600 仿古', 1200, '片', '已进场约80%', ?),
-     (?, '乳胶漆', '环保五合一', 180, '桶', '待调色确认', NULL),
-     (?, '电缆 YJV', '3×25+1×16', 850, '米', '复核到货单', ?)`,
-    [p1, DEMO_GALLERY[4].url, p1, p2, DEMO_GALLERY[2].url]
-  );
-
-  await conn.query(
-    `INSERT INTO site_photos (project_id, caption, image_url, sort_order) VALUES
-     (?, ?, ?, 1), (?, ?, ?, 2)`,
+     (?, '【客厅】地砖 600×600', '仿古防滑', 58, '㎡', '铺贴完成·保洁前', ?),
+     (?, '【主卧】实木复合地板', '橡木色 ENF', 22, '㎡', '到货验收·含水率记录', NULL),
+     (?, '【厨房】整体橱柜（延米）', '石英石台面', 5.2, '延米', '复尺待下单', ?),
+     (?, '【卫生间】淋浴隔断', '防爆钢化', 1, '套', '待安装', NULL),
+     (?, '【全屋】乳胶漆五合一', '可调色', 28, '桶', '第一遍施工中', NULL),
+     (?, '【阳台】断桥铝窗', '双层中空', 12, '㎡', '窗框外墙涂刷复查', ?),
+     (?, '【辅料】水泥黄沙', '本地化材', 1, '批', '按批次进场', NULL),
+     (?, '电缆 YJV（办公改造）', '3×25+1×16', 850, '米', '复核到货单', ?)`,
     [
       p1,
-      DEMO_GALLERY[0].caption,
-      DEMO_GALLERY[0].url,
+      DEMO_GALLERY[4].url,
       p1,
-      DEMO_GALLERY[3].caption,
+      p1,
       DEMO_GALLERY[3].url,
+      p1,
+      p1,
+      p1,
+      DEMO_GALLERY[5].url,
+      p1,
+      p2,
+      DEMO_GALLERY[2].url,
     ]
   );
+
+  let sort = 1;
+  for (const g of SCENARIO_120_GALLERY) {
+    await conn.query(
+      `INSERT INTO site_photos (project_id, caption, image_url, sort_order, zone, photo_kind) VALUES (?,?,?,?,?,?)`,
+      [p1, g.caption, g.url, sort++, g.zone, g.photo_kind]
+    );
+  }
   if (p2) {
     await conn.query(
-      `INSERT INTO site_photos (project_id, caption, image_url, sort_order) VALUES (?, ?, ?, 1)`,
-      [p2, DEMO_GALLERY[1].caption, DEMO_GALLERY[1].url]
+      `INSERT INTO site_photos (project_id, caption, image_url, sort_order, zone, photo_kind) VALUES (?, ?, ?, 99, ?, ?)`,
+      [p2, "办公区｜现场 · 强弱电桥架敷设", DEMO_GALLERY[1].url, "公区", "现场实拍"]
     );
   }
 
   await conn.query(
     `INSERT INTO service_tickets (project_id, title, description, category, status, priority, created_by_user_id) VALUES
-     (?, '洗手间地漏异响', '夜间有异响，需上门排查', '报修', '处理中', 'P1', ?),
-     (?, '阳台渗水复查', '雨后内侧墙角有水渍', '报修', '待受理', 'P0', ?)`,
-    [p1, uidSh, p1, uidKh]
+     (?,?,?,?,?,?,?),
+     (?,?,?,?,?,?,?),
+     (?,?,?,?,?,?,?),
+     (?,?,?,?,?,?,?)`,
+    [
+      p1,
+      "【卫生间】地漏排水偏慢且有异响",
+      "夜间用水后有咕噜声，怀疑坡度或下水接口",
+      "报修",
+      "处理中",
+      "P1",
+      uidSh,
+      p1,
+      "【阳台】雨后窗台内侧渗水痕迹",
+      "需外墙涂刷与内侧腻子修补方案",
+      "报修",
+      "待受理",
+      "P0",
+      uidKh,
+      p1,
+      "【客厅】乳胶漆与展厅小样色差",
+      "自然光下对比照片已上传",
+      "报修",
+      "待回访",
+      "P2",
+      uidKh,
+      p1,
+      "【厨房】台面开孔与油烟机管道干涉",
+      "安装队次日到场复核",
+      "报修",
+      "进行中",
+      "P1",
+      uidSh,
+    ]
   );
   if (p2) {
     await conn.query(
       `INSERT INTO service_tickets (project_id, title, description, category, status, priority, created_by_user_id) VALUES
-       (?, '门禁面板划痕', '交付验收时发现轻微划痕', '质保', '待回访', 'P2', ?)`,
+       (?, '门禁读卡器支架松动', '交付巡检发现', '质保', '待回访', 'P2', ?)`,
       [p2, uidSh]
     );
   }
@@ -490,15 +756,24 @@ async function seedDemoExtras(conn) {
 async function seedDemo(conn) {
   await conn.query(
     `INSERT INTO projects (code, name, client_name, status, progress_pct, cover_image_url) VALUES
-     ('PRJ-DEMO-001', '样板工程 · 滨江精装', '演示客户 A', '进行中', 62, ?),
-     ('PRJ-DEMO-002', '办公楼改造试点', '演示总包 B', '待验收', 94, ?)`,
+     ('PRJ-DEMO-001', '滨江花园 3 栋 · 120㎡ 全案精装（演示）', '王女士 · 自住改善', '进行中', 58, ?),
+     ('PRJ-DEMO-002', '科技园办公室 · 局部改造（演示）', '演示总包 B', '待验收', 94, ?)`,
     [DEMO_PROJECT_COVERS["PRJ-DEMO-001"], DEMO_PROJECT_COVERS["PRJ-DEMO-002"]]
   );
   await conn.query(
-    `INSERT INTO tasks (project_id, title, description, assignee_role, status, priority, due_date) VALUES
-     (1, '卫生间防水复检', '对照图纸检查涂层厚度与闭水记录', '施工经理', '待验收', 'P0', '2026-05-08'),
-     (1, '木工收口节点拍照上传', '按节点清单上传前后对比照片', '工人', '进行中', 'P1', '2026-05-06'),
-     (2, '幕墙色差 AI 比对', '上传现场与样板照片，生成比对结论', '管理员', '整改中', 'P0', '2026-05-10')`
+    `INSERT INTO tasks (project_id, title, description, assignee_role, status, priority, due_date, zone) VALUES
+     (1, '【卫生间】防水闭水与 48h 影像存档', '第二遍防水完成，闭水试验及楼下渗漏巡检记录上传', '施工经理', '待验收', 'P0', '2026-05-14', '卫生间'),
+     (1, '【卫生间】地漏坡度二次找平（整改）', '业主反馈排水偏慢，复核坡度并影像闭环', '工人', '整改中', 'P0', '2026-05-11', '卫生间'),
+     (1, '【客厅】吊顶龙骨与灯槽验收', '轻钢龙骨间距、吊杆防锈及灯槽尺寸复核', '施工经理', '进行中', 'P1', '2026-05-13', '客厅'),
+     (1, '【客厅】地砖铺贴·成品保护', '地暖区域伸缩缝按图施工，保护膜全覆盖', '工人', '进行中', 'P1', '2026-05-12', '客厅'),
+     (1, '【主卧】腻子打磨·乳胶漆调色小样确认', '业主签字确认色号后再滚涂', '工人', '待派发', 'P2', '2026-05-15', '主卧'),
+     (1, '【厨房】橱柜复尺与电器电位核对', '洗碗机/蒸烤箱电位与橱柜图纸一致', '施工经理', '待验收', 'P1', '2026-05-10', '厨房'),
+     (1, '【厨房】墙地砖铺贴·烟道止逆阀安装', '瓷砖空鼓抽检 + 止逆阀固定影像', '工人', '已完成', 'P1', '2026-05-07', '厨房'),
+     (1, '【阳台】窗框外墙渗水点涂刷（雨后复查）', '雨后 24h 内侧无水渍即闭环', '售后', '进行中', 'P0', '2026-05-09', '阳台'),
+     (1, '【全屋】木作安装收尾·五金调试', '柜门铰链、抽屉阻尼调试', '工人', '待派发', 'P2', '2026-05-18', NULL),
+     (1, '【全屋】乳胶漆第一遍·环境监测', '温湿度记录附影像', '工人', '进行中', 'P2', '2026-05-16', NULL),
+     (2, '会议室立面 · 木饰面色差复核', '对照封样板材拍照存档', '管理员', '整改中', 'P0', '2026-05-10', NULL),
+     (2, '强弱电箱挂牌·竣工资料扫描件上传', '移交物业备案', '施工经理', '待验收', 'P2', '2026-05-20', NULL)`
   );
 }
 
@@ -700,6 +975,7 @@ export async function listTasksForUser(user, projectId) {
     priority: r.priority,
     due_date: r.due_date,
     assigned_user_id: r.assigned_user_id ?? null,
+    zone: r.zone ?? null,
   });
 
   if (mockMode || !pool) {
@@ -710,7 +986,7 @@ export async function listTasksForUser(user, projectId) {
   if (!pids || pids.length === 0) return [];
   const params = [];
   let sql = `SELECT id, project_id, title, description, assignee_role, status, priority,
-                    DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id
+                    DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id, zone
              FROM tasks WHERE project_id IN (${pids.map(() => "?").join(",")})`;
   params.push(...pids);
   if (filterPid) {
@@ -742,6 +1018,8 @@ export async function createTaskForUser(user, payload) {
   const priority = String(payload.priority || "P1").trim();
   const due_date = payload.due_date ? String(payload.due_date) : null;
   const status = WORKFLOW_STATUSES.includes(payload.status) ? payload.status : "待派发";
+  const zoneRaw = String(payload.zone || "").trim();
+  const zone = zoneRaw ? zoneRaw.slice(0, 64) : null;
 
   if (mockMode || !pool) {
     const id = Math.max(0, ...mockTasks.map((t) => t.id)) + 1;
@@ -755,18 +1033,19 @@ export async function createTaskForUser(user, payload) {
       priority,
       due_date,
       assigned_user_id: null,
+      zone,
     };
     mockTasks.push(row);
     return row;
   }
   const [r] = await pool.query(
-    `INSERT INTO tasks (project_id, title, description, assignee_role, status, priority, due_date)
-     VALUES (?,?,?,?,?,?,?)`,
-    [project_id, title, description, assignee_role, status, priority, due_date || null]
+    `INSERT INTO tasks (project_id, title, description, assignee_role, status, priority, due_date, zone)
+     VALUES (?,?,?,?,?,?,?,?)`,
+    [project_id, title, description, assignee_role, status, priority, due_date || null, zone]
   );
   const [rows] = await pool.query(
     `SELECT id, project_id, title, description, assignee_role, status, priority,
-            DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id
+            DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id, zone
      FROM tasks WHERE id = ?`,
     [r.insertId]
   );
@@ -791,7 +1070,7 @@ export async function updateTaskStatusForUser(user, taskId, status) {
   await pool.query("UPDATE tasks SET status = ? WHERE id = ?", [status, taskId]);
   const [out] = await pool.query(
     `SELECT id, project_id, title, description, assignee_role, status, priority,
-            DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id
+            DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id, zone
      FROM tasks WHERE id = ?`,
     [taskId]
   );
@@ -867,6 +1146,13 @@ export async function createMessageForUser(user, projectId, body) {
 
 const PORTAL_MODULES = [
   { key: "portal", title: "统一门户", path: "/portal.html", roles: ["*"], tag: "入口" },
+  {
+    key: "scenario120",
+    title: "120㎡ 演示主线（流程说明）",
+    path: "/scenario-120.html",
+    roles: ["*"],
+    tag: "场景",
+  },
   { key: "proposal", title: "方案与工作台", path: "/index.html", roles: ["*"], tag: "全文+AI" },
   { key: "manager", title: "施工经理看板", path: "/manager.html", roles: ["*"], tag: "汇总" },
   {
@@ -986,7 +1272,7 @@ export async function listSitePhotosForUser(user, projectId) {
       .map((p) => ({ ...p }));
   }
   const [rows] = await pool.query(
-    `SELECT id, project_id, caption, image_url, sort_order,
+    `SELECT id, project_id, caption, image_url, sort_order, zone, photo_kind,
             DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
      FROM site_photos WHERE project_id = ? ORDER BY sort_order, id`,
     [pid]
@@ -1002,6 +1288,8 @@ export async function createSitePhotoForUser(user, payload) {
   const image_url = String(payload?.image_url || "").trim();
   if (!image_url) throw new Error("图片 URL 不能为空");
   const sort_order = Number(payload?.sort_order ?? 99);
+  const zone = String(payload?.zone || "").trim().slice(0, 64) || null;
+  const photo_kind = String(payload?.photo_kind || "").trim().slice(0, 32) || null;
 
   if (mockMode || !pool) {
     const row = {
@@ -1010,17 +1298,19 @@ export async function createSitePhotoForUser(user, payload) {
       caption,
       image_url,
       sort_order,
+      zone,
+      photo_kind,
       created_at: new Date().toISOString().slice(0, 19).replace("T", " "),
     };
     mockSitePhotos.push(row);
     return row;
   }
   const [r] = await pool.query(
-    `INSERT INTO site_photos (project_id, caption, image_url, sort_order) VALUES (?,?,?,?)`,
-    [project_id, caption, image_url, sort_order]
+    `INSERT INTO site_photos (project_id, caption, image_url, sort_order, zone, photo_kind) VALUES (?,?,?,?,?,?)`,
+    [project_id, caption, image_url, sort_order, zone, photo_kind]
   );
   const [rows] = await pool.query(
-    `SELECT id, project_id, caption, image_url, sort_order,
+    `SELECT id, project_id, caption, image_url, sort_order, zone, photo_kind,
             DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
      FROM site_photos WHERE id = ?`,
     [r.insertId]
@@ -1496,7 +1786,7 @@ export async function listTasks(projectId) {
   if (projectId) {
     const [rows] = await pool.query(
       `SELECT id, project_id, title, description, assignee_role, status, priority,
-              DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id
+              DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id, zone
        FROM tasks WHERE project_id = ? ORDER BY id`,
       [projectId]
     );
@@ -1504,7 +1794,7 @@ export async function listTasks(projectId) {
   }
   const [rows] = await pool.query(
     `SELECT id, project_id, title, description, assignee_role, status, priority,
-            DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id
+            DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, assigned_user_id, zone
      FROM tasks ORDER BY project_id, id`
   );
   return rows;

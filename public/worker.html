@@ -83,7 +83,8 @@
             var opts = WF.map(function (s) {
               return '<option' + (s === t.status ? ' selected' : '') + '>' + esc(s) + '</option>';
             }).join("");
-            return '<div class="task" data-tid="' + esc(String(t.id)) + '"><b>' + esc(t.title) + '</b><div class="meta">' + esc(t.assignee_role || "未指定角色") + " · " + esc(t.priority) + " · 截止 " + esc(t.due_date || "—") + '</div><div class="muted" style="font-size:12px;margin-bottom:6px">' + esc(t.description || "") + '</div><select class="st">' + opts + '</select> <button type="button" class="go btnUp" style="width:auto;display:inline-block;padding:8px 14px;margin-top:8px">保存状态</button></div>';
+            var z = t.zone ? ("「" + esc(t.zone) + "」") : "";
+            return '<div class="task" data-tid="' + esc(String(t.id)) + '"><b>' + z + esc(t.title) + '</b><div class="meta">' + esc(t.assignee_role || "未指定角色") + " · " + esc(t.priority) + " · 截止 " + esc(t.due_date || "—") + '</div><div class="muted" style="font-size:12px;margin-bottom:6px">' + esc(t.description || "") + '</div><select class="st">' + opts + '</select> <button type="button" class="go btnUp" style="width:auto;display:inline-block;padding:8px 14px;margin-top:8px">保存状态</button></div>';
           }).join("") || '<p class="muted">暂无任务</p>';
 
           box.querySelectorAll(".btnUp").forEach(function (btn) {

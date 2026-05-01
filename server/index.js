@@ -46,6 +46,7 @@ import {
   dashboardSummaryForUser,
 } from "./db.js";
 import { signUserToken, authMiddleware, getJwtSecret, roleMiddleware } from "./auth.js";
+import { getScenario120Meta } from "./media.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -273,11 +274,20 @@ app.get("/api/meta/ticket-statuses", (_req, res) => {
   res.json({ data: { statuses: SERVICE_TICKET_STATUSES } });
 });
 
+app.get("/api/meta/scenario", (_req, res) => {
+  res.json({ data: getScenario120Meta() });
+});
+
 app.get("/api/meta/delivery", (_req, res) => {
   res.json({
     data: {
       frontend_pages: [
         { path: "/portal.html", deliverable: "统一门户（按角色模块导航）", audience: "已登录全员" },
+        {
+          path: "/scenario-120.html",
+          deliverable: "120㎡ 全案装修演示主线（房间×效果图/实拍×角色流程）",
+          audience: "签约演示 / 培训",
+        },
         { path: "/index.html", deliverable: "方案正文 + 施工协同工作台 + AI", audience: "全员 / 演示" },
         { path: "/manager.html", deliverable: "施工经理数据看板（任务/材料/工单汇总）", audience: "经理 / 演示" },
         { path: "/worker.html", deliverable: "工人极简（任务 + 现场影像只读）", audience: "工人 / 经理 / 管理" },
@@ -291,6 +301,7 @@ app.get("/api/meta/delivery", (_req, res) => {
       backend_route_groups: [
         { prefix: "/api/auth", note: "登录鉴权" },
         { prefix: "/api/portal/modules", note: "门户模块清单（按角色过滤）" },
+        { prefix: "/api/meta/scenario", note: "120㎡ 演示场景 JSON（签约讲解可与 scenario-120.html 同屏）" },
         { prefix: "/api/projects,/api/tasks,/api/messages", note: "业务协同（RBAC + 项目授权）" },
         { prefix: "/api/materials,/api/site-photos,/api/tickets", note: "材料、影像、售后工单" },
         { prefix: "/api/dashboard/summary", note: "经理看板汇总" },
