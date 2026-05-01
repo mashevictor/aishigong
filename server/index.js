@@ -117,7 +117,12 @@ const serveRepoRoot =
   String(process.env.SERVE_REPO_ROOT || "").toLowerCase() === "true" ||
   (!prod && String(process.env.SERVE_REPO_ROOT || "").toLowerCase() !== "false");
 
-app.use(express.static(publicDir, { maxAge: prod ? 86400000 : 0, index: true }));
+app.use(
+  express.static(publicDir, {
+    maxAge: prod ? 86400000 : 0,
+    index: ["index.html"],
+  })
+);
 if (serveRepoRoot) {
   app.use(
     express.static(rootDir, {
