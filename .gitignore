@@ -4,6 +4,7 @@
 !.env.example
 server/.env
 server/.env.*
+!server/.env.example
 
 # 依赖
 node_modules/
