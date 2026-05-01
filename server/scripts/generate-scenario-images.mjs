@@ -4,7 +4,8 @@
  * 可选：DEEPSEEK_API_KEY 存在时先批量优化英文 prompt。
  *
  * 用法（在 server 目录）：npm run scenario:images
- * 环境：WAVESPEED_API_KEY 必填；可选 DEEPSEEK_API_KEY、SCENARIO_IMAGE_DELAY_MS、SCENARIO_IMAGE_LIMIT、WAVESPEED_TEXT_TO_IMAGE_MODEL
+ * 环境：WAVESPEED_API_KEY 必填；可选 DEEPSEEK_API_KEY、SCENARIO_IMAGE_*、
+ * WAVESPEED_TEXT_TO_IMAGE_MODEL / WAVESPEED_TEXT_TO_IMAGE_MODEL_ALT（与 lib/wavespeed-generate.mjs 一致）
  */
 import { writeFileSync, readFileSync, existsSync } from "fs";
 import { fileURLToPath } from "url";
