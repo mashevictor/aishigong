@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Web 管理后台 · AI 施工监控系统</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
   <style>
     :root { --ink:#0a1220; --gold:#e8c76b; --bg:#e8edf4; --card:#fff; }
     body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:linear-gradient(180deg,#dbe4f0,var(--bg)); color:#1a1f2e; }
@@ -50,6 +51,14 @@
       <div class="card">
         <h2>运营概览</h2>
         <pre id="stats">加载中…</pre>
+      </div>
+      <div class="card">
+        <h2><span class="ai-cap-badge api">GET</span>AI 调用留痕接口</h2>
+        <p class="muted" style="margin: 0">
+          管理员可通过 <code>GET /api/admin/ai-logs</code> 拉取 DeepSeek / Wavespeed 等代理写入的日志；列表 UI 见
+          <a href="/multimodal.html">多模态结论区</a>。全站索引：
+          <a href="/ai-capability-map.html">AI 能力登记表</a>。
+        </p>
       </div>
       <div class="card">
         <h2>用户 / RBAC</h2>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>多模态分析结论区 · 管理</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
   <style>
     body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:#e8edf4; color:#0f172a; }
     header { background:linear-gradient(135deg,#04060a,#1a3d63); color:#f8fafc; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
@@ -21,7 +22,7 @@
 </head>
 <body>
   <header>
-    <strong>多模态分析结论区（调用留痕）</strong>
+    <strong><span class="ai-cap-badge api">ai_logs</span>多模态分析结论区（调用留痕）</strong>
     <div>
       <span id="who" class="muted" style="color:#e2e8f0"></span>
       <button type="button" class="primary" id="btnLogin">管理员登录</button>
@@ -30,6 +31,11 @@
   </header>
   <div class="wrap">
     <div class="card">
+      <p class="ai-cap-legend" style="margin-top: 0">
+        <span class="ai-cap-badge">API</span>
+        列表对应 <code>GET /api/admin/ai-logs</code>；全站 AI 索引见
+        <a href="/ai-capability-map.html">登记表</a>。
+      </p>
       <p class="muted" style="margin-top:0">展示 DeepSeek / Wavespeed 等服务端代理写入的 <code>ai_logs</code>。签约范围内可再接图纸比对、视频抽帧等结构化结论入库。</p>
       <div style="margin-bottom:10px">
         <input id="u" placeholder="用户名 admin" />

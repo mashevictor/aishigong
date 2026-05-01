@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="no-referrer" />
   <title>施工合同 · 材料供应商 · 工时 AI 管控演示</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
   <style>
     :root {
       --ink: #0a1220;
@@ -267,7 +268,7 @@
 <body>
   <header class="hero">
     <div class="inner">
-      <h1 id="pageTitle">施工合同 · 材料 · 供应商 · 工时 · AI 管控</h1>
+      <h1 id="pageTitle"><span class="ai-cap-badge">价差·条款</span>施工合同 · 材料 · 供应商 · 工时 · AI 管控</h1>
       <p class="lead" id="pageLead">
         将<strong>合同约定</strong>与<strong>执行清单</strong>对齐：材料量价偏差、供应商比选轨迹、工种工时漂移一目了然；
         AI 负责<strong>价差稽核、语义比价、签证阈值预警</strong>与<strong>条款检索留痕</strong>（以下为演示静态数据集，可对接真实 ERP）。
@@ -283,6 +284,11 @@
   </header>
 
   <main>
+    <p class="ai-cap-legend">
+      <span class="ai-cap-badge">AI</span>
+      本节数据来自采购演示 JSON；模型代理与留痕见
+      <a href="/ai-capability-map.html">登记表 · 接口一节</a>。
+    </p>
     <div id="loadErr"></div>
     <div style="margin-bottom:16px;padding:14px 18px;border-radius:14px;border:2px solid #fbbf24;background:linear-gradient(90deg,#fffbeb,#fff);font-size:14px;font-weight:700;color:#78350f">
       <strong style="color:#b45309">AI 验收点</strong>：隐蔽 / 中期 / 竣工 / 质保闸口清单、BIM·影像·清单对照模式、与本站模块挂钩说明 →

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>售后工单 · AI 施工监控系统</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
   <style>
     body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:#e8edf4; color:#0f172a; }
     header { background:linear-gradient(135deg,#04060a,#1a3d63); color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; }
@@ -26,7 +27,7 @@
 </head>
 <body>
   <header>
-    <strong>售后 / 质保工单</strong>
+    <strong><span class="ai-cap-badge soft">语义</span>售后 / 质保工单</strong>
     <div>
       <span id="who" class="muted" style="color:#e2e8f0"></span>
       <button type="button" class="primary" id="btnLogin">登录</button>
@@ -34,6 +35,11 @@
     </div>
   </header>
   <div class="wrap">
+    <p class="ai-cap-legend">
+      <span class="ai-cap-badge">叙事</span>
+      工单分级、复发对照等能力见矩阵页质保闸口；全站索引
+      <a href="/ai-capability-map.html">登记表</a>。
+    </p>
     <div class="card">
       <div class="row">
         <div><label>用户名（客户可用 kehu）</label><input id="u" /></div>

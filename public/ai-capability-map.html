@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 能力落点登记表 · 全站索引（演示）</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: linear-gradient(165deg, #dbe4f0, #e8edf4);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    header.hero {
+      background: linear-gradient(115deg, #04060a 0%, #1e4a7a 52%, #0f2847 100%);
+      color: #f8fafc;
+      padding: 26px 18px 30px;
+      border-bottom: 3px solid rgba(232, 199, 107, 0.55);
+    }
+    header.hero .inner { max-width: 1080px; margin: 0 auto; }
+    header.hero h1 { margin: 0 0 10px; font-size: clamp(18px, 3vw, 24px); font-weight: 900; }
+    header.hero p { margin: 0; opacity: 0.94; font-size: 14px; max-width: 900px; color: #fde68a; }
+    nav.jump {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    nav.jump a {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(253, 230, 138, 0.5);
+      color: #fffbeb;
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    main { max-width: 1080px; margin: 0 auto; padding: 22px 14px 56px; }
+    section.card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px 18px 22px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(15, 35, 71, 0.08);
+      box-shadow: 0 4px 14px rgba(4, 10, 30, 0.06);
+    }
+    section.card > h2 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      padding-left: 12px;
+      border-left: 4px solid #c9a44a;
+    }
+    .muted { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+    table.reg {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    table.reg th,
+    table.reg td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.reg th {
+      background: var(--bg);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    table.reg code { font-size: 12px; background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+    table.reg a { color: #1d4ed8; font-weight: 600; text-decoration: none; }
+    table.reg a:hover { text-decoration: underline; }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="inner">
+      <h1><span class="ai-cap-badge">索引</span> AI 能力落点登记表（演示仓库）</h1>
+      <p>
+        汇总本站<strong>页面 · HTTP 接口 · 数据 JSON · 构建脚本</strong>中与 AI / 算法 / 大模型代理相关之处；紫色角标 <span class="ai-cap-badge">AI</span> 在各业务页含义与此一致。
+      </p>
+      <nav class="jump">
+        <a href="#fe">前端页面</a>
+        <a href="#api">后端接口</a>
+        <a href="#data">数据与离线包</a>
+        <a href="#scripts">npm 脚本</a>
+        <a href="/demo.html">演示沙盘</a>
+        <a href="/ai-showcase.html">矩阵·闸口专页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <p class="ai-cap-legend">
+      <span class="ai-cap-badge">说明</span>
+      「AI」包含：<strong>已接通的模型代理</strong>（DeepSeek / Wavespeed）、<strong>前端展示的 AI 叙事与举证字段</strong>、以及<strong>预留的多模态 / 图纸比对</strong>占位；不构成法律承诺。
+    </p>
+
+    <section class="card" id="fe">
+      <h2>一、前端静态页（标注 AI 关联）</h2>
+      <p class="muted">下列路径均由 Node 静态托管或 CDN 直接提供；「AI 关联」简述用户可见或与 AI 数据同源的部分。</p>
+      <table class="reg">
+        <thead>
+          <tr>
+            <th>路径</th>
+            <th><span class="ai-cap-badge soft">AI</span> 关联</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="/ai-showcase.html">/ai-showcase.html</a></td>
+            <td>全页：五维矩阵、验收闸口、国标/DG 叙事、DeepSeek 刷新说明；数据 <code>GET /api/meta/ai-showcase</code> 或 fallback。</td>
+          </tr>
+          <tr>
+            <td><a href="/contract-ai.html">/contract-ai.html</a></td>
+            <td>合同/采购/工时侧 AI 摘要、价差与供应商「AI 结论」演示；<code>GET /api/meta/procurement-ai</code>。</td>
+          </tr>
+          <tr>
+            <td><a href="/multimodal.html">/multimodal.html</a></td>
+            <td><span class="ai-cap-badge api">API</span> 展示 <code>ai_logs</code> 调用留痕（DeepSeek/Wavespeed 等）；管理员只读。</td>
+          </tr>
+          <tr>
+            <td><a href="/index.html">/index.html</a></td>
+            <td>方案正文含多模态与谷歌模型叙事；工作台 <code>/api/media/dashboard</code> 含 AI 留痕摘要；视图「AI 文生文 / 文生图」走 <code>POST /api/ai/chat</code>、<code>POST /api/ai/image</code>。</td>
+          </tr>
+          <tr>
+            <td><a href="/demo.html">/demo.html</a></td>
+            <td>问题全景矩阵<strong> AI 列</strong>；工序与矩阵页能力映射块；<code>typical_issues</code> 含 AI 话术。</td>
+          </tr>
+          <tr>
+            <td><a href="/scenario-120.html">/scenario-120.html</a></td>
+            <td><code>room_cases</code> 条目的 <strong>AI 价值</strong>字段；主线讲解衔接验收闸口。</td>
+          </tr>
+          <tr>
+            <td><a href="/manager.html">/manager.html</a></td>
+            <td>快捷入口指向矩阵页、合同 AI；看板本身为业务汇总，常与 AI 闸口话术串联讲解。</td>
+          </tr>
+          <tr>
+            <td><a href="/portal.html">/portal.html</a></td>
+            <td>模块网格含「AI + 建造矩阵」「合同·采购 AI」「多模态」等入口。</td>
+          </tr>
+          <tr>
+            <td><a href="/client.html">/client.html</a></td>
+            <td>效果图/实拍墙与 milestones — 竣工验收 AI 叙事中的业主可视证据链（演示数据）。</td>
+          </tr>
+          <tr>
+            <td><a href="/materials.html">/materials.html</a></td>
+            <td>材料 TOC / 影像 — 可与合同 AI「清单 ↔ 到货」对照叙事联动。</td>
+          </tr>
+          <tr>
+            <td><a href="/tickets.html">/tickets.html</a></td>
+            <td>质保工单 — 矩阵页「工单语义分级 / 质保闸口」占位叙事。</td>
+          </tr>
+          <tr>
+            <td><a href="/worker.html">/worker.html</a></td>
+            <td>任务影像上传 — 可作为多模态分析输入源的演示链路一环。</td>
+          </tr>
+          <tr>
+            <td><a href="/admin.html">/admin.html</a></td>
+            <td>运营统计；管理员可查 <code>GET /api/admin/ai-logs</code>（本页 UI 未展开时可从主站工作台预览摘要）。</td>
+          </tr>
+          <tr>
+            <td><a href="/handover.html">/handover.html</a></td>
+            <td>移交清单表列出多模态页与 AI 代理路由说明。</td>
+          </tr>
+          <tr>
+            <td><strong>本页</strong> <a href="/ai-capability-map.html">/ai-capability-map.html</a></td>
+            <td>全站 AI 落点索引（纯静态登记表）。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="api">
+      <h2>二、后端 HTTP（直接与 AI / AI 叙事数据相关）</h2>
+      <table class="reg">
+        <thead>
+          <tr>
+            <th>路由</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>POST /api/ai/chat</code></td>
+            <td>需登录；转发 DeepSeek Chat Completions，写入 <code>ai_logs</code>。</td>
+          </tr>
+          <tr>
+            <td><code>POST /api/ai/image</code></td>
+            <td>需登录；Wavespeed 文生图代理，写入 <code>ai_logs</code>。</td>
+          </tr>
+          <tr>
+            <td><code>GET /api/admin/ai-logs</code></td>
+            <td>管理员；分页读取调用留痕。</td>
+          </tr>
+          <tr>
+            <td><code>GET /api/meta/ai-showcase</code></td>
+            <td>AI + 建造矩阵与闸口 JSON（<code>server/ai-construction-showcase.json</code>）。</td>
+          </tr>
+          <tr>
+            <td><code>GET /api/meta/procurement-ai</code></td>
+            <td>合同/采购演示 JSON（<code>server/procurement-ai-demo.json</code>）。</td>
+          </tr>
+          <tr>
+            <td><code>GET /api/meta/scenario</code></td>
+            <td>含 <code>typical_issues</code>、<code>room_cases</code>、<code>demo_issues_matrix</code> 等 <strong>AI 举证列 / ai_value</strong> 字段。</td>
+          </tr>
+          <tr>
+            <td><code>GET /api/media/dashboard</code></td>
+            <td>工作台一览；管理员响应中带 AI 调用摘要片段。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="muted">其余业务接口（任务、工单、材料）可为 AI 比对提供数据来源，但不直接调用外部模型。</p>
+    </section>
+
+    <section class="card" id="data">
+      <h2>三、数据文件与离线包（内容含 AI 字段或叙事）</h2>
+      <table class="reg">
+        <thead>
+          <tr>
+            <th>路径（仓库内）</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>server/ai-construction-showcase.json</code></td>
+            <td>矩阵页主数据；闸口、国标对照、DeepSeek 说明。</td>
+          </tr>
+          <tr>
+            <td><code>public/assets/ai-showcase-fallback.json</code></td>
+            <td>接口不可用时降级数据包。</td>
+          </tr>
+          <tr>
+            <td><code>server/procurement-ai-demo.json</code></td>
+            <td>合同 AI 页数据源。</td>
+          </tr>
+          <tr>
+            <td><code>server/demo-issues-matrix.json</code></td>
+            <td>沙盘「典型问题」矩阵；含 <strong>AI 列</strong>文案。</td>
+          </tr>
+          <tr>
+            <td><code>public/assets/demo-issues-fallback.json</code></td>
+            <td>矩阵离线兜底。</td>
+          </tr>
+          <tr>
+            <td><code>server/scenario-120-room-cases.json</code></td>
+            <td>按房间争议与 <strong>ai_value</strong>。</td>
+          </tr>
+          <tr>
+            <td><code>server/media.js</code>（内嵌 typical_issues）</td>
+            <td>若干条明确写「隐蔽验收 AI」「竣工 AI」等演示提要。</td>
+          </tr>
+          <tr>
+            <td><code>server/scenario-image-specs.json</code></td>
+            <td>Wavespeed 出图规格（脚本生成沙盘配图）。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="scripts">
+      <h2>四、构建脚本（调用大模型或文生图 API）</h2>
+      <p class="muted">在 <code>server/</code> 目录执行；需对应环境变量中的 API Key。</p>
+      <table class="reg">
+        <thead>
+          <tr>
+            <th>命令</th>
+            <th>脚本</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npm run showcase:deepseek</code></td>
+            <td><code>scripts/enrich-ai-showcase-deepseek.mjs</code></td>
+            <td>DeepSeek 刷新矩阵 JSON 段落。</td>
+          </tr>
+          <tr>
+            <td><code>npm run case:rooms-deepseek</code></td>
+            <td><code>scripts/enrich-room-cases-deepseek.mjs</code></td>
+            <td>DeepSeek 补充房间争议案例。</td>
+          </tr>
+          <tr>
+            <td><code>npm run scenario:images</code> / <code>scenario:images:cn-four</code></td>
+            <td><code>scripts/generate-scenario-images.mjs</code></td>
+            <td>Wavespeed 批量出图；可选 DeepSeek 优化 prompt。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <a href="/portal.html">统一门户</a>
+    ·
+    <a href="/demo.html">演示沙盘</a>
+    ·
+    <code>GET /api/meta/delivery</code>
+    交付物摘要（亦含 AI 相关路由提要）
+  </footer>
+</body>
+</html>

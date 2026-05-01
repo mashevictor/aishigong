@@ -330,6 +330,11 @@ app.get("/api/meta/delivery", (_req, res) => {
         { path: "/admin.html", deliverable: "Web 管理后台", audience: "管理/项目" },
         { path: "/client.html", deliverable: "项目 H5/网站 · 客户视图", audience: "终用户/业主" },
         { path: "/multimodal.html", deliverable: "多模态分析结论区（AI 调用留痕）", audience: "管理 / 可选 C 端" },
+        {
+          path: "/ai-capability-map.html",
+          deliverable: "AI 能力落点登记表：页面 · 接口 · 数据 · 脚本索引",
+          audience: "售前 / 架构移交 / 对内核对",
+        },
         { path: "/handover.html", deliverable: "移交清单与独立交付物说明", audience: "建设方信息化 / 移交" },
       ],
       backend_route_groups: [

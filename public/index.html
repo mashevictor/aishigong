@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI 施工实时聊天监控系统 - 方案与业务演示</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
   <style>
     :root {
       --fd-black: #04060a;
@@ -219,6 +220,8 @@
       <a href="/client.html" style="color:#fde68a;margin:0 6px">客户视图（H5）</a>|
       <a href="/multimodal.html" style="color:#fde68a;margin:0 6px">多模态结论区</a>|
       <a href="/handover.html" style="color:#fde68a;margin:0 6px">移交清单说明</a>
+      |
+      <a href="/ai-capability-map.html" style="color:#c4b5fd;margin:0 6px;font-weight:800">AI 能力登记表</a>
     </span>
   </nav>
 
@@ -629,8 +632,8 @@
           <label>当前项目 <select id="wbProject"></select></label>
         </div>
         <div class="card" style="margin-bottom:14px;background:#fff;border:1px solid rgba(15,35,71,.08);border-radius:12px;padding:14px 16px">
-          <h3 style="margin:0 0 8px;font-size:16px;color:var(--fd-ink)">数据链路一览 · 项目封面与模拟现场图库</h3>
-          <p class="muted" style="margin:0 0 8px">后端 <code>/api/media/dashboard</code>：有权看到的<strong>项目封面</strong> + 全角色可见的<strong>演示影像</strong>；管理员另附<strong>AI 调用留痕</strong>摘要。</p>
+          <h3 style="margin:0 0 8px;font-size:16px;color:var(--fd-ink)"><span class="ai-cap-badge">留痕</span>数据链路一览 · 项目封面与模拟现场图库</h3>
+          <p class="muted" style="margin:0 0 8px">后端 <code>/api/media/dashboard</code>：有权看到的<strong>项目封面</strong> + 全角色可见的<strong>演示影像</strong>；管理员另附<strong>AI 调用留痕</strong>摘要（详见 <a href="/ai-capability-map.html">登记表</a>）。</p>
           <div class="wb-proj-cards" id="wbProjCards"></div>
           <div class="wb-gallery" id="wbGalleryGrid"></div>
           <div class="wb-ai-strip" id="wbAiStrip"></div>
@@ -683,7 +686,7 @@
   <div id="view-chat" class="view">
     <div class="container panel-tools">
       <div class="card">
-        <h2 class="sect">AI 文生文（DeepSeek）</h2>
+        <h2 class="sect"><span class="ai-cap-badge api">POST</span>AI 文生文（DeepSeek）</h2>
         <p class="muted">请求由本机 Node 服务转发至 DeepSeek，浏览器不直接接触密钥。</p>
         <label>系统提示（可选）</label>
         <textarea id="chatSystem" placeholder="例如：你是施工现场安全员，回答要列出检查要点。"></textarea>
@@ -700,7 +703,7 @@
   <div id="view-img" class="view">
     <div class="container panel-tools">
       <div class="card">
-        <h2 class="sect">AI 文生图（Wavespeed）</h2>
+        <h2 class="sect"><span class="ai-cap-badge api">POST</span>AI 文生图（Wavespeed）</h2>
         <p class="muted">模型取自环境变量 <code>WAVESPEED_TEXT_TO_IMAGE_MODEL</code>；服务端提交任务并轮询结果。</p>
         <label>画面描述</label>
         <textarea id="imgPrompt" placeholder="例如：现代建筑工地航拍，蓝色安全帽工人，黄昏光线，写实风格"></textarea>

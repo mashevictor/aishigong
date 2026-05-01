@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="no-referrer" />
   <title>120㎡ 户型 · 客户演示沙盘｜一键进入各角色</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
   <style>
     :root {
       --ink: #0a1220;
@@ -437,10 +438,16 @@
       <span>PRJ-DEMO-001</span>
       <span>Wavespeed / 实拍对照数据同源</span>
       <a href="/ai-showcase.html">重点：AI 验收闸口 · BIM/影像对照</a>
+      <a href="/ai-capability-map.html" style="background: rgba(99, 102, 241, 0.25); border-color: rgba(165, 180, 252, 0.8); color: #e0e7ff">AI 能力登记表</a>
     </div>
   </header>
 
   <main>
+    <p class="ai-cap-legend">
+      <span class="ai-cap-badge">AI</span>
+      本页中含<strong>问题矩阵 AI 列</strong>、与矩阵页对齐的<strong>工序映射块</strong>；紫色角标含义见
+      <a href="/ai-capability-map.html">AI 能力落点登记表</a>。
+    </p>
     <section class="card" id="rolesFirst">
       <h2>第一步 · 选择演示视角（点击进入）</h2>
       <p class="muted roles-intro">
@@ -469,7 +476,7 @@
     </section>
 
     <section class="card ai-hook-section" id="aiInDemo">
-      <h2>矩阵页的 AI 能力，在本沙盘 / 工序里怎么讲（节选）</h2>
+      <h2><span class="ai-cap-badge">映射</span>矩阵页的 AI 能力，在本沙盘 / 工序里怎么讲（节选）</h2>
       <p class="muted">
         <a href="/ai-showcase.html">「AI + 智能建造矩阵」页</a>偏能力与合规叙事；下面把几条<strong>最常讲的 AI 能力</strong>对齐到<strong>本页工序节点</strong>和<strong>可点的 Demo 模块</strong>，方便售前一条龙讲完。
       </p>
@@ -533,7 +540,10 @@
     </section>
 
     <section class="card" id="issuesMatrixSection" style="display: none">
-      <h2 class="iss-head">典型工地问题全景（材料 · 工艺 · 观感 · 成本 · AI）</h2>
+      <h2 class="iss-head">
+        <span class="ai-cap-badge soft">举证列</span>
+        典型工地问题全景（材料 · 工艺 · 观感 · 成本 · AI）
+      </h2>
       <p class="iss-note" id="issuesMatrixIntro"></p>
       <p class="muted" style="margin-bottom: 12px">
         下列为<strong>穷举骨架</strong>：覆盖各房间与分项工程，便于售前扫盲区；实战仍以合同与国标为准。
@@ -558,6 +568,8 @@
     <a href="/portal.html">传统门户（模块网格）</a>
     ·
     <a href="/index.html">主站方案长页</a>
+    ·
+    <a href="/ai-capability-map.html">AI 能力落点登记表</a>
   </footer>
 
   <script>
@@ -915,7 +927,7 @@
                 esc(lk("cost", "成本")) +
                 "</div><p>" +
                 esc(iss.cost || "—") +
-                '</p></div><div class="ai"><div class="dk">' +
+                '</p></div><div class="ai"><div class="dk"><span class="ai-cap-badge soft">AI</span> ' +
                 esc(lk("ai", "AI")) +
                 "</div><p>" +
                 esc(iss.ai || "—") +

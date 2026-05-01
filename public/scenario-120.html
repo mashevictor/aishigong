@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>120㎡ 全案精装 · 演示主线｜AI 施工协同</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
   <style>
     :root { --ink:#0f172a; --gold:#c9a44a; --bg:#eef2f7; --card:#fff; }
     body { margin:0; font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:linear-gradient(165deg,#dbe4f0,var(--bg)); color:var(--ink); line-height:1.65; }
@@ -67,6 +68,11 @@
   </header>
 
   <div class="wrap">
+    <p class="ai-cap-legend">
+      <span class="ai-cap-badge">AI</span>
+      下方「高发争议」卡片含 <strong>AI 价值</strong> 字段；全站索引见
+      <a href="/ai-capability-map.html">AI 能力落点登记表</a>。
+    </p>
     <div class="card flow">
       <h2>一条项目主线：你在系统里会走到哪里？</h2>
       <ol>
@@ -98,7 +104,7 @@
     </div>
 
     <div class="card" id="roomCasesCard" style="display:none">
-      <h2>按房间 · 高发争议与 AI 可举证价值（案例核心）</h2>
+      <h2><span class="ai-cap-badge soft">字段</span>按房间 · 高发争议与 AI 可举证价值（案例核心）</h2>
       <p class="muted" style="margin-top:0">
         以下自 <code>scenario-120-room-cases.json</code> / <code>GET /api/meta/scenario</code> 的 <code>room_cases</code>，
         将「扯皮场景 → AI 能做什么 → 对应闸口与证据」串成售前与产品字段参照。可运行 <code>npm run case:rooms-deepseek</code> 用 DeepSeek 继续补充条目（需 API Key）。
@@ -129,6 +135,8 @@
     <code>GET /api/meta/scenario</code> · <code>GET /api/meta/case-flow-contract</code> ·
     <a href="/docs/api-case-flow-min.md" download>接口契约说明（MD）</a> ·
     <a href="/ai-showcase.html">AI 验收闸口</a>
+    ·
+    <a href="/ai-capability-map.html">AI 能力登记表</a>
     · AI 施工协同演示站
   </footer>
 
@@ -224,7 +232,7 @@
                     esc(p.title || "") +
                     '</h5><div class="grid"><div><span class="lbl">争议焦点</span> — ' +
                     esc(p.dispute || "") +
-                    '</div><div><span class="lbl">AI 价值</span> — ' +
+                    '</div><div><span class="lbl"><span class="ai-cap-badge soft">AI</span> 价值</span> — ' +
                     esc(p.ai_value || "") +
                     '</div><div><span class="lbl">闸口</span> ' +
                     esc(p.acceptance_gate || "") +

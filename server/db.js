@@ -1163,6 +1163,13 @@ const PORTAL_MODULES = [
     roles: ["*"],
     tag: "验收·BIM",
   },
+  {
+    key: "aiCapabilityMap",
+    title: "AI 能力落点登记表",
+    path: "/ai-capability-map.html",
+    roles: ["*"],
+    tag: "索引",
+  },
   { key: "proposal", title: "方案与工作台", path: "/index.html", roles: ["*"], tag: "全文+AI" },
   { key: "manager", title: "施工经理看板", path: "/manager.html", roles: ["*"], tag: "汇总" },
   {

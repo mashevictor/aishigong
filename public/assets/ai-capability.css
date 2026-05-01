@@ -1,0 +1,59 @@
+/**
+ * 全站统一：标注涉及算法 / 大模型 / AI 验收叙事 / AI 代理接口的界面模块。
+ * 在各页 <head> 引入：<link rel="stylesheet" href="/assets/ai-capability.css" />
+ */
+
+:root {
+  --ai-cap-purple: #4338ca;
+  --ai-cap-purple-hi: #6366f1;
+}
+
+.ai-cap-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--ai-cap-purple), var(--ai-cap-purple-hi));
+  color: #eef2ff;
+  vertical-align: middle;
+  margin-left: 6px;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.ai-cap-badge:first-child {
+  margin-left: 0;
+  margin-right: 6px;
+}
+
+.ai-cap-badge.soft {
+  background: linear-gradient(135deg, #5b21b6, #7c3aed);
+}
+
+.ai-cap-badge.api {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+}
+
+.ai-cap-legend {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px dashed #c4b5fd;
+  background: rgba(238, 242, 255, 0.72);
+}
+
+.ai-cap-legend .ai-cap-badge {
+  margin-right: 8px;
+  margin-left: 0;
+  vertical-align: text-bottom;
+}
+
+.ai-cap-legend a {
+  font-weight: 700;
+  color: #3730a3;
+}

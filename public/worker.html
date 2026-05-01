@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>工人视图 · AI 施工监控系统</title>
+  <link rel="stylesheet" href="/assets/ai-capability.css" />
   <style>
     body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:#f1f5f9; color:#0f172a; }
     header { background:#0f172a; color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; }
@@ -34,6 +35,11 @@
   </header>
   <div class="wrap">
     <div class="card" id="loginCard">
+      <p class="ai-cap-legend" style="margin-top: 0">
+        <span class="ai-cap-badge">输入源</span>
+        上传的现场图可作为多模态队列输入（演示占位）；索引见
+        <a href="/ai-capability-map.html">登记表</a>。
+      </p>
       <p class="muted" style="margin-top:0">演示：<code>gongren</code> / <code>demo123</code></p>
       <input id="u" placeholder="用户名" autocomplete="username" />
       <input id="p" type="password" placeholder="密码" autocomplete="current-password" />
