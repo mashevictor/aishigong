@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web 管理后台 · AI 施工监控系统</title>
+  <style>
+    :root { --ink:#0a1220; --gold:#e8c76b; --bg:#e8edf4; --card:#fff; }
+    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:linear-gradient(180deg,#dbe4f0,var(--bg)); color:#1a1f2e; }
+    header { background:linear-gradient(135deg,#04060a,#1a3d63); color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(232,199,107,.45); }
+    header a { color:var(--gold); text-decoration:none; font-weight:700; }
+    .wrap { max-width:1180px; margin:0 auto; padding:16px; }
+    .card { background:var(--card); border-radius:12px; padding:16px 18px; margin-bottom:14px; border:1px solid rgba(15,35,71,.08); box-shadow:0 2px 8px rgba(4,6,20,.06); }
+    h1 { margin:0; font-size:18px; }
+    h2 { margin:0 0 10px; font-size:16px; border-bottom:2px solid #c9a44a; padding-bottom:6px; color:var(--ink); }
+    label { font-size:13px; color:#475569; display:block; margin-top:8px; }
+    input, select, button { font:inherit; }
+    input, select { padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; min-width:120px; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin-top:8px; }
+    button.primary { cursor:pointer; border:none; border-radius:8px; padding:9px 16px; font-weight:800; background:linear-gradient(135deg,#e8c76b,#c9a44a); color:#0a1220; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th,td { border:1px solid #e2e8f0; padding:8px; text-align:left; vertical-align:top; }
+    th { background:#ebe6dc; }
+    .muted { color:#64748b; font-size:13px; }
+    pre { background:#f8fafc; padding:10px; border-radius:8px; overflow:auto; font-size:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Web 管理后台</h1>
+    <div>
+      <span id="who" class="muted" style="color:#e2e8f0"></span>
+      <button type="button" class="primary" id="btnLogout">退出</button>
+      <a href="/index.html">返回主站</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card" id="loginCard">
+      <h2>管理员登录</h2>
+      <p class="muted">仅限角色「管理员」。演示：<code>admin</code> / <code>demo123</code></p>
+      <div class="row">
+        <div><label>用户名</label><input id="u" autocomplete="username" /></div>
+        <div><label>密码</label><input id="p" type="password" autocomplete="current-password" /></div>
+        <button type="button" class="primary" id="btnLogin">登录</button>
+      </div>
+      <pre id="err" hidden></pre>
+    </div>
+
+    <div id="app" hidden>
+      <div class="card">
+        <h2>运营概览</h2>
+        <pre id="stats">加载中…</pre>
+      </div>
+      <div class="card">
+        <h2>用户 / RBAC</h2>
+        <table id="tblUsers"><thead><tr><th>ID</th><th>用户名</th><th>姓名</th><th>角色</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="card">
+        <h2>项目配置</h2>
+        <div class="row">
+          <div><label>编码</label><input id="npCode" placeholder="PRJ-XXX" /></div>
+          <div><label>名称</label><input id="npName" /></div>
+          <div><label>客户</label><input id="npClient" /></div>
+          <button type="button" class="primary" id="btnNewProj">新建项目</button>
+        </div>
+        <table id="tblProj" style="margin-top:12px"><thead><tr><th>ID</th><th>编码</th><th>名称</th><th>进度%</th><th>操作</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="card">
+        <h2>项目成员授权</h2>
+        <div class="row">
+          <div><label>项目 ID</label><input id="mPid" type="number" /></div>
+          <button type="button" class="primary" id="btnLoadMem">加载成员</button>
+        </div>
+        <table id="tblMem" style="margin-top:10px"><thead><tr><th>用户</th><th>全局角色</th><th>项目内角色</th><th>操作</th></tr></thead><tbody></tbody></table>
+        <div class="row">
+          <div><label>添加用户 ID</label><input id="addUid" type="number" /></div>
+          <div><label>项目内角色</label><input id="addR" placeholder="客户 / 工人 …" /></div>
+          <button type="button" class="primary" id="btnAddMem">添加成员</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var T = "aishigong_token";
+    function tok(){ return localStorage.getItem(T)||""; }
+    function h(){ return { "Content-Type":"application/json", Authorization:"Bearer "+tok() }; }
+    function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\"/g,"&quot;"); }
+
+    document.getElementById("btnLogin").onclick=function(){
+      var err=document.getElementById("err");
+      err.hidden=false; err.textContent="登录中…";
+      fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:document.getElementById("u").value.trim(),password:document.getElementById("p").value})})
+        .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+        .then(function(x){
+          if(!x.ok){ err.textContent=x.j.error||JSON.stringify(x.j); return; }
+          if(x.j.data.user.role!=="管理员"){ err.textContent="需要管理员角色"; return; }
+          localStorage.setItem(T,x.j.data.token);
+          boot();
+        });
+    };
+    document.getElementById("btnLogout").onclick=function(){ localStorage.removeItem(T); location.reload(); };
+
+    function boot(){
+      document.getElementById("loginCard").hidden=true;
+      document.getElementById("app").hidden=false;
+      fetch("/api/me",{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        document.getElementById("who").textContent=(j.data.name||j.data.username)+"（"+j.data.role+"）";
+        if(j.data.role!=="管理员"){ alert("非管理员"); localStorage.removeItem(T); location.reload(); }
+      });
+      loadAll();
+    }
+
+    function loadAll(){
+      fetch("/api/admin/stats",{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        document.getElementById("stats").textContent=JSON.stringify(j.data,null,2);
+      });
+      fetch("/api/admin/users",{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        var tb=document.querySelector("#tblUsers tbody");
+        tb.innerHTML=(j.data||[]).map(function(u){
+          return "<tr><td>"+u.id+"</td><td>"+esc(u.username)+"</td><td>"+esc(u.display_name)+"</td><td>"+esc(u.role)+"</td></tr>";
+        }).join("");
+      });
+      fetch("/api/admin/projects",{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        var tb=document.querySelector("#tblProj tbody");
+        tb.innerHTML=(j.data||[]).map(function(p){
+          return "<tr data-id=\""+p.id+"\"><td>"+p.id+"</td><td>"+esc(p.code)+"</td><td>"+esc(p.name)+"</td><td>"+p.progress_pct+"</td><td><button type=\"button\" class=\"inc\">进度+5</button></td></tr>";
+        }).join("");
+        tb.querySelectorAll("tr").forEach(function(tr){
+          tr.querySelector(".inc").onclick=function(){
+            var id=tr.getAttribute("data-id");
+            var pct=parseInt(tr.cells[3].textContent,10)||0;
+            fetch("/api/admin/projects/"+id,{method:"PATCH",headers:h(),body:JSON.stringify({progress_pct:Math.min(100,pct+5)})})
+              .then(function(){ loadAll(); });
+          };
+        });
+      });
+    }
+
+    document.getElementById("btnNewProj").onclick=function(){
+      fetch("/api/admin/projects",{method:"POST",headers:h(),body:JSON.stringify({
+        code:document.getElementById("npCode").value.trim(),
+        name:document.getElementById("npName").value.trim(),
+        client_name:document.getElementById("npClient").value.trim(),
+        status:"进行中",
+        progress_pct:0
+      })}).then(function(r){return r.json();}).then(function(j){
+        if(j.error){ alert(j.error); return; }
+        loadAll();
+      });
+    };
+
+    function loadMem(){
+      var pid=document.getElementById("mPid").value.trim();
+      fetch("/api/admin/project-members?project_id="+encodeURIComponent(pid),{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        var rows=j.data||[];
+        var tb=document.querySelector("#tblMem tbody");
+        tb.innerHTML=rows.map(function(m){
+          return "<tr><td>"+esc(m.username)+" (#"+m.user_id+")</td><td>"+esc(m.role)+"</td><td>"+esc(m.role_on_project||"")+"</td><td><button type=\"button\" class=\"rm\">移除</button></td></tr>";
+        }).join("");
+        tb.querySelectorAll("tr").forEach(function(tr,idx){
+          var m=rows[idx];
+          tr.querySelector(".rm").onclick=function(){
+            fetch("/api/admin/project-members",{method:"DELETE",headers:h(),body:JSON.stringify({project_id:Number(pid),user_id:m.user_id})})
+              .then(function(){ loadMem(); });
+          };
+        });
+      });
+    }
+    document.getElementById("btnLoadMem").onclick=loadMem;
+    document.getElementById("btnAddMem").onclick=function(){
+      var pid=document.getElementById("mPid").value.trim();
+      fetch("/api/admin/project-members",{method:"POST",headers:h(),body:JSON.stringify({
+        project_id:Number(pid),
+        user_id:Number(document.getElementById("addUid").value),
+        role_on_project:document.getElementById("addR").value.trim()
+      })}).then(function(r){return r.json();}).then(function(j){
+        if(j.error){ alert(j.error); return; }
+        loadMem();
+      });
+    };
+
+    if(tok()) fetch("/api/me",{headers:h()}).then(function(r){return r.json();}).then(function(j){
+      if(j.data&&j.data.role==="管理员") boot();
+    });
+  </script>
+</body>
+</html>

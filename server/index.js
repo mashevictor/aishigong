@@ -17,8 +17,18 @@ import {
   listMessagesForUser,
   createMessageForUser,
   WORKFLOW_STATUSES,
+  adminStats,
+  adminListUsers,
+  adminListAllProjects,
+  adminCreateProject,
+  adminUpdateProject,
+  adminListMembers,
+  adminAddMember,
+  adminRemoveMember,
+  adminListAiLogs,
+  clientProjectOverview,
 } from "./db.js";
-import { signUserToken, authMiddleware, getJwtSecret } from "./auth.js";
+import { signUserToken, authMiddleware, getJwtSecret, roleMiddleware } from "./auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,6 +49,7 @@ app.use(express.static(rootDir));
 await initDb(process.env);
 
 const requireAuth = authMiddleware(process.env);
+const adminOnly = [requireAuth, roleMiddleware("管理员")];
 
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -148,6 +159,139 @@ app.post("/api/messages", requireAuth, async (req, res) => {
 
 app.get("/api/meta/workflow", (_req, res) => {
   res.json({ data: { statuses: WORKFLOW_STATUSES } });
+});
+
+app.get("/api/meta/delivery", (_req, res) => {
+  res.json({
+    data: {
+      frontend_pages: [
+        { path: "/index.html", deliverable: "方案正文 + 施工协同工作台 + AI", audience: "全员 / 演示" },
+        { path: "/admin.html", deliverable: "Web 管理后台", audience: "管理/项目" },
+        { path: "/client.html", deliverable: "项目 H5/网站 · 客户视图", audience: "终用户/业主" },
+        { path: "/multimodal.html", deliverable: "多模态分析结论区（AI 调用留痕）", audience: "管理 / 可选 C 端" },
+        { path: "/handover.html", deliverable: "移交清单与独立交付物说明", audience: "建设方信息化 / 移交" },
+      ],
+      backend_route_groups: [
+        { prefix: "/api/auth", note: "登录鉴权" },
+        { prefix: "/api/projects,/api/tasks,/api/messages", note: "业务协同（RBAC + 项目授权）" },
+        { prefix: "/api/admin/*", note: "管理后台（仅管理员）" },
+        { prefix: "/api/client/overview", note: "客户视图聚合" },
+        { prefix: "/api/stream/events", note: "SSE 心跳（实时通道占位）" },
+        { prefix: "/api/ai/chat,/api/ai/image", note: "文生文 / 文生图" },
+      ],
+      separate_products: [
+        { name: "微信小程序", status: "需独立小程序工程 + 微信开发者工具发版" },
+        { name: "一客一专属 APK", status: "需 RN/Flutter/Uni-App + CI 出包与白标" },
+        { name: "OSS / 网关 / 完整审计", status: "可按签约接入对象存储与 API 网关" },
+      ],
+    },
+  });
+});
+
+app.get("/api/admin/stats", ...adminOnly, async (_req, res) => {
+  try {
+    res.json({ data: await adminStats() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/admin/users", ...adminOnly, async (_req, res) => {
+  try {
+    res.json({ data: await adminListUsers() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/admin/projects", ...adminOnly, async (_req, res) => {
+  try {
+    res.json({ data: await adminListAllProjects() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/admin/projects", ...adminOnly, async (req, res) => {
+  try {
+    const row = await adminCreateProject(req.body || {});
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.patch("/api/admin/projects/:id", ...adminOnly, async (req, res) => {
+  try {
+    const row = await adminUpdateProject(req.params.id, req.body || {});
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.get("/api/admin/project-members", ...adminOnly, async (req, res) => {
+  try {
+    const rows = await adminListMembers(req.query.project_id);
+    res.json({ data: rows });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post("/api/admin/project-members", ...adminOnly, async (req, res) => {
+  try {
+    await adminAddMember(req.body?.project_id, req.body?.user_id, req.body?.role_on_project);
+    res.json({ data: { ok: true } });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.delete("/api/admin/project-members", ...adminOnly, async (req, res) => {
+  try {
+    await adminRemoveMember(req.body?.project_id, req.body?.user_id);
+    res.json({ data: { ok: true } });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.get("/api/admin/ai-logs", ...adminOnly, async (req, res) => {
+  try {
+    const rows = await adminListAiLogs(req.query.limit);
+    res.json({ data: rows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/client/overview", requireAuth, async (req, res) => {
+  try {
+    const data = await clientProjectOverview(req.user, req.query.project_id);
+    res.json({ data });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.get("/api/stream/events", requireAuth, (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  if (typeof res.flushHeaders === "function") res.flushHeaders();
+  const write = (event, payload) => {
+    res.write(`event: ${event}\n`);
+    res.write(`data: ${JSON.stringify(payload)}\n\n`);
+  };
+  write("ready", { uid: req.user.uid, username: req.user.username });
+  const iv = setInterval(() => {
+    write("ping", { t: Date.now() });
+  }, 20000);
+  req.on("close", () => {
+    clearInterval(iv);
+  });
 });
 
 app.post("/api/ai/chat", async (req, res) => {
@@ -314,5 +458,5 @@ app.use((req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`服务已启动 http://127.0.0.1:${PORT}`);
-  console.log(`静态页: http://127.0.0.1:${PORT}/index.html`);
+  console.log(`入口: index.html | 管理后台 admin.html | 客户视图 client.html | 移交 handover.html`);
 });

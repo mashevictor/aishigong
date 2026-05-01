@@ -44,3 +44,16 @@ export function authMiddleware(env) {
     next();
   };
 }
+
+/** 需在 authMiddleware 之后使用；allowedRoles 为中文角色名，如「管理员」 */
+export function roleMiddleware(...allowedRoles) {
+  return function (req, res, next) {
+    if (!req.user) {
+      return res.status(401).json({ error: "未登录" });
+    }
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ error: "权限不足，需要：" + allowedRoles.join(" / ") });
+    }
+    next();
+  };
+}

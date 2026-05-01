@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>客户远程观测 · 项目 H5 视图</title>
+  <style>
+    :root { --ink:#0a1220; --gold:#e8c76b; }
+    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:linear-gradient(180deg,#dbe4f0,#e8edf4); color:#1a1f2e; }
+    header { background:linear-gradient(135deg,#04060a,#1e4a7a); color:#f8fafc; padding:16px 18px; text-align:center; border-bottom:1px solid rgba(232,199,107,.45); }
+    header h1 { margin:0 0 6px; font-size:20px; }
+    header p { margin:0; color:var(--gold); font-size:14px; }
+    .wrap { max-width:720px; margin:0 auto; padding:16px; }
+    .card { background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:14px; border:1px solid rgba(15,35,71,.08); box-shadow:0 4px 14px rgba(4,6,20,.08); }
+    .progress { height:12px; background:#e2e8f0; border-radius:999px; overflow:hidden; margin:10px 0; }
+    .bar { height:100%; background:linear-gradient(90deg,#1a3d63,var(--gold)); }
+    label { font-size:13px; color:#64748b; }
+    select,textarea,button,input { font:inherit; width:100%; box-sizing:border-box; }
+    select,textarea { padding:10px; border-radius:10px; border:1px solid #cbd5e1; margin-top:6px; }
+    button.primary { margin-top:10px; cursor:pointer; border:none; border-radius:10px; padding:12px; font-weight:800; background:linear-gradient(135deg,#e8c76b,#c9a44a); color:#0a1220; }
+    .timeline { border-left:3px solid #c9a44a; padding-left:12px; margin:10px 0; }
+    .tl-item { margin-bottom:12px; font-size:14px; }
+    .tl-meta { color:#64748b; font-size:12px; }
+    .msg { font-size:14px; padding:10px 0; border-bottom:1px solid #f1f5f9; }
+    .login { max-width:360px; margin:24px auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>客户远程观测</h1>
+    <p>形象进度 · 节点留痕 · 工程沟通（H5 / 网站同源能力演示）</p>
+  </header>
+  <div class="wrap">
+    <div class="card login" id="loginCard">
+      <h2 style="margin-top:0;text-align:center">登录</h2>
+      <p style="color:#64748b;font-size:13px;text-align:center">建议使用演示账号 <code>kehu</code> / <code>demo123</code></p>
+      <label>用户名</label>
+      <input id="u" autocomplete="username" />
+      <label>密码</label>
+      <input id="p" type="password" autocomplete="current-password" />
+      <button type="button" class="primary" id="btnLogin">进入项目视图</button>
+      <pre id="err" style="color:#b91c1c;font-size:13px;white-space:pre-wrap" hidden></pre>
+    </div>
+
+    <div id="app" hidden>
+      <div class="card">
+        <label>我的项目</label>
+        <select id="proj"></select>
+        <div id="progWrap" style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span>整体进度</span><span id="pct"></span></div>
+          <div class="progress"><div class="bar" id="bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">节点与留痕</h3>
+        <p style="color:#64748b;font-size:13px;margin-top:0">由任务状态中「待验收 / 已完成」推导的轻量里程碑（完整审计可二期单独存证）。</p>
+        <div class="timeline" id="mile"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">工程留言</h3>
+        <div id="msgs"></div>
+        <label style="margin-top:10px;display:block">发送一条消息</label>
+        <textarea id="body" rows="3" placeholder="提问 / 预约看现场 / 验收确认"></textarea>
+        <button type="button" class="primary" id="btnSend">发送</button>
+      </div>
+      <p style="text-align:center"><a href="/index.html">返回主站</a> · <button type="button" id="btnOut" style="border:none;background:none;color:#1d4ed8;cursor:pointer;text-decoration:underline;font:inherit">退出</button></p>
+    </div>
+  </div>
+  <script>
+    var T="aishigong_token";
+    function tok(){ return localStorage.getItem(T)||""; }
+    function h(){ return { "Content-Type":"application/json", Authorization:"Bearer "+tok() }; }
+    function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+    document.getElementById("btnLogin").onclick=function(){
+      var err=document.getElementById("err");
+      err.hidden=false; err.textContent="";
+      fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:document.getElementById("u").value.trim(),password:document.getElementById("p").value})})
+        .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+        .then(function(x){
+          if(!x.ok){ err.textContent=x.j.error||JSON.stringify(x.j); return; }
+          localStorage.setItem(T,x.j.data.token);
+          showApp();
+        });
+    };
+    document.getElementById("btnOut").onclick=function(){ localStorage.removeItem(T); location.reload(); };
+
+    function showApp(){
+      document.getElementById("loginCard").hidden=true;
+      document.getElementById("app").hidden=false;
+      fetch("/api/projects",{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        var sel=document.getElementById("proj");
+        sel.innerHTML=(j.data||[]).map(function(p){ return "<option value=\""+p.id+"\">"+esc(p.code+" · "+p.name)+"</option>"; }).join("");
+        sel.onchange=refresh;
+        refresh();
+      });
+    }
+
+    function refresh(){
+      var pid=document.getElementById("proj").value;
+      fetch("/api/projects",{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        var p=(j.data||[]).find(function(x){ return String(x.id)===String(pid); });
+        if(p){
+          document.getElementById("pct").textContent=p.progress_pct+"%";
+          document.getElementById("bar").style.width=p.progress_pct+"%";
+        }
+      });
+      fetch("/api/client/overview?project_id="+encodeURIComponent(pid),{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        if(j.error){ document.getElementById("mile").innerHTML="<p style=\"color:#b91c1c\">"+esc(j.error)+"</p>"; return; }
+        var ms=j.data.milestones||[];
+        document.getElementById("mile").innerHTML=ms.length?ms.map(function(m){
+          return "<div class=\"tl-item\"><div class=\"tl-meta\">"+esc(m.status)+" · 截止 "+esc(m.due_date||"-")+"</div><div>"+esc(m.title)+"</div></div>";
+        }).join(""):"<p style=\"color:#64748b\">暂无里程碑级任务</p>";
+      });
+      fetch("/api/messages?project_id="+encodeURIComponent(pid),{headers:h()}).then(function(r){return r.json();}).then(function(j){
+        document.getElementById("msgs").innerHTML=(j.data||[]).map(function(m){
+          return "<div class=\"msg\"><strong>"+esc(m.display_name||m.username)+"</strong> · "+esc(m.created_at)+"<br/>"+esc(m.body)+"</div>";
+        }).join("")||"<p style=\"color:#64748b\">暂无留言</p>";
+      });
+    }
+
+    document.getElementById("btnSend").onclick=function(){
+      var pid=document.getElementById("proj").value;
+      var body=document.getElementById("body").value.trim();
+      if(!body) return;
+      fetch("/api/messages",{method:"POST",headers:h(),body:JSON.stringify({project_id:Number(pid),body:body})})
+        .then(function(r){return r.json();}).then(function(j){
+          if(j.error){ alert(j.error); return; }
+          document.getElementById("body").value="";
+          refresh();
+        });
+    };
+
+    if(tok()) showApp();
+  </script>
+</body>
+</html>

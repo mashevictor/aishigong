@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>交付物清单 · 映射说明</title>
+  <style>
+    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:#f1f5f9; color:#0f172a; line-height:1.55; }
+    header { background:linear-gradient(135deg,#04060a,#1e4a7a); color:#f8fafc; padding:20px 18px; text-align:center; }
+    header h1 { margin:0 0 8px; font-size:22px; }
+    header p { margin:0; color:#fde68a; font-size:14px; }
+    .wrap { max-width:980px; margin:0 auto; padding:20px 16px 48px; }
+    .card { background:#fff; border-radius:12px; padding:18px 20px; margin-bottom:16px; box-shadow:0 2px 8px rgba(4,6,20,.06); border:1px solid rgba(15,35,71,.08); }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th,td { border:1px solid #e2e8f0; padding:10px 12px; vertical-align:top; text-align:left; }
+    th { background:linear-gradient(180deg,#ebe6dc,#e0d9ce); }
+    tr:nth-child(even){ background:#fafafa; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:8px; font-size:12px; font-weight:700; }
+    .b-done { background:#dcfce7; color:#166534; }
+    .b-part { background:#fef9c3; color:#854d0e; }
+    .b-ext { background:#e0e7ff; color:#3730a3; }
+    code { background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:12px; }
+    a { color:#1d4ed8; font-weight:600; }
+    h2 { font-size:17px; margin:0 0 12px; border-bottom:2px solid #c9a44a; padding-bottom:6px; }
+    ul { margin:8px 0 0 18px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>交付物清单与使用对象 · 本仓库映射</h1>
+    <p>对照商务方案中的交付表，拆解「页面 / 接口 / 独立工程」——本页随代码迭代可更新</p>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <h2>一、统计摘要（当前迭代）</h2>
+      <ul>
+        <li><strong>前端页面（本仓库 HTML）</strong>：<strong>5</strong> 个 — <code>index.html</code>、<code>admin.html</code>、<code>client.html</code>、<code>multimodal.html</code>、<code>handover.html</code>（另含原始方案静态页文件可打印归档）。</li>
+        <li><strong>后端</strong>：无「页面」概念；按能力分为 <strong>鉴权、业务协同、管理后台、客户聚合、实时占位、AI 代理、元数据</strong> 等 <strong>7 组 REST/SSE</strong>（详见下表与 <code>GET /api/meta/delivery</code>）。</li>
+        <li><strong>独立交付物（不在本仓库内完整实现）</strong>：微信小程序、定制 APK、商用 OSS/网关/等保 —— 需单独工程或运维接入。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>二、交付物逐项映射</h2>
+      <table>
+        <thead>
+          <tr><th>交付物</th><th>类型</th><th>本仓库落地</th><th>状态</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Web 管理后台</td><td>管理/项目</td>
+            <td>页面 <a href="/admin.html">/admin.html</a>；接口 <code>/api/admin/*</code>（统计、用户、项目 CRUD、成员授权、AI 日志）</td>
+            <td><span class="badge b-part">核心功能已演示</span></td>
+          </tr>
+          <tr>
+            <td>项目 H5/网站 + 客户视图</td><td>终用户</td>
+            <td>页面 <a href="/client.html">/client.html</a>；接口复用 <code>/api/projects</code>、<code>/api/messages</code>、<code>/api/client/overview</code></td>
+            <td><span class="badge b-part">客户视图已演示</span></td>
+          </tr>
+          <tr>
+            <td>微信小程序</td><td>终用户</td>
+            <td>需微信开发者工具 + 小程序 AppID；对接同一套 API 与登录体系（可二期）</td>
+            <td><span class="badge b-ext">独立工程</span></td>
+          </tr>
+          <tr>
+            <td>工程聊天、实时推送</td><td>终用户/管理</td>
+            <td>聊天：<code>/api/messages</code>；工作台与会话在 <code>index.html</code>；服务端推送占位：<code>GET /api/stream/events</code>（SSE 心跳）</td>
+            <td><span class="badge b-part">聊天已有 · 推送占位</span></td>
+          </tr>
+          <tr>
+            <td>一客一专属 App（APK）</td><td>终用户/业主</td>
+            <td>需 RN / Flutter / Uni-App + CI 白标出包；业务接口与本 H5 同源</td>
+            <td><span class="badge b-ext">独立工程</span></td>
+          </tr>
+          <tr>
+            <td>多模态分析结论区</td><td>管理 / 可选 C 端</td>
+            <td>页面 <a href="/multimodal.html">/multimodal.html</a>；数据来源 <code>ai_logs</code> + <code>/api/ai/*</code></td>
+            <td><span class="badge b-part">留痕与列表</span></td>
+          </tr>
+          <tr>
+            <td>后端包、DB 脚本、OSS、网关、RBAC 说明</td><td>移交</td>
+            <td>后端：<code>server/</code>；数据库脚本：<code>server/sql/init_mysql.sql</code>；RBAC：用户角色 + <code>project_members</code></td>
+            <td><span class="badge b-part">脚本与代码在库</span></td>
+          </tr>
+          <tr>
+            <td>功能说明、操作手册、测试验收报告</td><td>移交</td>
+            <td>操作说明分散在本页 + 各页面文案；正式验收文档需按甲方模板导出 Word/PDF（可二期）</td>
+            <td><span class="badge b-ext">模板化文档</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>三、机器可读清单（调试用）</h2>
+      <p class="muted" style="margin-top:0">GET <a href="/api/meta/delivery"><code>/api/meta/delivery</code></a> 返回 JSON，便于 CI 或门户聚合。</p>
+    </div>
+
+    <div class="card">
+      <p style="text-align:center;margin:0"><a href="/index.html">返回主站</a></p>
+    </div>
+  </div>
+</body>
+</html>

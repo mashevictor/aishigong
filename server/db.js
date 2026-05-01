@@ -17,6 +17,9 @@ let mockMembers = [];
 let mockMessages = [];
 let mockUserIdSeq = 1;
 let mockMsgIdSeq = 1;
+let mockAiLogs = [];
+let mockAiLogId = 1;
+let mockProjectIdSeq = 10;
 
 function initMockDataset() {
   const hash = (p) => bcrypt.hashSync(p, 9);
@@ -96,6 +99,9 @@ function initMockDataset() {
     { user_id: 6, project_id: 1, role_on_project: "售后" },
     { user_id: 6, project_id: 2, role_on_project: "售后" },
   ];
+  mockAiLogs = [];
+  mockAiLogId = 1;
+  mockProjectIdSeq = 100;
   mockMessages = [
     {
       id: 1,
@@ -550,15 +556,253 @@ export async function createMessageForUser(user, projectId, body) {
 }
 
 export async function logAi(kind, prompt, resultSummary) {
-  if (mockMode || !pool) return;
+  const summary = resultSummary ? String(resultSummary).slice(0, 512) : null;
+  if (mockMode || !pool) {
+    const ts = new Date().toISOString().slice(0, 19).replace("T", " ");
+    mockAiLogs.unshift({
+      id: mockAiLogId++,
+      kind,
+      prompt,
+      result_summary: summary,
+      created_at: ts,
+    });
+    mockAiLogs = mockAiLogs.slice(0, 200);
+    return;
+  }
   try {
     await pool.query(
       "INSERT INTO ai_logs (kind, prompt, result_summary) VALUES (?, ?, ?)",
-      [kind, prompt, resultSummary]
+      [kind, prompt, summary]
     );
   } catch {
     /* ignore */
   }
+}
+
+export async function adminStats() {
+  if (mockMode || !pool) {
+    return {
+      projects: mockProjects.length,
+      users: mockUsers.length,
+      tasks: mockTasks.length,
+      messages: mockMessages.length,
+      ai_logs: mockAiLogs.length,
+      db: "mock",
+    };
+  }
+  const [[pc]] = await pool.query("SELECT COUNT(*) AS c FROM projects");
+  const [[uc]] = await pool.query("SELECT COUNT(*) AS c FROM users");
+  const [[tc]] = await pool.query("SELECT COUNT(*) AS c FROM tasks");
+  const [[mc]] = await pool.query("SELECT COUNT(*) AS c FROM messages");
+  const [[ac]] = await pool.query("SELECT COUNT(*) AS c FROM ai_logs");
+  return {
+    projects: pc.c,
+    users: uc.c,
+    tasks: tc.c,
+    messages: mc.c,
+    ai_logs: ac.c,
+    db: "mysql",
+  };
+}
+
+export async function adminListUsers() {
+  if (mockMode || !pool) {
+    return mockUsers.map((u) => ({
+      id: u.id,
+      username: u.username,
+      display_name: u.display_name,
+      role: u.role,
+    }));
+  }
+  const [rows] = await pool.query(
+    "SELECT id, username, display_name, role, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM users ORDER BY id"
+  );
+  return rows;
+}
+
+export async function adminListAllProjects() {
+  if (mockMode || !pool) {
+    return mockProjects.map((p) => ({ ...p }));
+  }
+  const [rows] = await pool.query(
+    `SELECT id, code, name, client_name, status, progress_pct,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+     FROM projects ORDER BY id`
+  );
+  return rows;
+}
+
+export async function adminCreateProject(payload) {
+  const code = String(payload.code || "").trim();
+  const name = String(payload.name || "").trim();
+  if (!code || !name) throw new Error("编码与名称不能为空");
+  const client_name = String(payload.client_name || "").trim() || null;
+  const status = String(payload.status || "进行中").trim();
+  const progress_pct = Math.min(100, Math.max(0, Number(payload.progress_pct) || 0));
+
+  if (mockMode || !pool) {
+    if (mockProjects.some((p) => p.code === code)) throw new Error("项目编码已存在");
+    const id = ++mockProjectIdSeq;
+    const row = {
+      id,
+      code,
+      name,
+      client_name,
+      status,
+      progress_pct,
+      updated_at: new Date().toISOString().slice(0, 19).replace("T", " "),
+    };
+    mockProjects.push(row);
+    return row;
+  }
+  const [r] = await pool.query(
+    `INSERT INTO projects (code, name, client_name, status, progress_pct) VALUES (?,?,?,?,?)`,
+    [code, name, client_name, status, progress_pct]
+  );
+  const [rows] = await pool.query(
+    `SELECT id, code, name, client_name, status, progress_pct,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+     FROM projects WHERE id = ?`,
+    [r.insertId]
+  );
+  return rows[0];
+}
+
+export async function adminUpdateProject(id, payload) {
+  const pid = Number(id);
+  const fields = [];
+  const vals = [];
+  if (payload.name != null) {
+    fields.push("name = ?");
+    vals.push(String(payload.name).trim());
+  }
+  if (payload.client_name != null) {
+    fields.push("client_name = ?");
+    vals.push(String(payload.client_name).trim() || null);
+  }
+  if (payload.status != null) {
+    fields.push("status = ?");
+    vals.push(String(payload.status).trim());
+  }
+  if (payload.progress_pct != null) {
+    fields.push("progress_pct = ?");
+    vals.push(Math.min(100, Math.max(0, Number(payload.progress_pct))));
+  }
+  if (fields.length === 0) throw new Error("无更新字段");
+
+  if (mockMode || !pool) {
+    const p = mockProjects.find((x) => x.id === pid);
+    if (!p) throw new Error("项目不存在");
+    if (payload.name != null) p.name = String(payload.name).trim();
+    if (payload.client_name != null) p.client_name = String(payload.client_name).trim() || null;
+    if (payload.status != null) p.status = String(payload.status).trim();
+    if (payload.progress_pct != null) p.progress_pct = Math.min(100, Math.max(0, Number(payload.progress_pct)));
+    p.updated_at = new Date().toISOString().slice(0, 19).replace("T", " ");
+    return { ...p };
+  }
+  vals.push(pid);
+  await pool.query(`UPDATE projects SET ${fields.join(", ")} WHERE id = ?`, vals);
+  const [rows] = await pool.query(
+    `SELECT id, code, name, client_name, status, progress_pct,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+     FROM projects WHERE id = ?`,
+    [pid]
+  );
+  return rows[0];
+}
+
+export async function adminListMembers(projectId) {
+  const pid = Number(projectId);
+  if (!pid) throw new Error("project_id 无效");
+  if (mockMode || !pool) {
+    return mockMembers
+      .filter((m) => m.project_id === pid)
+      .map((m) => {
+        const u = mockUsers.find((x) => x.id === m.user_id);
+        return {
+          user_id: m.user_id,
+          project_id: m.project_id,
+          role_on_project: m.role_on_project,
+          username: u?.username,
+          display_name: u?.display_name,
+          role: u?.role,
+        };
+      });
+  }
+  const [rows] = await pool.query(
+    `SELECT pm.user_id, pm.project_id, pm.role_on_project, u.username, u.display_name, u.role
+     FROM project_members pm
+     JOIN users u ON u.id = pm.user_id
+     WHERE pm.project_id = ?
+     ORDER BY pm.user_id`,
+    [pid]
+  );
+  return rows;
+}
+
+export async function adminAddMember(projectId, userId, roleOnProject) {
+  const pid = Number(projectId);
+  const uid = Number(userId);
+  const r = String(roleOnProject || "").trim() || null;
+  if (!pid || !uid) throw new Error("project_id / user_id 无效");
+
+  if (mockMode || !pool) {
+    if (!mockProjects.some((p) => p.id === pid)) throw new Error("项目不存在");
+    if (!mockUsers.some((u) => u.id === uid)) throw new Error("用户不存在");
+    if (mockMembers.some((m) => m.user_id === uid && m.project_id === pid)) {
+      throw new Error("已是该项目成员");
+    }
+    mockMembers.push({ user_id: uid, project_id: pid, role_on_project: r });
+    return { ok: true };
+  }
+  await pool.query(
+    "INSERT INTO project_members (user_id, project_id, role_on_project) VALUES (?,?,?)",
+    [uid, pid, r]
+  );
+  return { ok: true };
+}
+
+export async function adminRemoveMember(projectId, userId) {
+  const pid = Number(projectId);
+  const uid = Number(userId);
+  if (!pid || !uid) throw new Error("project_id / user_id 无效");
+  if (mockMode || !pool) {
+    mockMembers = mockMembers.filter((m) => !(m.user_id === uid && m.project_id === pid));
+    return { ok: true };
+  }
+  await pool.query("DELETE FROM project_members WHERE project_id = ? AND user_id = ?", [pid, uid]);
+  return { ok: true };
+}
+
+export async function adminListAiLogs(limit) {
+  const n = Math.min(200, Math.max(1, Number(limit) || 50));
+  if (mockMode || !pool) {
+    return mockAiLogs.slice(0, n);
+  }
+  const [rows] = await pool.query(
+    `SELECT id, kind, prompt, result_summary,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+     FROM ai_logs ORDER BY id DESC LIMIT ?`,
+    [n]
+  );
+  return rows;
+}
+
+/** 客户视图：节点留痕 = 任务状态变更轨迹的轻量只读聚合（当前无独立 audit 表，用任务列表推导） */
+export async function clientProjectOverview(user, projectId) {
+  const pid = Number(projectId);
+  if (!pid) throw new Error("project_id 无效");
+  const tasks = await listTasksForUser(user, pid);
+  const milestones = tasks
+    .filter((t) => ["待验收", "已完成"].includes(t.status))
+    .map((t) => ({
+      title: t.title,
+      status: t.status,
+      due_date: t.due_date,
+      priority: t.priority,
+    }));
+  const openTasks = tasks.filter((t) => t.status !== "已完成").length;
+  return { project_id: pid, open_tasks: openTasks, milestones };
 }
 
 export function envPath() {
