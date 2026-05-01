@@ -50,6 +50,7 @@ import {
   getScenario120Meta,
   getProcurementAiDemoMeta,
   getAiConstructionShowcaseMeta,
+  getCaseFlowContractMeta,
 } from "./media.js";
 import { wavespeedTextToImage } from "./lib/wavespeed-generate.mjs";
 
@@ -283,6 +284,10 @@ app.get("/api/meta/scenario", (_req, res) => {
   res.json({ data: getScenario120Meta() });
 });
 
+app.get("/api/meta/case-flow-contract", (_req, res) => {
+  res.json({ data: getCaseFlowContractMeta() });
+});
+
 app.get("/api/meta/procurement-ai", (_req, res) => {
   res.json({ data: getProcurementAiDemoMeta() });
 });
@@ -329,7 +334,11 @@ app.get("/api/meta/delivery", (_req, res) => {
       backend_route_groups: [
         { prefix: "/api/auth", note: "登录鉴权" },
         { prefix: "/api/portal/modules", note: "门户模块清单（按角色过滤）" },
-        { prefix: "/api/meta/scenario", note: "120㎡ 演示场景 JSON（签约讲解可与 scenario-120.html 同屏）" },
+        { prefix: "/api/meta/scenario", note: "120㎡ 演示场景 JSON（含 room_cases 争议与 AI 叙事）" },
+        {
+          prefix: "/api/meta/case-flow-contract",
+          note: "案例验收最小 REST 契约自述（已实现 meta + backlog /api/v1）",
+        },
         { prefix: "/api/meta/procurement-ai", note: "合同/采购/工时 AI 管控演示 JSON（contract-ai.html）" },
         { prefix: "/api/meta/ai-showcase", note: "AI+建造矩阵与验收闸口 JSON（ai-showcase.html）" },
         { prefix: "/api/projects,/api/tasks,/api/messages", note: "业务协同（RBAC + 项目授权）" },

@@ -103,6 +103,17 @@ export const DEMO_PROJECT_COVERS = {
 
 /** 供 /api/meta/scenario 与静态页使用的结构化说明 */
 export function getScenario120Meta() {
+  const roomDoc = loadScenarioRoomCasesDoc();
+  const room_cases = roomDoc?.room_cases || [];
+  const derived_issues = deriveTypicalIssuesFromRooms(room_cases, 6);
+  const base_issues = [
+    "隐蔽验收 AI：管线/BIM 摘要 vs 现场影像标签不一致 → 触发复核清单",
+    "卫生间地漏异响 / 坡度积水 → 工单 + 整改影像（质保验收对照）",
+    "阳台窗框渗水 → 雨后现场拍照 + 工单优先级 P0",
+    "乳胶漆色差 → 竣工 AI 比对小样 + 任务「整改中」留痕",
+  ];
+  const typical_issues = [...derived_issues, ...base_issues].slice(0, 14);
+
   return {
     id: "scenario-120",
     title: "滨江花园 · 120㎡ 全案精装（演示主线）",
@@ -110,6 +121,11 @@ export function getScenario120Meta() {
     project_code: "PRJ-DEMO-001",
     rooms: SCENARIO_120_ROOMS,
     gallery: SCENARIO_120_GALLERY,
+    room_cases,
+    case_flow_contract: {
+      md_doc: "/docs/api-case-flow-min.md",
+      meta_json: "/api/meta/case-flow-contract",
+    },
     renovation_phases: [
       {
         phase: "隐蔽工程",
@@ -158,13 +174,52 @@ export function getScenario120Meta() {
         pages: ["/admin.html", "/multimodal.html"],
       },
     ],
-    typical_issues: [
-      "隐蔽验收 AI：管线/BIM 摘要 vs 现场影像标签不一致 → 触发复核清单",
-      "卫生间地漏异响 / 坡度积水 → 工单 + 整改影像（质保验收对照）",
-      "阳台窗框渗水 → 雨后现场拍照 + 工单优先级 P0",
-      "乳胶漆色差 → 竣工 AI 比对小样 + 任务「整改中」留痕",
-    ],
+    typical_issues,
   };
+}
+
+function loadScenarioRoomCasesDoc() {
+  const p = join(__dirname, "scenario-120-room-cases.json");
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function loadCaseFlowContractDoc() {
+  const p = join(__dirname, "case-flow-contract.min.json");
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+/** GET /api/meta/case-flow-contract — 案例验收最小契约自述 JSON */
+export function getCaseFlowContractMeta() {
+  const doc = loadCaseFlowContractDoc();
+  if (doc) return doc;
+  return {
+    contract_version: "0",
+    status: "missing",
+    note: "请在 server 目录放置 case-flow-contract.min.json",
+  };
+}
+
+function deriveTypicalIssuesFromRooms(room_cases, maxEachDerived = 6) {
+  const lines = [];
+  for (const rc of room_cases || []) {
+    for (const p of rc.pain_points || []) {
+      if (lines.length >= maxEachDerived) return lines;
+      const snippet = (p.dispute || "").replace(/\s+/g, " ").trim();
+      const short = snippet.length > 90 ? snippet.slice(0, 90) + "…" : snippet;
+      lines.push((rc.zone_label || "") + "｜" + (p.title || "") + " — " + short);
+    }
+  }
+  return lines;
 }
 
 function loadProcurementAiDemoDoc() {

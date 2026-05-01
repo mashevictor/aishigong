@@ -1,0 +1,290 @@
+{
+  "meta": {
+    "case_id": "PRJ-DEMO-001",
+    "title": "滨江花园 · 120㎡ 全案精装（演示案例骨架）",
+    "purpose": "按房间罗列高发质量问题、争议焦点与 AI 可举证/可复核价值；供签约演示与接口字段对齐。",
+    "refresh_script": "npm run case:rooms-deepseek（server 目录，需 DEEPSEEK_API_KEY）"
+  },
+  "room_cases": [
+    {
+      "zone_key": "entry",
+      "zone_label": "玄关",
+      "one_liner": "强弱电与定制柜交汇处：净空、收口、点位遗漏高发。",
+      "pain_points": [
+        {
+          "title": "鞋柜深度侵占过道净宽",
+          "dispute": "效果图好看但未标注最小通行宽度，柜体进场后业主认为「没法走人」，扯皮是否拆改费用自担。",
+          "ai_value": "从深化图/模型提取柜体外包尺寸 + 激光测距走道净宽，自动比对合同附件中的净宽下限；超差生成「变更/签认」草稿。",
+          "acceptance_gate": "泥木中期 · 竣工验收",
+          "dg_module": "dim",
+          "evidence": "走道≥3 点测距、柜体下单图版本与哈希、现场全景时间轴"
+        },
+        {
+          "title": "强弱电点位与柜体背板开孔冲突",
+          "dispute": "谁改？电还是木？签证谁出？常见「口头交代无留痕」。",
+          "ai_value": "图纸 OCR + 节点抽取，与柜体开孔图交叉；冲突列表进任务看板并带截图证据。",
+          "acceptance_gate": "隐蔽工程",
+          "dg_module": "hydraulic",
+          "evidence": "电箱回路照片、线管弯头计数标签、柜体开孔 CAD 版本"
+        },
+        {
+          "title": "感应灯带/鞋柜灯变压器检修口遗漏",
+          "dispute": "后期损坏维修打开柜子才发现无检修口，扯「交付标准」。",
+          "ai_value": "中期验收模板勾选「低压变压器检修可达性」；缺失自动拦截中期闸口通过。",
+          "acceptance_gate": "泥木中期",
+          "dg_module": "other",
+          "evidence": "柜内开箱视频、检修口盖板照片"
+        }
+      ]
+    },
+    {
+      "zone_key": "living",
+      "zone_label": "客厅",
+      "one_liner": "无主灯吊顶、地砖地暖与电视墙预埋——隐蔽点多、观感争议多。",
+      "pain_points": [
+        {
+          "title": "吊顶完成后净高不足或有压抑感",
+          "dispute": "合同 rarely 写「完成面净高」，业主主观感受 vs 施工方「符合国标」。",
+          "ai_value": "每个房间多点净高录入 + BIM/平面图标注的理论净高对照；生成低于阈值的房间热力图。",
+          "acceptance_gate": "泥木中期 · 竣工",
+          "dg_module": "dim",
+          "evidence": "激光净高日志、龙骨验收影像、磁吸轨道开孔尺寸表"
+        },
+        {
+          "title": "地砖空鼓（边角 / 过道高频走动区）",
+          "dispute": "局部空鼓是否返工 whole room；业主担心后期开裂。",
+          "ai_value": "声学敲击热力或网格化敲击记录 + 空鼓率汇总；高风险板块排序复检并写入中期闸口结论草稿。",
+          "acceptance_gate": "泥木中期",
+          "dg_module": "hollow",
+          "evidence": "敲击热力示意、复检锤视频片段"
+        },
+        {
+          "title": "电视墙 PVC 预埋管不通或弯头过多穿线失败",
+          "dispute": "安装阶段才发现 HDMI 穿不过去，凿墙费用的承担。",
+          "ai_value": "隐蔽影像语义标签「弯头数量」「管径」与电图一致性抽检；打压式穿线试验记录挂载。",
+          "acceptance_gate": "隐蔽工程",
+          "dg_module": "hydraulic",
+          "evidence": "穿线拉力试验短视频、电图节点截图"
+        },
+        {
+          "title": "乳胶漆色差 / 闪光灯下发花",
+          "dispute": "「和白墙差不多」vs「和我看的小样不一样」。",
+          "ai_value": "展厅小样批量编号与竣工墙面分区光谱占位比对 + 多角度实拍拼图；标记高风险采光窗侧墙面。",
+          "acceptance_gate": "竣工验收",
+          "dg_module": "other",
+          "evidence": "小样签收照片、滚筒批次号、涂刷温湿度记录"
+        }
+      ]
+    },
+    {
+      "zone_key": "dining",
+      "zone_label": "餐厅",
+      "one_liner": "岛台电位、吊灯挂点结构、平整度——易留增项口实。",
+      "pain_points": [
+        {
+          "title": "岛台电位与地暖/地砖厚度未提前叠图",
+          "dispute": "孔位偏移、开槽破坏防水，责任归设计还是施工。",
+          "ai_value": "节点叠图对比 + 地面完成面标高链；偏移超差触发隐蔽前会审记录。",
+          "acceptance_gate": "隐蔽工程",
+          "dg_module": "dim",
+          "evidence": "岛台立面图版本、地面标高移交单"
+        },
+        {
+          "title": "吊灯悬挂点未加固导致后期摇晃",
+          "dispute": "「您没买重型灯」vs「应当预判结构」。",
+          "ai_value": "吊顶龙骨影像抽检模板比对膨胀螺栓/二层板加固节点；缺失则中期闸口标黄。",
+          "acceptance_gate": "泥木中期",
+          "dg_module": "other",
+          "evidence": "转角龙骨加固特写、吊灯荷载说明书 OCR"
+        },
+        {
+          "title": "餐边柜插座被台面挡死",
+          "dispute": "定制深化失误 vs 水电定位失误，签证推诿。",
+          "ai_value": "立面图上插座坐标与台面厚度尺寸自动校验；生成冲突 PDF 附件入合同变更索引。",
+          "acceptance_gate": "泥木中期",
+          "dg_module": "dim",
+          "evidence": "立面坐标截图、台面下单厚度字段"
+        }
+      ]
+    },
+    {
+      "zone_key": "kitchen",
+      "zone_label": "厨房",
+      "one_liner": "烟道串味、水槽渗漏、台面接缝——竣工后投诉 TOP 区。",
+      "pain_points": [
+        {
+          "title": "烟道串味 / 止逆阀失效",
+          "dispute": "装修公司 vs 开发商烟道 vs 油烟机安装三方甩锅。",
+          "ai_value": "止逆阀安装前后影像必拍 + 型号 OCR；联动「加压抽检」占位叙事；工单语义分级自动标 P1。",
+          "acceptance_gate": "隐蔽 · 竣工",
+          "dg_module": "other",
+          "evidence": "止逆阀合格证照片、吊顶内管段视频"
+        },
+        {
+          "title": "水槽台下盆脱胶渗水",
+          "dispute": "使用不当 vs 安装加固不达标。",
+          "ai_value": "竣工试水短视频归档（多角度）+ 渗漏红外辅助占位；质保工单关联同一水槽 UUID。",
+          "acceptance_gate": "竣工验收 · 质保",
+          "dg_module": "waterproof",
+          "evidence": "试水视频哈希、硅胶品牌批次"
+        },
+        {
+          "title": "台面接缝色差 / 开裂",
+          "dispute": "是否「正常现象」 vs 「更换整块」。",
+          "ai_value": "接缝特写多角度存档 + AI 裂纹语义检测占位；同类缺陷在全项目聚合排名。",
+          "acceptance_gate": "竣工验收",
+          "dg_module": "other",
+          "evidence": "竣工接缝巡检相册、材料质保卡号"
+        },
+        {
+          "title": "燃气表移位 / 软管路径不合规",
+          "dispute": "无证私自改动 vs 合规报批滞后拖工期。",
+          "ai_value": "人脸/证件占位（持证上岗叙事）+ 任务节点「燃气复核」必选附件清单。",
+          "acceptance_gate": "安装交付",
+          "dg_module": "other",
+          "evidence": "燃气公司工单号字段、合规通知书扫描件"
+        }
+      ]
+    },
+    {
+      "zone_key": "master",
+      "zone_label": "主卧",
+      "one_liner": "衣柜收口、木地板异响、床头电位——交付敏感度极高。",
+      "pain_points": [
+        {
+          "title": "定制衣柜与石膏线 / 踢脚线收口开裂",
+          "dispute": "温湿度 vs 施工工艺 vs 墙体平整度责任拆分不清。",
+          "ai_value": "收口前后影像时间轴 + 墙面垂直度测量点位；AI 只做「开裂位置聚类」辅助定责讨论。",
+          "acceptance_gate": "竣工验收 · 质保",
+          "dg_module": "dim",
+          "evidence": "收口节点特写序列、腻子含水率测定占位"
+        },
+        {
+          "title": "床头双控 / USB 插座高度与软装冲突",
+          "dispute": "软装进场后发现挡住插座，返工扯皮。",
+          "ai_value": "软装厚度参数一旦录入，自动复核插座中心线高度是否冲突（演示字段）。",
+          "acceptance_gate": "竣工验收",
+          "dg_module": "dim",
+          "evidence": "家具立面示意图、插座定位竣工图"
+        },
+        {
+          "title": "地板踩踏异响",
+          "dispute": "基层含水率 vs 自流平 vs 龙骨松动——举证困难。",
+          "ai_value": "铺贴前地面含水仪读数归档 + 异响音频标注地图（占位）；质保复查音频比对「是否同一位置」。",
+          "acceptance_gate": "质保",
+          "dg_module": "hollow",
+          "evidence": "含水率 CSV、异响录音 geo-tag"
+        }
+      ]
+    },
+    {
+      "zone_key": "second_bedroom",
+      "zone_label": "次卧（榻榻米）",
+      "one_liner": "榻榻米检修口、分水器避让、窗台石收口——隐性成本高。",
+      "pain_points": [
+        {
+          "title": "地暖分水器被榻榻米永久封闭无法检修",
+          "dispute": "设计美观 vs 运维可达性规范争议。",
+          "ai_value": "隐蔽验收 checklist 强制「分水器盖板开启演示视频」；缺失不可封板。",
+          "acceptance_gate": "隐蔽工程",
+          "dg_module": "hydraulic",
+          "evidence": "盖板开启视频、分水器全景照"
+        },
+        {
+          "title": "榻榻米内潮气发霉",
+          "dispute": "「不透气设计」vs 「现场未做防潮」.",
+          "ai_value": "基层防潮涂料桶身二维码 OCR + 涂刷面积粗算；竣工 IAQ 与温湿度连续监测占位。",
+          "acceptance_gate": "竣工 · 质保",
+          "dg_module": "iaq",
+          "evidence": "防潮施工照片、除湿机运行日志占位"
+        },
+        {
+          "title": "窗台石与榻榻米侧板接口高低差绊脚",
+          "dispute": "安装顺序与找平责任。",
+          "ai_value": "激光水平 + 踏步高差阈值：>10mm 自动出整改任务。",
+          "acceptance_gate": "泥木中期",
+          "dg_module": "dim",
+          "evidence": "接口高差测距三连拍"
+        }
+      ]
+    },
+    {
+      "zone_key": "bathroom",
+      "zone_label": "卫生间",
+      "one_liner": "防水、地漏坡度、壁挂马桶与玻璃隔断——争议与损失金额最大的一类。",
+      "pain_points": [
+        {
+          "title": "闭水 OK 但入住后墙角慢渗",
+          "dispute": "防水涂膜高度不足 / 门槛石止水 / 淋浴区细部节点。",
+          "ai_value": "闭水全过程时序影像 + 楼下顶棚检查双签电子单；红外潮湿扫描占位；渗漏复发工单与历史影像自动关联同一区域 ID。",
+          "acceptance_gate": "隐蔽 · 质保",
+          "dg_module": "waterproof",
+          "evidence": "闭水标尺照片、楼下签字扫描件、渗漏点热力图占位"
+        },
+        {
+          "title": "地漏排水慢、洗澡时「脚泡澡」",
+          "dispute": "坡度不够 vs 地漏芯垃圾 vs 地暖抬升面层。",
+          "ai_value": "整改前后排水试验短视频 + 坡度仪读数；DeepSeek 生成情况说明草稿给业主阅览。",
+          "acceptance_gate": "泥木中期 · 质保",
+          "dg_module": "dim",
+          "evidence": "球体排水试验、二次找平前后对比"
+        },
+        {
+          "title": "壁挂马桶水箱假墙厚度与淋浴门冲突",
+          "dispute": "产品选型与进场顺序失误。",
+          "ai_value": "三维净空链校核（门套+假墙+淋浴门开扇圆轨迹简化计算占位）。",
+          "acceptance_gate": "泥木中期",
+          "dg_module": "dim",
+          "evidence": "开扇轨迹示意图、完工门洞宽度测距"
+        },
+        {
+          "title": "玻璃隔断爆边 / 渗水从门缝溢出",
+          "dispute": "安装质量 vs 产品设计。",
+          "ai_value": "胶缝连续度视觉检测占位 + 试水必录；同类问题在标段内聚类预警。",
+          "acceptance_gate": "竣工验收 · 质保",
+          "dg_module": "waterproof",
+          "evidence": "打胶特写、门缝泼水试验短视频"
+        },
+        {
+          "title": "镜柜门与龙头打架",
+          "dispute": "镜柜外开与龙头高度未综合排布。",
+          "ai_value": "竣工业主体验VR/AR 占位；至少做排布图自动规则：门扇包络与龙头圆柱安全距。",
+          "acceptance_gate": "竣工验收",
+          "dg_module": "dim",
+          "evidence": "开门状态视频、镜柜深化图版本"
+        }
+      ]
+    },
+    {
+      "zone_key": "balcony",
+      "zone_label": "阳台",
+      "one_liner": "窗框渗水、防水上翻、洗衣机下水反水——雨季爆单。",
+      "pain_points": [
+        {
+          "title": "窗框外侧密封胶老化/打胶不连续渗水",
+          "dispute": "业主认为装修应负责外墙侧；施工方推给物业或房开。",
+          "ai_value": "雨后 24h 巡查标准影像集 + 胶缝连续性检测占位；工单自动带「外墙面」标签推给责任方模板。",
+          "acceptance_gate": "质保",
+          "dg_module": "waterproof",
+          "evidence": "外打胶前后对比、雨量天气 API 摘要"
+        },
+        {
+          "title": "洗衣机地漏反水浸泡地板",
+          "dispute": "排水管径 vs 地漏类型 vs 同时排洗衣与雨水。",
+          "ai_value": "通水试验视频 + 峰值流量估算字段；反水事件与材料清单交叉（是否专用地漏）。",
+          "acceptance_gate": "竣工验收 · 质保",
+          "dg_module": "hydraulic",
+          "evidence": "通球/通水记录、地漏型号 OCR"
+        },
+        {
+          "title": "洗烘叠放后操作高度不符合人体工学",
+          "dispute": "非质量但强体验争议，影响口碑与尾款。",
+          "ai_value": "家电高度与业主身高（可选录入）生成体验评分；不作为法律判定仅作 soft warning。",
+          "acceptance_gate": "竣工验收",
+          "dg_module": "dim",
+          "evidence": "人体工学量表截图、叠放实测高度"
+        }
+      ]
+    }
+  ]
+}

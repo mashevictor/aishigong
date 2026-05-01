@@ -30,6 +30,16 @@
     .tag.live { background:#dcfce7; color:#166534; }
     .tag.fx { background:#fef3c7; color:#92400e; }
     .issues li { margin-bottom:6px; font-size:13px; color:#475569; }
+    .room-case { border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin-bottom:14px; background:#fafbfc; }
+    .room-case h4 { margin:0 0 8px; font-size:15px; color:#0f172a; }
+    .room-case .one { font-size:13px; color:#475569; margin-bottom:12px; line-height:1.55; }
+    .pain { border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px; }
+    .pain:first-of-type { border-top:none; padding-top:0; margin-top:0; }
+    .pain h5 { margin:0 0 6px; font-size:13px; color:#991b1b; }
+    .pain .grid { display:grid; gap:6px; font-size:12px; color:#475569; }
+    .pain .lbl { font-weight:800; color:#334155; }
+    .contract-links { font-size:13px; margin-top:12px; }
+    .contract-links a { color:#1e40af; font-weight:700; }
     .phases { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; margin-top:10px; }
     .phase { border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; background:#fafbfc; }
     .phase h3 { margin:0 0 8px; font-size:14px; color:#0f172a; }
@@ -87,6 +97,16 @@
       <div class="gallery" id="gallery"></div>
     </div>
 
+    <div class="card" id="roomCasesCard" style="display:none">
+      <h2>按房间 · 高发争议与 AI 可举证价值（案例核心）</h2>
+      <p class="muted" style="margin-top:0">
+        以下自 <code>scenario-120-room-cases.json</code> / <code>GET /api/meta/scenario</code> 的 <code>room_cases</code>，
+        将「扯皮场景 → AI 能做什么 → 对应闸口与证据」串成售前与产品字段参照。可运行 <code>npm run case:rooms-deepseek</code> 用 DeepSeek 继续补充条目（需 API Key）。
+      </p>
+      <div id="roomCases"></div>
+      <p class="contract-links" id="contractLinks"></p>
+    </div>
+
     <div class="card">
       <h2>典型工地问题（演示工单库里已预埋）</h2>
       <ul class="issues" id="issueList"></ul>
@@ -106,8 +126,9 @@
   </div>
 
   <footer>
-    数据可与 <code>GET /api/meta/scenario</code> 联动 ·
-    <a href="/ai-showcase.html">AI + 建造矩阵 · 验收闸口</a>
+    <code>GET /api/meta/scenario</code> · <code>GET /api/meta/case-flow-contract</code> ·
+    <a href="/docs/api-case-flow-min.md" download>接口契约说明（MD）</a> ·
+    <a href="/ai-showcase.html">AI 验收闸口</a>
     · AI 施工协同演示站
   </footer>
 
@@ -190,6 +211,51 @@
             );
           })
           .join("");
+
+        var rc = d.room_cases || [];
+        if (rc.length) {
+          document.getElementById("roomCasesCard").style.display = "block";
+          document.getElementById("roomCases").innerHTML = rc
+            .map(function (room) {
+              var pains = (room.pain_points || [])
+                .map(function (p) {
+                  return (
+                    '<div class="pain"><h5>' +
+                    esc(p.title || "") +
+                    '</h5><div class="grid"><div><span class="lbl">争议焦点</span> — ' +
+                    esc(p.dispute || "") +
+                    '</div><div><span class="lbl">AI 价值</span> — ' +
+                    esc(p.ai_value || "") +
+                    '</div><div><span class="lbl">闸口</span> ' +
+                    esc(p.acceptance_gate || "") +
+                    " · <span class=\"lbl\">模块</span> <code>" +
+                    esc(p.dg_module || "") +
+                    "</code></div><div><span class=\"lbl">建议证据</span> " +
+                    esc(p.evidence || "") +
+                    "</div></div></div>"
+                  );
+                })
+                .join("");
+              return (
+                '<div class="room-case"><h4>' +
+                esc(room.zone_label || room.zone_key || "") +
+                "</h4>" +
+                (room.one_liner ? '<p class="one">' + esc(room.one_liner) + "</p>" : "") +
+                pains +
+                "</div>"
+              );
+            })
+            .join("");
+        }
+        var cf = d.case_flow_contract || {};
+        if (cf.meta_json || cf.md_doc) {
+          document.getElementById("contractLinks").innerHTML =
+            '<strong>最小接口契约：</strong> ' +
+            (cf.meta_json
+              ? '<a href="' + esc(cf.meta_json) + '" target="_blank" rel="noopener">' + esc(cf.meta_json) + "</a>"
+              : "") +
+            (cf.md_doc ? ' · <a href="' + esc(cf.md_doc) + '" download>MD 文档</a>' : "");
+        }
 
         var issues = d.typical_issues || [];
         document.getElementById("issueList").innerHTML = issues.map(function (t) {
