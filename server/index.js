@@ -614,13 +614,18 @@ app.post("/api/ai/image", requireAuth, async (req, res) => {
   }
 
   const model =
-    process.env.WAVESPEED_TEXT_TO_IMAGE_MODEL || "alibaba/wan-2.6/text-to-image";
+    process.env.WAVESPEED_TEXT_TO_IMAGE_MODEL || "wavespeed-ai/flux-dev";
   const base = "https://api.wavespeed.ai/api/v3";
   const url = `${base}/${model.replace(/^\//, "")}`;
 
   try {
     const body = {
       prompt,
+      size: "1024*1024",
+      num_inference_steps: 28,
+      guidance_scale: 3.5,
+      num_images: 1,
+      seed: -1,
       ...(typeof req.body?.extra === "object" && req.body.extra ? req.body.extra : {}),
     };
 

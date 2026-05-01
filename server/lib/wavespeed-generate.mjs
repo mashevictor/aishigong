@@ -57,9 +57,19 @@ export async function wavespeedPoll(predictionId, apiKey, maxWaitMs = 120000) {
 export async function generateWavespeedImage(prompt, env) {
   const apiKey = env.WAVESPEED_API_KEY;
   if (!apiKey) throw new Error("未配置 WAVESPEED_API_KEY");
-  const model = env.WAVESPEED_TEXT_TO_IMAGE_MODEL || "alibaba/wan-2.6/text-to-image";
+  const model =
+    env.WAVESPEED_TEXT_TO_IMAGE_MODEL || "wavespeed-ai/flux-dev";
   const base = "https://api.wavespeed.ai/api/v3";
   const url = `${base}/${model.replace(/^\//, "")}`;
+
+  const body = {
+    prompt,
+    size: "1024*1024",
+    num_inference_steps: 28,
+    guidance_scale: 3.5,
+    num_images: 1,
+    seed: -1,
+  };
 
   const submit = await fetch(url, {
     method: "POST",
@@ -67,12 +77,20 @@ export async function generateWavespeedImage(prompt, env) {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify(body),
   });
   const submitJson = await submit.json().catch(() => ({}));
   if (!submit.ok) {
-    const msg = submitJson?.message || submitJson?.error || JSON.stringify(submitJson).slice(0, 400);
-    throw new Error(msg || "提交文生图失败");
+    const raw =
+      submitJson?.message ||
+      submitJson?.error ||
+      JSON.stringify(submitJson).slice(0, 400);
+    let hint = "";
+    if (submit.status === 404) {
+      hint =
+        "（404 多为模型路径错误：请在控制台或文档核对当前文生图 slug，官方示例为 wavespeed-ai/flux-dev）";
+    }
+    throw new Error((raw || submit.statusText || "提交文生图失败") + hint + ` [HTTP ${submit.status}]`);
   }
 
   const predId =
