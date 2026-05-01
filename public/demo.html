@@ -366,6 +366,63 @@
       color: #3730a3;
     }
     .iss-dimgrid .ai .dk { color: #4338ca; }
+
+    /* AI 矩阵页 → 沙盘落点（售前口述提纲） */
+    .ai-hook-section h3 {
+      margin: 18px 0 10px;
+      font-size: 14px;
+      color: #334155;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .ai-hook-section h3:first-of-type { margin-top: 4px; }
+    .ai-hook-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ai-hook-row {
+      display: grid;
+      grid-template-columns: minmax(108px, 24%) 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.45;
+    }
+    .ai-hook-row .phase-label {
+      font-weight: 800;
+      color: #0f172a;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+    }
+    .ai-hook-pages {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed #e2e8f0;
+      font-size: 13px;
+    }
+    .ai-hook-pages a {
+      color: #1e40af;
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(30, 64, 175, 0.35);
+    }
+    .ai-hook-pages a:hover {
+      border-bottom-color: #1e40af;
+    }
+    @media (max-width: 560px) {
+      .ai-hook-row {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -409,6 +466,70 @@
         每条「工序轨迹」上的同名节点在不同房间<strong>T+n</strong>可能不同（演示用偏移）；若要落到真实工期需结合平面图与施工组织。
       </p>
       <div class="room-grid" id="roomCompare"></div>
+    </section>
+
+    <section class="card ai-hook-section" id="aiInDemo">
+      <h2>矩阵页的 AI 能力，在本沙盘 / 工序里怎么讲（节选）</h2>
+      <p class="muted">
+        <a href="/ai-showcase.html">「AI + 智能建造矩阵」页</a>偏能力与合规叙事；下面把几条<strong>最常讲的 AI 能力</strong>对齐到<strong>本页工序节点</strong>和<strong>可点的 Demo 模块</strong>，方便售前一条龙讲完。
+      </p>
+
+      <h3>① 对齐施工主线（口述时可指着上方「工序轨迹」）</h3>
+      <div class="ai-hook-rows">
+        <div class="ai-hook-row">
+          <div class="phase-label">效果图确认</div>
+          <div>
+            <strong>数字化设计 / 范围冻结：</strong>BIM 或施工图摘要与选材附图版本留存；变更走合同阈值（叙事）。
+            不讲算法细节，强调「有据可查、可对版本」。
+          </div>
+        </div>
+        <div class="ai-hook-row">
+          <div class="phase-label">隐蔽验收</div>
+          <div>
+            <strong>证据链闸口：</strong>打压曲线、防水关键点影像、电图走向摘要与现场标签比对（矩阵「隐蔽工程闸口」「五大模块」中的水电 / 防水）。
+            落在「未达条件不封板」的流程故事。
+          </div>
+        </div>
+        <div class="ai-hook-row">
+          <div class="phase-label">瓦木中期</div>
+          <div>
+            <strong>过程质量：</strong>空鼓 / 平整度 / 坡度等可量化项进同一验收模板；泥木中期付款与「待验收」状态可联动讲述（矩阵「过程管控」支柱）。
+          </div>
+        </div>
+        <div class="ai-hook-row">
+          <div class="phase-label">油漆打磨</div>
+          <div>
+            <strong>观感 + 实测：</strong>缺陷识别叙事 + 漆膜厚度等实测占位；与国标/团标「套内 AI 辅助」话术衔接。
+          </div>
+        </div>
+        <div class="ai-hook-row">
+          <div class="phase-label">安装收尾</div>
+          <div>
+            <strong>清单与到货：</strong>签收数量 × 单价与合同清单比对、异常进价差稽核（矩阵「对照模式」里的清单 ↔ 到货）。
+          </div>
+        </div>
+        <div class="ai-hook-row">
+          <div class="phase-label">竣工验收</div>
+          <div>
+            <strong>交付主视觉：</strong>分房间「效果图 ↔ 竣工实拍」对齐评分（本页与 scenario / 客户视图）；移交包含隐蔽索引与变更摘要（叙事占位）。
+          </div>
+        </div>
+      </div>
+
+      <h3>② 在本站点哪个页面看（演示动线）</h3>
+      <p class="muted" style="margin-bottom: 0">
+        与矩阵页「系统挂钩」表一致；登录后角色页与公开页可混讲。
+      </p>
+      <div class="ai-hook-pages">
+        <a href="/ai-showcase.html#acceptance">AI 验收闸口（条文与闸口清单）</a>
+        <a href="/multimodal.html">图纸 / 影像多模态对照</a>
+        <a href="/contract-ai.html">合同 · 变更 · 付款就绪度</a>
+        <a href="/materials.html">材料影像与封样溯源</a>
+        <a href="/manager.html">项目经理派单与验收汇总</a>
+        <a href="/client.html">客户进度与影像（需 demo 登录）</a>
+        <a href="/scenario-120.html">120㎡ 图文说明长页</a>
+        <a href="/tickets.html">质保工单闭环</a>
+      </div>
     </section>
 
     <section class="card" id="issuesMatrixSection" style="display: none">
