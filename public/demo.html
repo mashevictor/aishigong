@@ -282,6 +282,82 @@
       color: #94a3b8;
     }
     footer a { color: #1e4a7a; }
+
+    /* 典型问题全景矩阵 */
+    .iss-head { margin-bottom: 12px; }
+    .iss-note { font-size: 12px; color: #64748b; margin: 0 0 14px; line-height: 1.55; }
+    details.iss-sec {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      background: #fafbfc;
+      overflow: hidden;
+    }
+    details.iss-sec summary {
+      cursor: pointer;
+      padding: 12px 14px;
+      font-weight: 800;
+      font-size: 14px;
+      color: #0f172a;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      user-select: none;
+    }
+    details.iss-sec summary::-webkit-details-marker { display: none; }
+    details.iss-sec summary::after {
+      content: "▼";
+      font-size: 11px;
+      color: #64748b;
+      transition: transform 0.15s;
+    }
+    details.iss-sec[open] summary::after { transform: rotate(-180deg); }
+    details.iss-sec .iss-inner { padding: 0 12px 14px; display: grid; gap: 12px; }
+    .iss-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .iss-card h4 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: #991b1b;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+    .iss-dimgrid {
+      display: grid;
+      gap: 8px;
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.45;
+    }
+    @media (min-width: 760px) {
+      .iss-dimgrid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1020px) {
+      .iss-dimgrid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .iss-dimgrid p { margin: 0; }
+    .iss-dimgrid .dk {
+      font-size: 10px;
+      font-weight: 900;
+      color: #1e4a7a;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .iss-dimgrid .ai {
+      grid-column: 1 / -1;
+      padding-top: 6px;
+      margin-top: 4px;
+      border-top: 1px dashed #e2e8f0;
+      font-size: 12px;
+      color: #3730a3;
+    }
+    .iss-dimgrid .ai .dk { color: #4338ca; }
   </style>
 </head>
 <body>
@@ -318,6 +394,16 @@
       <h2>分房间 · 效果图 ↔ 现场 / 整改（对照）</h2>
       <p class="muted">左列为设计意向，右列为工地进度或整改记录；数据来自当前服务端场景配置。</p>
       <div class="room-grid" id="roomCompare"></div>
+    </section>
+
+    <section class="card" id="issuesMatrixSection" style="display: none">
+      <h2 class="iss-head">典型工地问题全景（材料 · 工艺 · 观感 · 成本 · AI）</h2>
+      <p class="iss-note" id="issuesMatrixIntro"></p>
+      <p class="muted" style="margin-bottom: 12px">
+        下列为<strong>穷举骨架</strong>：覆盖各房间与分项工程，便于售前扫盲区；实战仍以合同与国标为准。
+        完整单行提要同步进入 <code>/api/meta/scenario</code> 的 <code>typical_issues</code>（列表更长）。
+      </p>
+      <div id="issuesMatrix"></div>
     </section>
   </main>
 
@@ -622,21 +708,104 @@
       }
     }
 
-    function boot() {
-      renderRoleButtons();
-      fetch("/api/meta/scenario")
+    function renderIssuesMatrix(matrix) {
+      var secEl = document.getElementById("issuesMatrixSection");
+      var box = document.getElementById("issuesMatrix");
+      var intro = document.getElementById("issuesMatrixIntro");
+      if (!matrix || !matrix.sections || !matrix.sections.length) {
+        secEl.style.display = "none";
+        return;
+      }
+      secEl.style.display = "block";
+      intro.textContent =
+        (matrix.title || "") +
+        (matrix.subtitle ? " — " + matrix.subtitle : "");
+      var L = matrix.column_labels || {};
+      var lk = function (k, fb) {
+        return L[k] || fb;
+      };
+      box.innerHTML = matrix.sections
+        .map(function (sec) {
+          var cards = (sec.issues || [])
+            .map(function (iss) {
+              return (
+                '<div class="iss-card"><h4>' +
+                esc(iss.title) +
+                '</h4><div class="iss-dimgrid"><div><div class="dk">' +
+                esc(lk("material", "材料")) +
+                "</div><p>" +
+                esc(iss.material || "—") +
+                '</p></div><div><div class="dk">' +
+                esc(lk("craft", "工艺")) +
+                "</div><p>" +
+                esc(iss.craft || "—") +
+                '</p></div><div><div class="dk">' +
+                esc(lk("effect", "观感")) +
+                "</div><p>" +
+                esc(iss.effect || "—") +
+                '</p></div><div><div class="dk">' +
+                esc(lk("cost", "成本")) +
+                "</div><p>" +
+                esc(iss.cost || "—") +
+                '</p></div><div class="ai"><div class="dk">' +
+                esc(lk("ai", "AI")) +
+                "</div><p>" +
+                esc(iss.ai || "—") +
+                "</p></div></div></div>"
+              );
+            })
+            .join("");
+          return (
+            '<details class="iss-sec"><summary><span>' +
+            esc(sec.label || sec.id || "") +
+            '</span><span style="font-size:11px;font-weight:700;color:#64748b">' +
+            (sec.issues ? sec.issues.length : 0) +
+            " 条</span></summary><div class=\"iss-inner\">" +
+            cards +
+            "</div></details>"
+          );
+        })
+        .join("");
+    }
+
+    function loadScenarioBundle() {
+      return fetch("/api/meta/scenario")
         .then(function (r) {
           return r.json();
         })
         .then(function (j) {
-          var d = j.data || {};
-          renderMasterTimeline(d.renovation_phases || []);
-          renderRoomCompare(d.gallery || [], d.rooms || []);
+          return j.data || {};
         })
         .catch(function () {
-          renderMasterTimeline([]);
-          renderRoomCompare([], []);
+          return {};
+        })
+        .then(function (d) {
+          if (d.demo_issues_matrix && d.demo_issues_matrix.sections && d.demo_issues_matrix.sections.length) {
+            return d;
+          }
+          return fetch("/assets/demo-issues-fallback.json")
+            .then(function (r) {
+              return r.ok ? r.json() : null;
+            })
+            .then(function (fallback) {
+              if (fallback && fallback.sections) {
+                d.demo_issues_matrix = fallback;
+              }
+              return d;
+            })
+            .catch(function () {
+              return d;
+            });
         });
+    }
+
+    function boot() {
+      renderRoleButtons();
+      loadScenarioBundle().then(function (d) {
+        renderMasterTimeline(d.renovation_phases || []);
+        renderRoomCompare(d.gallery || [], d.rooms || []);
+        renderIssuesMatrix(d.demo_issues_matrix || null);
+      });
 
       var GOTO = {
         client: ["kehu", "/client.html"],

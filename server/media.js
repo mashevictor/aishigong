@@ -106,13 +106,15 @@ export function getScenario120Meta() {
   const roomDoc = loadScenarioRoomCasesDoc();
   const room_cases = roomDoc?.room_cases || [];
   const derived_issues = deriveTypicalIssuesFromRooms(room_cases, 6);
+  const demoMatrix = loadDemoIssuesMatrixDoc();
+  const matrix_lines = flatLinesFromDemoIssuesMatrix(demoMatrix, 34);
   const base_issues = [
     "隐蔽验收 AI：管线/BIM 摘要 vs 现场影像标签不一致 → 触发复核清单",
     "卫生间地漏异响 / 坡度积水 → 工单 + 整改影像（质保验收对照）",
     "阳台窗框渗水 → 雨后现场拍照 + 工单优先级 P0",
     "乳胶漆色差 → 竣工 AI 比对小样 + 任务「整改中」留痕",
   ];
-  const typical_issues = [...derived_issues, ...base_issues].slice(0, 14);
+  const typical_issues = [...matrix_lines, ...derived_issues, ...base_issues].slice(0, 48);
 
   return {
     id: "scenario-120",
@@ -125,6 +127,12 @@ export function getScenario120Meta() {
     case_flow_contract: {
       md_doc: "/docs/api-case-flow-min.md",
       meta_json: "/api/meta/case-flow-contract",
+    },
+    demo_issues_matrix: demoMatrix || {
+      title: "数据未就绪",
+      subtitle: "请放置 server/demo-issues-matrix.json",
+      column_labels: {},
+      sections: [],
     },
     renovation_phases: [
       {
@@ -176,6 +184,35 @@ export function getScenario120Meta() {
     ],
     typical_issues,
   };
+}
+
+function loadDemoIssuesMatrixDoc() {
+  const p = join(__dirname, "demo-issues-matrix.json");
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+/** 从全景矩阵生成简短列表（供 typical_issues / 列表页） */
+function flatLinesFromDemoIssuesMatrix(matrix, maxLines = 32) {
+  if (!matrix || !Array.isArray(matrix.sections)) return [];
+  const out = [];
+  for (const sec of matrix.sections) {
+    const z = (sec.label || sec.id || "").replace(/\s+/g, " ").trim();
+    for (const iss of sec.issues || []) {
+      if (out.length >= maxLines) return out;
+      const t = (iss.title || "").trim();
+      const e = (iss.effect || "").replace(/\s+/g, " ").trim();
+      const c = (iss.cost || "").replace(/\s+/g, " ").trim();
+      const tail = e ? e.slice(0, 72) + (e.length > 72 ? "…" : "") : (iss.material || "").slice(0, 72);
+      const costHint = c ? " 成本侧：" + c.slice(0, 52) + (c.length > 52 ? "…" : "") : "";
+      out.push(z + "｜" + t + " — " + tail + costHint);
+    }
+  }
+  return out;
 }
 
 function loadScenarioRoomCasesDoc() {

@@ -4,6 +4,7 @@
  * 可选：DEEPSEEK_API_KEY 存在时先批量优化英文 prompt。
  *
  * 用法（在 server 目录）：npm run scenario:images
+ * 仅重跑部分 ID：node scripts/generate-scenario-images.mjs --only=entry-site,dining-site
  * 环境：WAVESPEED_API_KEY 必填；可选 DEEPSEEK_API_KEY、SCENARIO_IMAGE_*、
  * WAVESPEED_TEXT_TO_IMAGE_MODEL / WAVESPEED_TEXT_TO_IMAGE_MODEL_ALT（与 lib/wavespeed-generate.mjs 一致）
  */
@@ -93,6 +94,22 @@ async function main() {
 
   /** @type {Array<{ id: string; prompt_en: string; zone?: string }>} */
   let specs = JSON.parse(readFileSync(SPECS_PATH, "utf8"));
+  const onlyArg = process.argv.find((a) => a.startsWith("--only="));
+  if (onlyArg) {
+    const want = new Set(
+      onlyArg
+        .slice("--only=".length)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    );
+    specs = specs.filter((s) => want.has(s.id));
+    if (!specs.length) {
+      console.error("--only 未匹配任何 id，请对照 scenario-image-specs.json");
+      process.exit(1);
+    }
+    console.log("仅生成:", [...want].join(", "));
+  }
   const limit = Number(process.env.SCENARIO_IMAGE_LIMIT || 0);
   if (limit > 0) specs = specs.slice(0, limit);
 

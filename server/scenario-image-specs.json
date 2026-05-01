@@ -12,9 +12,9 @@
     "id": "entry-site",
     "zone": "玄关",
     "photo_kind": "现场实拍",
-    "caption": "玄关｜现场 · 强弱电槽开槽与鞋柜基层放线",
-    "fallback_url": "https://picsum.photos/seed/aishi-entry-site/960/540",
-    "prompt_en": "Photorealistic renovation site photo, Chinese apartment entryway, wall slots for electrical conduit, chalk lines on floor for cabinet base, dust and tools, documentary smartphone style",
+    "caption": "玄关｜现场 · 强弱电开槽与鞋柜基层放线（中国板式户型玄关）",
+    "fallback_url": "https://picsum.photos/seed/aishi-entry-site-cn-v3/960/540",
+    "prompt_en": "Photorealistic smartphone documentary photo: narrow entryway foyer typical Chinese slab-type apartment corridor under 1.4m wide feel, beige ceramic floor partly stripped to grey cement dust, yellow PVC electrical conduit along wall with fresh chase grooves for strong and weak current, chalk snap lines marking shoe cabinet footprint against load-bearing wall, temporary bare bulb light, messy buckets trowels ladder safety tape, distant glimpse of PVC-framed sliding glass door typical China developer flat, realistic muted tones not luxury showroom",
     "工序要点": "线管弯径、点位与柜体厚度核对、地面标高移交"
   },
   {
@@ -48,9 +48,9 @@
     "id": "dining-site",
     "zone": "餐厅",
     "photo_kind": "现场实拍",
-    "caption": "餐厅｜现场 · 地坪找平后放样·顶面吊杆定位",
-    "fallback_url": "https://picsum.photos/seed/aishi-dining-site/960/540",
-    "prompt_en": "Photorealistic construction interior, dining area before finish, laser level line on wall, ceiling suspension rods marked, concrete floor sealed, renovation mess, wide angle documentary",
+    "caption": "餐厅｜现场 · 地坪找平放样·吊顶吊杆定位（餐客一体常见户型）",
+    "fallback_url": "https://picsum.photos/seed/aishi-dining-site-cn-v3/960/540",
+    "prompt_en": "Photorealistic renovation site photo: dining niche inside typical Chinese open-plan living-dining combo layout, compact rectangular room not Western mansion, grey cement floor before tiles with self-leveling marks and footprints, red laser level line projected on wall for suspended ceiling, galvanized ceiling hanger rods popped along slab for plasterboard ceiling, stacked gypsum boards and bags of mortar, sliding glass door to enclosed balcony typical China apartment, fluorescent tube temporary lighting, messy authentic jobsite smartphone documentary angle",
     "工序要点": "餐边柜电位、吊灯悬挂点打孔避梁、地面平整度 2m 靠尺"
   },
   {
@@ -102,9 +102,9 @@
     "id": "second-bed-site",
     "zone": "次卧",
     "photo_kind": "现场实拍",
-    "caption": "次卧｜现场 · 榻榻米基层木工打底·收口预留",
-    "fallback_url": "https://picsum.photos/seed/aishi-bed2-site/960/540",
-    "prompt_en": "Photorealistic renovation photo, small bedroom tatami wood frame platform construction, MDF base before panels, measuring tape and circular saw blur background, realistic Chinese apartment site",
+    "caption": "次卧｜现场 · 榻榻米木基层打底·检修口预留（紧凑次卧）",
+    "fallback_url": "https://picsum.photos/seed/aishi-bed2-site-cn-v3/960/540",
+    "prompt_en": "Photorealistic messy renovation documentary: compact secondary bedroom typical Chinese high-rise flat about 9 to 11 square meters footprint, tatami raised platform timber skeleton framing with plywood substrate exposed, rectangular inspection hatch opening clearly reserved in corner for floor heating manifold access, aluminium sliding window with security grille common China urban residential look, insulation foil along exterior wall visible, electric cables stapled neatly pending finishing, circular saw vacuum hose dust realistic, cramped proportions NOT American master suite",
     "工序要点": "榻榻米检修口盖板、地暖分水器避让、窗台石衔接"
   },
   {
@@ -147,9 +147,9 @@
     "id": "balcony-leak",
     "zone": "阳台",
     "photo_kind": "现场实拍",
-    "caption": "阳台｜现场 · 窗框外侧外墙防水涂刷（雨后渗漏防治）",
-    "fallback_url": "https://picsum.photos/seed/aishi-balc-leak/960/540",
-    "prompt_en": "Photorealistic exterior maintenance photo, worker brushing waterproof coating on balcony window frame exterior wall area, safety rope, overcast sky, realistic jobsite",
+    "caption": "阳台｜现场 · 窗框节点防水涂刷（封闭阳台·中国式晾晒家政区）",
+    "fallback_url": "https://picsum.photos/seed/aishi-balc-site-cn-v3/960/540",
+    "prompt_en": "Photorealistic documentary smartphone photo: enclosed service balcony typical Chinese apartment sealed laundry balcony, aluminium alloy sliding windows with condensation tracks, stacked washer dryer corner wrapped in plastic film, grey matte floor tiles partly laid with spacers, worker wearing ordinary jacket brushing black waterproof coating along interior-side window sill and frame groove junction NOT dangling outside skyscraper, buckets rollers masking tape mop realistic renovation clutter, daylight through glazing showing neighboring slab facade typical China residential compound",
     "工序要点": "发泡胶老化检查、硅酮耐候胶重打、滴水线恢复"
   }
 ]

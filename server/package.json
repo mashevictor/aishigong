@@ -7,6 +7,7 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "scenario:images": "node scripts/generate-scenario-images.mjs",
+    "scenario:images:cn-four": "node scripts/generate-scenario-images.mjs --only=entry-site,dining-site,second-bed-site,balcony-leak",
     "showcase:deepseek": "node scripts/enrich-ai-showcase-deepseek.mjs",
     "case:rooms-deepseek": "node scripts/enrich-room-cases-deepseek.mjs"
   },

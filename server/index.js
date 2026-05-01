@@ -302,7 +302,8 @@ app.get("/api/meta/delivery", (_req, res) => {
       frontend_pages: [
         {
           path: "/demo.html",
-          deliverable: "客户演示沙盘：总时间轴 + 分房间效果图/现场对照 + 各角色一键登录",
+          deliverable:
+            "客户演示沙盘：总时间轴 + 分房间效果图/现场对照 + 典型问题全景矩阵（材料·工艺·观感·成本·AI）+ 各角色一键登录",
           audience: "签约汇报 / 展厅大屏",
         },
         { path: "/portal.html", deliverable: "统一门户（按角色模块导航）", audience: "已登录全员" },
