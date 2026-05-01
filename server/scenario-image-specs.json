@@ -1,0 +1,128 @@
+[
+  {
+    "id": "entry-eff",
+    "zone": "玄关",
+    "photo_kind": "效果图",
+    "caption": "玄关｜效果图 · 顶天立地鞋柜与感应灯带",
+    "fallback_url": "https://picsum.photos/seed/aishi-entry-eff/960/540",
+    "prompt_en": "Photorealistic interior design photograph, modern Chinese apartment entryway 120sqm, floor-to-ceiling shoe cabinet with middle niche and LED strip, light oak and white panels, soft daylight from side, clean minimalist, high detail, 8k",
+    "工序要点": "鞋柜深化图纸、强弱电点位避让、地面找平"
+  },
+  {
+    "id": "living-eff",
+    "zone": "客厅",
+    "photo_kind": "效果图",
+    "caption": "客厅｜效果图 · 电视背景墙与无主灯吊顶",
+    "fallback_url": "https://picsum.photos/seed/aishi-living-eff/960/540",
+    "prompt_en": "Photorealistic living room interior, contemporary Chinese style, TV wall with wood slats and stone texture, recessed ceiling with magnetic track lights, cream sofa, warm ambient lighting, wide angle, 8k architectural visualization",
+    "工序要点": "吊顶龙骨验收、灯槽尺寸、电视预埋 PVC 管"
+  },
+  {
+    "id": "living-site",
+    "zone": "客厅",
+    "photo_kind": "现场实拍",
+    "caption": "客厅｜现场 · 地砖铺贴完成·成品保护膜",
+    "fallback_url": "https://picsum.photos/seed/aishi-living-site1/960/540",
+    "prompt_en": "Photorealistic construction site photo, living room floor tiles just installed, cardboard protection film covering tiles, tools and buckets in corner, natural messy renovation stage, daylight through window, documentary style",
+    "工序要点": "地暖伸缩缝、十字卡铺砖、空鼓锤抽检"
+  },
+  {
+    "id": "dining-eff",
+    "zone": "餐厅",
+    "photo_kind": "效果图",
+    "caption": "餐厅｜效果图 · 岛台一体餐桌与餐边柜",
+    "fallback_url": "https://picsum.photos/seed/aishi-dining-eff/960/540",
+    "prompt_en": "Photorealistic dining area open plan, island dining table integrated with kitchen side, pendant lights above table, sideboard with glass doors, warm wood tones, Nordic minimalist Chinese home, interior photography 8k",
+    "工序要点": "岛台电位、吊灯悬挂点结构加固"
+  },
+  {
+    "id": "kitchen-eff",
+    "zone": "厨房",
+    "photo_kind": "效果图",
+    "caption": "厨房｜效果图 · U 型橱柜与高柜嵌入蒸烤箱",
+    "fallback_url": "https://picsum.photos/seed/aishi-kitch-eff/960/540",
+    "prompt_en": "Photorealistic modern kitchen interior, U-shaped cabinets white and grey, quartz countertop, built-in oven stack, range hood, subway tile backsplash, bright LED under cabinet, Chinese apartment kitchen 8k",
+    "工序要点": "橱柜复尺、烟道止逆阀、水槽台下盆加固"
+  },
+  {
+    "id": "kitchen-site",
+    "zone": "厨房",
+    "photo_kind": "现场实拍",
+    "caption": "厨房｜现场 · 墙砖铺贴·止逆阀安装节点",
+    "fallback_url": "https://picsum.photos/seed/aishi-kitch-site/960/540",
+    "prompt_en": "Photorealistic renovation photo, kitchen wall tiles half done, exhaust duct check valve visible, construction dust, realistic job site, smartphone photo quality",
+    "工序要点": "瓷砖泡水、下水坡度、燃气表移位合规"
+  },
+  {
+    "id": "master-eff",
+    "zone": "主卧",
+    "photo_kind": "效果图",
+    "caption": "主卧｜效果图 · 床头背景墙与整墙衣柜",
+    "fallback_url": "https://picsum.photos/seed/aishi-master-eff/960/540",
+    "prompt_en": "Photorealistic master bedroom, upholstered headboard wall panel, floor-to-ceiling wardrobe sliding doors, sheer curtains, carpet, calm beige palette, luxury simple Chinese interior render 8k",
+    "工序要点": "衣柜深化、床头柜插座高度、木地板自流平"
+  },
+  {
+    "id": "master-site",
+    "zone": "主卧",
+    "photo_kind": "现场实拍",
+    "caption": "主卧｜现场 · 腻子打磨完成·滚涂前粉尘清理",
+    "fallback_url": "https://picsum.photos/seed/aishi-master-site/960/540",
+    "prompt_en": "Photorealistic interior renovation, bedroom walls sanded smooth ready for paint, plastic floor protection, ladder and masking tape, realistic renovation documentary photo",
+    "工序要点": "石膏找平、阴阳角条、底漆封闭碱"
+  },
+  {
+    "id": "second-bed-eff",
+    "zone": "次卧",
+    "photo_kind": "效果图",
+    "caption": "次卧｜效果图 · 榻榻米书房兼客房",
+    "fallback_url": "https://picsum.photos/seed/aishi-bed2-eff/960/540",
+    "prompt_en": "Photorealistic small bedroom study combo, tatami platform bed with storage, desk by window, bookshelf wall, light wood and white, cozy compact Chinese apartment room render 8k",
+    "工序要点": "榻榻米预留检修口、书桌护眼灯光位置"
+  },
+  {
+    "id": "bath-eff",
+    "zone": "卫生间",
+    "photo_kind": "效果图",
+    "caption": "卫生间｜效果图 · 干湿分离·壁挂马桶与淋浴玻璃",
+    "fallback_url": "https://picsum.photos/seed/aishi-bath-eff/960/540",
+    "prompt_en": "Photorealistic modern bathroom render, glass shower partition, wall hung toilet, floating vanity, large grey tiles, recessed ceiling waterproof LED, dry wet separation Chinese apartment 8k",
+    "工序要点": "防水涂刷高度、门槛石止水墩、二次排水"
+  },
+  {
+    "id": "bath-waterproof",
+    "zone": "卫生间",
+    "photo_kind": "现场实拍",
+    "caption": "卫生间｜现场 · 防水第二遍·闭水试验前检查",
+    "fallback_url": "https://picsum.photos/seed/aishi-bath-wp/960/540",
+    "prompt_en": "Photorealistic construction detail photo, bathroom corner waterproof coating grey layer brush marks, floor drain visible, renovation documentary realistic lighting",
+    "工序要点": "48h 闭水、楼下顶棚渗漏巡检签字"
+  },
+  {
+    "id": "bath-fix",
+    "zone": "卫生间",
+    "photo_kind": "整改前后",
+    "caption": "卫生间｜整改 · 地漏周边二次找平坡度",
+    "fallback_url": "https://picsum.photos/seed/aishi-bath-fix/960/540",
+    "prompt_en": "Photorealistic close-up bathroom floor renovation, worker smoothing mortar slope toward floor drain, correction rework scene, documentary photo",
+    "工序要点": "排水试验、异响排查、下水配件更换记录"
+  },
+  {
+    "id": "balcony-eff",
+    "zone": "阳台",
+    "photo_kind": "效果图",
+    "caption": "阳台｜效果图 · 家政柜与洗烘叠放",
+    "fallback_url": "https://picsum.photos/seed/aishi-balc-eff/960/540",
+    "prompt_en": "Photorealistic balcony laundry area design, tall cabinet for cleaning tools, stacked washer dryer, grey tiles floor, glass railing view, bright daylight interior render 8k",
+    "工序要点": "防水上翻、洗衣机地漏专用、电动晾衣架承重"
+  },
+  {
+    "id": "balcony-leak",
+    "zone": "阳台",
+    "photo_kind": "现场实拍",
+    "caption": "阳台｜现场 · 窗框外侧外墙防水涂刷（雨后渗漏防治）",
+    "fallback_url": "https://picsum.photos/seed/aishi-balc-leak/960/540",
+    "prompt_en": "Photorealistic exterior maintenance photo, worker brushing waterproof coating on balcony window frame exterior wall area, safety rope, overcast sky, realistic jobsite",
+    "工序要点": "发泡胶老化检查、硅酮耐候胶重打、滴水线恢复"
+  }
+]

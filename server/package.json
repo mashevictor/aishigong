@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "scenario:images": "node scripts/generate-scenario-images.mjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
