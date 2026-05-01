@@ -205,6 +205,11 @@
     <span class="hint" id="healthHint"></span>
     <span class="hint" style="flex-basis:100%;text-align:center;line-height:1.6">
       交付入口：
+      <a href="/portal.html" style="color:#fde68a;margin:0 6px">统一门户</a>|
+      <a href="/manager.html" style="color:#fde68a;margin:0 6px">经理看板</a>|
+      <a href="/materials.html" style="color:#fde68a;margin:0 6px">材料·影像</a>|
+      <a href="/tickets.html" style="color:#fde68a;margin:0 6px">售后工单</a>|
+      <a href="/worker.html" style="color:#fde68a;margin:0 6px">工人视图</a>|
       <a href="/admin.html" style="color:#fde68a;margin:0 6px">Web 管理后台</a>|
       <a href="/client.html" style="color:#fde68a;margin:0 6px">客户视图（H5）</a>|
       <a href="/multimodal.html" style="color:#fde68a;margin:0 6px">多模态结论区</a>|
@@ -1047,12 +1052,17 @@
           out.textContent = "请输入问题";
           return;
         }
+        if (!getToken()) {
+          out.hidden = false;
+          out.textContent = "请先到「工作台」登录后再使用 AI（接口需登录）。";
+          return;
+        }
         btn.disabled = true;
         out.hidden = false;
         out.textContent = "请求中…";
         fetch(apiBase() + "/api/ai/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: authHeaders(),
           body: JSON.stringify({ prompt: prompt, system: system })
         })
           .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
@@ -1079,13 +1089,18 @@
           st.textContent = "请输入画面描述";
           return;
         }
+        if (!getToken()) {
+          st.hidden = false;
+          st.textContent = "请先到「工作台」登录后再使用文生图（接口需登录）。";
+          return;
+        }
         btn.disabled = true;
         img.hidden = true;
         st.hidden = false;
         st.textContent = "提交任务并轮询结果，可能需要数十秒…";
         fetch(apiBase() + "/api/ai/image", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: authHeaders(),
           body: JSON.stringify({ prompt: prompt })
         })
           .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })

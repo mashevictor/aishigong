@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>材料与现场影像 · AI 施工监控系统</title>
+  <style>
+    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:#e8edf4; color:#0f172a; }
+    header { background:linear-gradient(135deg,#04060a,#1a3d63); color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; }
+    header a { color:#fde68a; font-weight:700; text-decoration:none; }
+    .wrap { max-width:1100px; margin:0 auto; padding:16px; }
+    .card { background:#fff; border-radius:12px; padding:16px; margin-bottom:14px; border:1px solid rgba(15,35,71,.08); }
+    h2 { margin:0 0 10px; font-size:16px; border-bottom:2px solid #c9a44a; padding-bottom:6px; }
+    label { font-size:13px; color:#475569; display:block; margin-top:6px; }
+    input, select, textarea { font:inherit; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; width:100%; box-sizing:border-box; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-top:8px; }
+    .row > div { flex:1; min-width:160px; }
+    button.primary { cursor:pointer; border:none; border-radius:8px; padding:9px 16px; font-weight:800; background:linear-gradient(135deg,#e8c76b,#c9a44a); color:#0a1220; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th, td { border:1px solid #e2e8f0; padding:8px; vertical-align:top; }
+    th { background:#ebe6dc; }
+    .gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-top:10px; }
+    .ph { border-radius:10px; overflow:hidden; border:1px solid #e2e8f0; background:#f8fafc; }
+    .ph img { width:100%; height:140px; object-fit:cover; display:block; }
+    .ph figcaption { padding:6px 8px; font-size:12px; color:#475569; }
+    .muted { color:#64748b; font-size:13px; }
+    pre { background:#fef2f2; color:#b91c1c; padding:10px; border-radius:8px; font-size:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>材料 TOC · 现场影像归档</strong>
+    <div>
+      <span id="who" class="muted" style="color:#e2e8f0"></span>
+      <button type="button" class="primary" id="btnLogin">登录</button>
+      <a href="/portal.html">门户</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div><label>用户名</label><input id="u" /></div>
+        <div><label>密码</label><input id="p" type="password" /></div>
+        <button type="button" class="primary" id="btnGo">登录</button>
+      </div>
+      <pre id="err" hidden></pre>
+    </div>
+    <div class="card" id="app" hidden>
+      <div class="row">
+        <div style="flex:2">
+          <label>当前项目</label>
+          <select id="proj"></select>
+        </div>
+        <button type="button" class="primary" id="btnLoad">刷新数据</button>
+      </div>
+      <h2>材料清单（演示数据可新增）</h2>
+      <table id="tblMat"><thead><tr><th>名称</th><th>规格</th><th>数量</th><th>进度说明</th><th>附图</th></tr></thead><tbody></tbody></table>
+      <h2>新增材料行</h2>
+      <div class="row">
+        <div><label>名称</label><input id="mn" placeholder="如：石膏板" /></div>
+        <div><label>规格</label><input id="ms" /></div>
+        <div><label>数量</label><input id="mq" type="number" step="0.01" value="1" /></div>
+        <div><label>单位</label><input id="mu" value="件" /></div>
+      </div>
+      <div class="row">
+        <div style="flex:2"><label>进度说明</label><input id="mnote" /></div>
+        <div style="flex:2">
+          <label>演示图片 URL</label>
+          <select id="mimgPick"></select>
+        </div>
+        <button type="button" class="primary" id="btnAddMat">添加</button>
+      </div>
+      <h2>现场影像</h2>
+      <div class="gallery" id="photos"></div>
+      <h2>追加影像记录（演示）</h2>
+      <div class="row">
+        <div><label>说明</label><input id="pcap" placeholder="如：今日吊顶封闭前" /></div>
+        <div style="flex:2">
+          <label>选用演示图</label>
+          <select id="pimgPick"></select>
+        </div>
+        <button type="button" class="primary" id="btnAddPhoto">上传记录</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    var T = "aishigong_token";
+    var DEMO_URLS = [
+      { c: "主体结构外立面", u: "https://picsum.photos/seed/aishi-g1/800/450" },
+      { c: "钢筋绑扎验收前", u: "https://picsum.photos/seed/aishi-g2/800/450" },
+      { c: "幕墙龙骨安装", u: "https://picsum.photos/seed/aishi-g3/800/450" },
+      { c: "卫生间防水闭水", u: "https://picsum.photos/seed/aishi-g4/800/450" },
+      { c: "材料堆放区", u: "https://picsum.photos/seed/aishi-g5/800/450" },
+      { c: "安全通道", u: "https://picsum.photos/seed/aishi-g6/800/450" },
+      { c: "本地占位 SVG", u: "/assets/demo/concrete.svg" }
+    ];
+    function tok() { return localStorage.getItem(T) || ""; }
+    function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+    function fillImgSelect(sel) {
+      sel.innerHTML =
+        '<option value="-1">（无附图）</option>' +
+        DEMO_URLS.map(function (x, i) {
+          return '<option value="' + i + '">' + esc(x.c) + "</option>";
+        }).join("");
+    }
+
+    function pid() { return document.getElementById("proj").value; }
+
+    function loadAll() {
+      var id = pid();
+      if (!id) return;
+      fetch("/api/materials?project_id=" + encodeURIComponent(id), { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j.error) { document.getElementById("err").hidden = false; document.getElementById("err").textContent = j.error; return; }
+          document.getElementById("err").hidden = true;
+          var tb = document.querySelector("#tblMat tbody");
+          tb.innerHTML = (j.data || []).map(function (r) {
+            var img = r.image_url
+              ? '<img src="' + esc(r.image_url) + '" alt="" style="max-width:120px;max-height:72px;border-radius:6px" onerror="this.src=\'/assets/demo/concrete.svg\'"/>'
+              : "—";
+            return "<tr><td>" + esc(r.item_name) + "</td><td>" + esc(r.spec || "") + "</td><td>" + esc(String(r.quantity_decimal)) + " " + esc(r.unit) + "</td><td>" + esc(r.status_note || "") + "</td><td>" + img + "</td></tr>";
+          }).join("") || "<tr><td colspan=\"5\">暂无材料</td></tr>";
+        });
+      fetch("/api/site-photos?project_id=" + encodeURIComponent(id), { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var box = document.getElementById("photos");
+          box.innerHTML = (j.data || []).map(function (p) {
+            return '<figure class="ph"><img src="' + esc(p.image_url) + '" alt="" loading="lazy" onerror="this.src=\'/assets/demo/helmet.svg\'"/><figcaption>' + esc(p.caption) + '</figcaption></figure>';
+          }).join("") || '<p class="muted">暂无影像</p>';
+        });
+    }
+
+    function projects() {
+      fetch("/api/projects", { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var s = document.getElementById("proj");
+          s.innerHTML = (j.data || []).map(function (p) {
+            return '<option value="' + esc(String(p.id)) + '">' + esc(p.name) + '</option>';
+          }).join("");
+          loadAll();
+        });
+    }
+
+    document.getElementById("btnGo").onclick = function () {
+      fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: document.getElementById("u").value.trim(), password: document.getElementById("p").value })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok || !x.j.data) { document.getElementById("err").hidden = false; document.getElementById("err").textContent = x.j.error || "登录失败"; return; }
+          localStorage.setItem(T, x.j.data.token);
+          document.getElementById("who").textContent = x.j.data.user.name + "（" + x.j.data.user.role + "）";
+          document.getElementById("app").hidden = false;
+          document.getElementById("err").hidden = true;
+          projects();
+        });
+    };
+
+    document.getElementById("btnLoad").onclick = loadAll;
+    document.getElementById("proj").onchange = loadAll;
+
+    document.getElementById("btnAddMat").onclick = function () {
+      var ix = Number(document.getElementById("mimgPick").value);
+      var pick = ix >= 0 ? DEMO_URLS[ix] : null;
+      fetch("/api/materials", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + tok(), "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: Number(pid()),
+          item_name: document.getElementById("mn").value.trim(),
+          spec: document.getElementById("ms").value.trim(),
+          quantity_decimal: Number(document.getElementById("mq").value),
+          unit: document.getElementById("mu").value.trim(),
+          status_note: document.getElementById("mnote").value.trim(),
+          image_url: pick && pick.u ? pick.u : null
+        })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok) { alert(x.j.error || "失败"); return; }
+          loadAll();
+        });
+    };
+
+    document.getElementById("btnAddPhoto").onclick = function () {
+      var pick = DEMO_URLS[Number(document.getElementById("pimgPick").value) || 0];
+      fetch("/api/site-photos", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + tok(), "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: Number(pid()),
+          caption: document.getElementById("pcap").value.trim() || pick.c,
+          image_url: pick.u,
+          sort_order: 50
+        })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok) { alert(x.j.error || "失败"); return; }
+          loadAll();
+        });
+    };
+
+    fillImgSelect(document.getElementById("mimgPick"));
+    fillImgSelect(document.getElementById("pimgPick"));
+
+    document.getElementById("btnLogin").onclick = function () { document.getElementById("u").focus(); };
+
+    if (tok()) {
+      fetch("/api/me", { headers: { Authorization: "Bearer " + tok() } }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j.data) {
+          document.getElementById("who").textContent = j.data.name + "（" + j.data.role + "）";
+          document.getElementById("app").hidden = false;
+          projects();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

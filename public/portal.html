@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>统一门户 · AI 施工监控系统</title>
+  <style>
+    :root { --ink:#0a1220; --gold:#e8c76b; --bg:#e8edf4; --card:#fff; }
+    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:linear-gradient(180deg,#dbe4f0,var(--bg)); color:#1a1f2e; min-height:100vh; }
+    header { background:linear-gradient(135deg,#04060a,#1a3d63); color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(232,199,107,.45); }
+    header a { color:var(--gold); font-weight:700; text-decoration:none; }
+    .wrap { max-width:960px; margin:0 auto; padding:20px 16px; }
+    .card { background:var(--card); border-radius:12px; padding:18px; margin-bottom:14px; border:1px solid rgba(15,35,71,.08); box-shadow:0 2px 8px rgba(4,6,20,.06); }
+    h1 { margin:0; font-size:20px; color:var(--ink); }
+    h2 { margin:0 0 12px; font-size:16px; border-bottom:2px solid #c9a44a; padding-bottom:6px; }
+    label { font-size:13px; color:#475569; display:block; margin-top:8px; }
+    input { padding:9px 11px; border-radius:8px; border:1px solid #cbd5e1; font:inherit; min-width:140px; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-top:8px; }
+    button.primary { cursor:pointer; border:none; border-radius:8px; padding:9px 18px; font-weight:800; background:linear-gradient(135deg,#e8c76b,#c9a44a); color:#0a1220; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-top:12px; }
+    .tile { display:block; padding:14px 16px; border-radius:10px; border:1px solid #e2e8f0; background:#fafbfc; text-decoration:none; color:#0f172a; transition:box-shadow .15s,border-color .15s; }
+    .tile:hover { border-color:#c9a44a; box-shadow:0 4px 14px rgba(15,35,71,.12); }
+    .tile .tag { font-size:11px; color:#64748b; margin-bottom:4px; }
+    .tile strong { font-size:15px; display:block; }
+    .muted { color:#64748b; font-size:13px; }
+    pre { background:#f8fafc; padding:10px; border-radius:8px; font-size:12px; overflow:auto; color:#b91c1c; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>统一门户</strong>
+    <div>
+      <span id="who" class="muted" style="color:#e2e8f0"></span>
+      <button type="button" class="primary" id="btnLogout" hidden>退出</button>
+      <a href="/index.html">主站</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card" id="loginCard">
+      <h2>登录</h2>
+      <p class="muted">演示账号：<code>admin</code> / <code>jingli</code> / <code>gongren</code> / <code>kehu</code> 等，密码均为 <code>demo123</code></p>
+      <div class="row">
+        <div><label>用户名</label><input id="u" autocomplete="username" /></div>
+        <div><label>密码</label><input id="p" type="password" autocomplete="current-password" /></div>
+        <button type="button" class="primary" id="btnLogin">登录</button>
+      </div>
+      <pre id="err" hidden></pre>
+    </div>
+    <div class="card" id="app" hidden>
+      <h1>您好，<span id="name"></span></h1>
+      <p class="muted">角色：<span id="role"></span> · 以下为当前账号可访问的模块（由服务端按 RBAC 过滤）</p>
+      <div class="grid" id="mods"></div>
+    </div>
+  </div>
+  <script>
+    var T = "aishigong_token";
+    function tok() { return localStorage.getItem(T) || ""; }
+    function h() {
+      var o = { "Content-Type": "application/json" };
+      if (tok()) o.Authorization = "Bearer " + tok();
+      return o;
+    }
+    function esc(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+    }
+    function showErr(t) {
+      var e = document.getElementById("err");
+      e.hidden = !t;
+      e.textContent = t || "";
+    }
+    function logout() {
+      localStorage.removeItem(T);
+      location.reload();
+    }
+    function renderMods(list) {
+      var g = document.getElementById("mods");
+      g.innerHTML = (list || []).map(function (m) {
+        return '<a class="tile" href="' + esc(m.path) + '"><div class="tag">' + esc(m.tag || "") + '</div><strong>' + esc(m.title) + '</strong></a>';
+      }).join("") || '<p class="muted">暂无可访问模块</p>';
+    }
+    function loadPortal() {
+      fetch("/api/portal/modules", { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok) { showErr(x.j.error || "加载模块失败"); return; }
+          showErr("");
+          renderMods(x.j.data);
+        });
+    }
+    document.getElementById("btnLogin").onclick = function () {
+      showErr("登录中…");
+      fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: document.getElementById("u").value.trim(), password: document.getElementById("p").value })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok || !x.j.data) { showErr(x.j.error || "登录失败"); return; }
+          localStorage.setItem(T, x.j.data.token);
+          document.getElementById("loginCard").hidden = true;
+          document.getElementById("app").hidden = false;
+          document.getElementById("btnLogout").hidden = false;
+          var u = x.j.data.user;
+          document.getElementById("who").textContent = u.name + "（" + u.role + "）";
+          document.getElementById("name").textContent = u.name;
+          document.getElementById("role").textContent = u.role;
+          loadPortal();
+        });
+    };
+    document.getElementById("btnLogout").onclick = logout;
+    if (tok()) {
+      fetch("/api/me", { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (!j.data) return;
+          document.getElementById("loginCard").hidden = true;
+          document.getElementById("app").hidden = false;
+          document.getElementById("btnLogout").hidden = false;
+          document.getElementById("who").textContent = j.data.name + "（" + j.data.role + "）";
+          document.getElementById("name").textContent = j.data.name;
+          document.getElementById("role").textContent = j.data.role;
+          loadPortal();
+        });
+    }
+  </script>
+</body>
+</html>

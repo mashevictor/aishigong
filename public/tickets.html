@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>售后工单 · AI 施工监控系统</title>
+  <style>
+    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:#e8edf4; color:#0f172a; }
+    header { background:linear-gradient(135deg,#04060a,#1a3d63); color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; }
+    header a { color:#fde68a; font-weight:700; text-decoration:none; }
+    .wrap { max-width:1050px; margin:0 auto; padding:16px; }
+    .card { background:#fff; border-radius:12px; padding:16px; margin-bottom:14px; border:1px solid rgba(15,35,71,.08); }
+    h2 { margin:0 0 10px; font-size:16px; border-bottom:2px solid #c9a44a; padding-bottom:6px; }
+    label { font-size:13px; color:#475569; display:block; margin-top:6px; }
+    input, select, textarea { font:inherit; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; width:100%; box-sizing:border-box; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-top:8px; }
+    .row > div { flex:1; min-width:140px; }
+    button.primary { cursor:pointer; border:none; border-radius:8px; padding:9px 14px; font-weight:800; background:linear-gradient(135deg,#e8c76b,#c9a44a); color:#0a1220; }
+    button.small { font-size:12px; padding:6px 10px; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th, td { border:1px solid #e2e8f0; padding:8px; vertical-align:top; }
+    th { background:#ebe6dc; }
+    .muted { color:#64748b; font-size:13px; }
+    pre { background:#fef2f2; color:#b91c1c; padding:10px; border-radius:8px; font-size:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>售后 / 质保工单</strong>
+    <div>
+      <span id="who" class="muted" style="color:#e2e8f0"></span>
+      <button type="button" class="primary" id="btnLogin">登录</button>
+      <a href="/portal.html">门户</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div><label>用户名（客户可用 kehu）</label><input id="u" /></div>
+        <div><label>密码</label><input id="p" type="password" /></div>
+        <button type="button" class="primary" id="btnGo">登录</button>
+      </div>
+      <pre id="err" hidden></pre>
+    </div>
+    <div class="card" id="app" hidden>
+      <div class="row">
+        <div style="flex:2"><label>项目</label><select id="proj"></select></div>
+        <button type="button" class="primary" id="btnLoad">刷新工单</button>
+      </div>
+      <h2>工单列表</h2>
+      <table id="tbl"><thead><tr><th>ID</th><th>标题</th><th>分类</th><th>状态</th><th>优先级</th><th>创建人</th><th>操作</th></tr></thead><tbody></tbody></table>
+      <h2>新建工单（演示）</h2>
+      <div class="row">
+        <div style="flex:2"><label>标题</label><input id="ti" placeholder="简短描述问题" /></div>
+        <div><label>分类</label><select id="tc"><option>报修</option><option>质保</option><option>咨询</option></select></div>
+        <div><label>优先级</label><select id="tp"><option>P0</option><option>P1</option><option>P2</option></select></div>
+      </div>
+      <label>详情</label>
+      <textarea id="td" rows="3" placeholder="现象、位置、联系方式等"></textarea>
+      <button type="button" class="primary" id="btnCreate" style="margin-top:10px">提交工单</button>
+    </div>
+  </div>
+  <script>
+    var T = "aishigong_token";
+    var STATUSES = ["待受理", "处理中", "待回访", "已关闭"];
+    function tok() { return localStorage.getItem(T) || ""; }
+    function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+    function pid() { return document.getElementById("proj").value; }
+
+    function statusSelect(current, tid) {
+      var opts = STATUSES.map(function (s) {
+        return '<option' + (s === current ? ' selected' : '') + '>' + esc(s) + '</option>';
+      }).join("");
+      return '<select data-id="' + esc(String(tid)) + '" class="stSel">' + opts + '</select> <button type="button" class="primary small btnPatch" data-id="' + esc(String(tid)) + '">更新状态</button>';
+    }
+
+    function loadTickets() {
+      fetch("/api/tickets?project_id=" + encodeURIComponent(pid()), { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j.error) { document.getElementById("err").hidden = false; document.getElementById("err").textContent = j.error; return; }
+          document.getElementById("err").hidden = true;
+          var tb = document.querySelector("#tbl tbody");
+          tb.innerHTML = (j.data || []).map(function (r) {
+            return "<tr><td>" + r.id + "</td><td>" + esc(r.title) + "</td><td>" + esc(r.category) + "</td><td>" + esc(r.status) + "</td><td>" + esc(r.priority) + "</td><td>" + esc(r.creator_display_name || r.creator_username || "") + "</td><td>" + statusSelect(r.status, r.id) + "</td></tr>";
+          }).join("") || "<tr><td colspan=\"7\">暂无工单</td></tr>";
+          tb.querySelectorAll(".btnPatch").forEach(function (btn) {
+            btn.onclick = function () {
+              var id = btn.getAttribute("data-id");
+              var sel = tb.querySelector('select.stSel[data-id="' + id + '"]');
+              var st = sel ? sel.value : "";
+              fetch("/api/tickets/" + encodeURIComponent(id), {
+                method: "PATCH",
+                headers: { Authorization: "Bearer " + tok(), "Content-Type": "application/json" },
+                body: JSON.stringify({ status: st })
+              }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+                .then(function (x) {
+                  if (!x.ok) { alert(x.j.error || "失败"); return; }
+                  loadTickets();
+                });
+            };
+          });
+        });
+    }
+
+    function projects() {
+      fetch("/api/projects", { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var s = document.getElementById("proj");
+          s.innerHTML = (j.data || []).map(function (p) {
+            return '<option value="' + esc(String(p.id)) + '">' + esc(p.name) + '</option>';
+          }).join("");
+          loadTickets();
+        });
+    }
+
+    document.getElementById("btnGo").onclick = function () {
+      fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: document.getElementById("u").value.trim(), password: document.getElementById("p").value })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok || !x.j.data) { document.getElementById("err").hidden = false; document.getElementById("err").textContent = x.j.error || "登录失败"; return; }
+          localStorage.setItem(T, x.j.data.token);
+          document.getElementById("who").textContent = x.j.data.user.name + "（" + x.j.data.user.role + "）";
+          document.getElementById("app").hidden = false;
+          document.getElementById("err").hidden = true;
+          projects();
+        });
+    };
+
+    document.getElementById("btnLoad").onclick = loadTickets;
+    document.getElementById("proj").onchange = loadTickets;
+
+    document.getElementById("btnCreate").onclick = function () {
+      fetch("/api/tickets", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + tok(), "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: Number(pid()),
+          title: document.getElementById("ti").value.trim(),
+          description: document.getElementById("td").value.trim(),
+          category: document.getElementById("tc").value,
+          priority: document.getElementById("tp").value,
+          status: "待受理"
+        })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok) { alert(x.j.error || "失败"); return; }
+          document.getElementById("ti").value = "";
+          document.getElementById("td").value = "";
+          loadTickets();
+        });
+    };
+
+    fetch("/api/meta/ticket-statuses").then(function (r) { return r.json(); }).then(function (j) {
+      if (j.data && j.data.statuses && j.data.statuses.length) STATUSES = j.data.statuses;
+    });
+
+    document.getElementById("btnLogin").onclick = function () { document.getElementById("u").focus(); };
+
+    if (tok()) {
+      fetch("/api/me", { headers: { Authorization: "Bearer " + tok() } }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j.data) {
+          document.getElementById("who").textContent = j.data.name + "（" + j.data.role + "）";
+          document.getElementById("app").hidden = false;
+          projects();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

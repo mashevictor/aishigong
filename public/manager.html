@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>施工经理看板 · AI 施工监控系统</title>
+  <style>
+    :root { --ink:#0a1220; --gold:#e8c76b; }
+    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:linear-gradient(180deg,#dbe4f0,#e8edf4); color:#1a1f2e; }
+    header { background:linear-gradient(135deg,#04060a,#1a3d63); color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; }
+    header a { color:#fde68a; font-weight:700; text-decoration:none; }
+    .wrap { max-width:1000px; margin:0 auto; padding:16px; }
+    .card { background:#fff; border-radius:12px; padding:16px 18px; margin-bottom:14px; border:1px solid rgba(15,35,71,.08); }
+    h2 { margin:0 0 10px; font-size:16px; border-bottom:2px solid #c9a44a; padding-bottom:6px; color:var(--ink); }
+    .stats { display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; }
+    .pill { background:#f1f5f9; border-radius:10px; padding:12px 16px; min-width:120px; border:1px solid #e2e8f0; }
+    .pill b { display:block; font-size:22px; color:#0f172a; }
+    .pill span { font-size:12px; color:#64748b; }
+    label { font-size:13px; color:#475569; }
+    select, button.primary { font:inherit; padding:8px 12px; border-radius:8px; }
+    select { border:1px solid #cbd5e1; margin-right:8px; }
+    button.primary { cursor:pointer; border:none; font-weight:800; background:linear-gradient(135deg,#e8c76b,#c9a44a); color:#0a1220; }
+    table { width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
+    th, td { border:1px solid #e2e8f0; padding:8px; text-align:left; }
+    th { background:#ebe6dc; }
+    pre { background:#f8fafc; padding:12px; border-radius:8px; font-size:12px; overflow:auto; max-height:280px; }
+    .muted { color:#64748b; font-size:13px; }
+    input { padding:8px; border-radius:8px; border:1px solid #cbd5e1; margin-right:8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>施工经理看板</strong>
+    <div>
+      <span id="who" class="muted" style="color:#e2e8f0"></span>
+      <button type="button" class="primary" id="btnGo">登录并加载</button>
+      <a href="/portal.html">门户</a>
+      <a href="/index.html">主站</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <input id="u" placeholder="用户名" />
+      <input id="p" type="password" placeholder="密码" />
+      <p class="muted" style="margin:8px 0 0">汇总当前账号可访问项目的任务状态分布、材料条数、现场影像条数与未关闭工单数。</p>
+      <pre id="err" hidden style="color:#b91c1c"></pre>
+    </div>
+    <div class="card" id="dash" hidden>
+      <h2>筛选项目</h2>
+      <div>
+        <label>项目 </label>
+        <select id="proj"><option value="">全部可见项目</option></select>
+        <button type="button" class="primary" id="btnRefresh">刷新汇总</button>
+      </div>
+      <div class="stats" id="pills"></div>
+      <h2 style="margin-top:18px">任务状态分布</h2>
+      <table id="tbl"><thead><tr><th>状态</th><th>数量</th></tr></thead><tbody></tbody></table>
+      <h2 style="margin-top:18px">原始 JSON（调试）</h2>
+      <pre id="raw"></pre>
+    </div>
+  </div>
+  <script>
+    var T = "aishigong_token";
+    function tok() { return localStorage.getItem(T) || ""; }
+    function h() { return { Authorization: "Bearer " + tok(), "Content-Type": "application/json" }; }
+    function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+    function loginThen(cb) {
+      document.getElementById("err").hidden = false;
+      document.getElementById("err").textContent = "登录中…";
+      fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: document.getElementById("u").value.trim(), password: document.getElementById("p").value })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok || !x.j.data) { document.getElementById("err").textContent = x.j.error || "失败"; return; }
+          localStorage.setItem(T, x.j.data.token);
+          document.getElementById("who").textContent = x.j.data.user.name + "（" + x.j.data.user.role + "）";
+          document.getElementById("err").hidden = true;
+          cb();
+        });
+    }
+
+    function loadSummary() {
+      var pid = document.getElementById("proj").value;
+      var q = pid ? ("?project_id=" + encodeURIComponent(pid)) : "";
+      fetch("/api/dashboard/summary" + q, { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok) {
+            document.getElementById("err").hidden = false;
+            document.getElementById("err").textContent = x.j.error || "加载失败";
+            return;
+          }
+          document.getElementById("err").hidden = true;
+          var d = x.j.data;
+          document.getElementById("dash").hidden = false;
+          document.getElementById("raw").textContent = JSON.stringify(d, null, 2);
+          document.getElementById("pills").innerHTML =
+            '<div class="pill"><b>' + esc(String(d.materials_count)) + '</b><span>材料条目</span></div>' +
+            '<div class="pill"><b>' + esc(String(d.site_photos_count)) + '</b><span>现场影像</span></div>' +
+            '<div class="pill"><b>' + esc(String(d.open_tickets)) + '</b><span>未关闭工单</span></div>';
+          var tb = document.querySelector("#tbl tbody");
+          var ts = d.tasks_by_status || {};
+          tb.innerHTML = Object.keys(ts).map(function (k) {
+            return "<tr><td>" + esc(k) + "</td><td>" + esc(String(ts[k])) + "</td></tr>";
+          }).join("") || "<tr><td colspan=\"2\">无任务</td></tr>";
+        });
+    }
+
+    function fillProjects() {
+      fetch("/api/projects", { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var sel = document.getElementById("proj");
+          var cur = sel.value;
+          sel.innerHTML = '<option value="">全部可见项目</option>';
+          (j.data || []).forEach(function (p) {
+            var o = document.createElement("option");
+            o.value = String(p.id);
+            o.textContent = p.name + " (#" + p.id + ")";
+            sel.appendChild(o);
+          });
+          sel.value = cur;
+        });
+    }
+
+    document.getElementById("btnGo").onclick = function () {
+      loginThen(function () { fillProjects(); loadSummary(); });
+    };
+    document.getElementById("btnRefresh").onclick = function () { loadSummary(); };
+    document.getElementById("proj").onchange = function () { loadSummary(); };
+
+    if (tok()) {
+      fetch("/api/me", { headers: { Authorization: "Bearer " + tok() } }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j.data) {
+          document.getElementById("who").textContent = j.data.name + "（" + j.data.role + "）";
+          fillProjects();
+          loadSummary();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

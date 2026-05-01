@@ -8,6 +8,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const WORKFLOW_STATUSES = ["待派发", "进行中", "待验收", "整改中", "已完成"];
 
+export const SERVICE_TICKET_STATUSES = ["待受理", "处理中", "待回访", "已关闭"];
+
 let pool = null;
 let mockMode = false;
 
@@ -21,6 +23,12 @@ let mockMsgIdSeq = 1;
 let mockAiLogs = [];
 let mockAiLogId = 1;
 let mockProjectIdSeq = 10;
+let mockMaterials = [];
+let mockSitePhotos = [];
+let mockTickets = [];
+let mockMatIdSeq = 1;
+let mockPhotoIdSeq = 1;
+let mockTicketIdSeq = 1;
 
 function initMockDataset() {
   const hash = (p) => bcrypt.hashSync(p, 9);
@@ -125,6 +133,106 @@ function initMockDataset() {
       created_at: new Date(Date.now() - 1800_000).toISOString().slice(0, 19).replace("T", " "),
     },
   ];
+  mockMatIdSeq = 20;
+  mockPhotoIdSeq = 20;
+  mockTicketIdSeq = 20;
+  const ts = () => new Date().toISOString().slice(0, 19).replace("T", " ");
+  mockMaterials = [
+    {
+      id: 11,
+      project_id: 1,
+      item_name: "瓷砖",
+      spec: "600×600 仿古",
+      quantity_decimal: 1200,
+      unit: "片",
+      status_note: "已进场约 80%",
+      image_url: DEMO_GALLERY[4].url,
+      updated_at: ts(),
+    },
+    {
+      id: 12,
+      project_id: 1,
+      item_name: "乳胶漆",
+      spec: "环保五合一",
+      quantity_decimal: 180,
+      unit: "桶",
+      status_note: "待调色确认",
+      image_url: null,
+      updated_at: ts(),
+    },
+    {
+      id: 13,
+      project_id: 2,
+      item_name: "电缆 YJV",
+      spec: "3×25+1×16",
+      quantity_decimal: 850,
+      unit: "米",
+      status_note: "复核到货单",
+      image_url: DEMO_GALLERY[2].url,
+      updated_at: ts(),
+    },
+  ];
+  mockSitePhotos = [
+    {
+      id: 21,
+      project_id: 1,
+      caption: DEMO_GALLERY[0].caption,
+      image_url: DEMO_GALLERY[0].url,
+      sort_order: 1,
+      created_at: ts(),
+    },
+    {
+      id: 22,
+      project_id: 1,
+      caption: DEMO_GALLERY[3].caption,
+      image_url: DEMO_GALLERY[3].url,
+      sort_order: 2,
+      created_at: ts(),
+    },
+    {
+      id: 23,
+      project_id: 2,
+      caption: DEMO_GALLERY[1].caption,
+      image_url: DEMO_GALLERY[1].url,
+      sort_order: 1,
+      created_at: ts(),
+    },
+  ];
+  mockTickets = [
+    {
+      id: 31,
+      project_id: 1,
+      title: "洗手间地漏异响",
+      description: "夜间有异响，需上门排查",
+      category: "报修",
+      status: "处理中",
+      priority: "P1",
+      created_by_user_id: 6,
+      created_at: ts(),
+    },
+    {
+      id: 32,
+      project_id: 1,
+      title: "阳台渗水复查",
+      description: "雨后内侧墙角有水渍",
+      category: "报修",
+      status: "待受理",
+      priority: "P0",
+      created_by_user_id: 4,
+      created_at: ts(),
+    },
+    {
+      id: 33,
+      project_id: 2,
+      title: "门禁面板划痕",
+      description: "交付验收时发现轻微划痕",
+      category: "质保",
+      status: "待回访",
+      priority: "P2",
+      created_by_user_id: 6,
+      created_at: ts(),
+    },
+  ];
 }
 
 export function isMockDb() {
@@ -214,6 +322,46 @@ async function ensureMysqlSchema(conn) {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS materials (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      project_id INT NOT NULL,
+      item_name VARCHAR(255) NOT NULL,
+      spec VARCHAR(255) DEFAULT NULL,
+      quantity_decimal DECIMAL(12,2) NOT NULL DEFAULT 0,
+      unit VARCHAR(32) NOT NULL DEFAULT '件',
+      status_note VARCHAR(255) DEFAULT NULL,
+      image_url VARCHAR(512) DEFAULT NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      CONSTRAINT fk_mat_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS site_photos (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      project_id INT NOT NULL,
+      caption VARCHAR(255) NOT NULL,
+      image_url VARCHAR(512) NOT NULL,
+      sort_order INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_photo_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS service_tickets (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      project_id INT NOT NULL,
+      title VARCHAR(512) NOT NULL,
+      description TEXT NULL,
+      category VARCHAR(64) DEFAULT '报修',
+      status VARCHAR(32) NOT NULL DEFAULT '待受理',
+      priority VARCHAR(16) DEFAULT 'P2',
+      created_by_user_id INT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_tick_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+      CONSTRAINT fk_tick_user FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
 }
 
 async function seedUsersAndMembers(conn) {
@@ -280,6 +428,65 @@ async function patchDemoCoverUrls(conn) {
   );
 }
 
+async function seedDemoExtras(conn) {
+  const [[mc]] = await conn.query("SELECT COUNT(*) AS c FROM materials");
+  if (mc.c > 0) return;
+  const [prows] = await conn.query("SELECT id, code FROM projects ORDER BY id");
+  const byCode = Object.fromEntries(prows.map((p) => [p.code, p.id]));
+  const p1 = byCode["PRJ-DEMO-001"] ?? prows[0]?.id;
+  const p2 = byCode["PRJ-DEMO-002"] ?? prows[1]?.id;
+  if (!p1) return;
+  const [[sh]] = await conn.query(
+    "SELECT id FROM users WHERE username = 'shouhou' LIMIT 1"
+  );
+  const [[kh]] = await conn.query(
+    "SELECT id FROM users WHERE username = 'kehu' LIMIT 1"
+  );
+  const uidSh = sh?.id ?? 1;
+  const uidKh = kh?.id ?? uidSh;
+
+  await conn.query(
+    `INSERT INTO materials (project_id, item_name, spec, quantity_decimal, unit, status_note, image_url) VALUES
+     (?, '瓷砖', '600×600 仿古', 1200, '片', '已进场约80%', ?),
+     (?, '乳胶漆', '环保五合一', 180, '桶', '待调色确认', NULL),
+     (?, '电缆 YJV', '3×25+1×16', 850, '米', '复核到货单', ?)`,
+    [p1, DEMO_GALLERY[4].url, p1, p2, DEMO_GALLERY[2].url]
+  );
+
+  await conn.query(
+    `INSERT INTO site_photos (project_id, caption, image_url, sort_order) VALUES
+     (?, ?, ?, 1), (?, ?, ?, 2)`,
+    [
+      p1,
+      DEMO_GALLERY[0].caption,
+      DEMO_GALLERY[0].url,
+      p1,
+      DEMO_GALLERY[3].caption,
+      DEMO_GALLERY[3].url,
+    ]
+  );
+  if (p2) {
+    await conn.query(
+      `INSERT INTO site_photos (project_id, caption, image_url, sort_order) VALUES (?, ?, ?, 1)`,
+      [p2, DEMO_GALLERY[1].caption, DEMO_GALLERY[1].url]
+    );
+  }
+
+  await conn.query(
+    `INSERT INTO service_tickets (project_id, title, description, category, status, priority, created_by_user_id) VALUES
+     (?, '洗手间地漏异响', '夜间有异响，需上门排查', '报修', '处理中', 'P1', ?),
+     (?, '阳台渗水复查', '雨后内侧墙角有水渍', '报修', '待受理', 'P0', ?)`,
+    [p1, uidSh, p1, uidKh]
+  );
+  if (p2) {
+    await conn.query(
+      `INSERT INTO service_tickets (project_id, title, description, category, status, priority, created_by_user_id) VALUES
+       (?, '门禁面板划痕', '交付验收时发现轻微划痕', '质保', '待回访', 'P2', ?)`,
+      [p2, uidSh]
+    );
+  }
+}
+
 async function seedDemo(conn) {
   await conn.query(
     `INSERT INTO projects (code, name, client_name, status, progress_pct, cover_image_url) VALUES
@@ -295,8 +502,44 @@ async function seedDemo(conn) {
   );
 }
 
+export function isProductionEnv(env) {
+  return String(env.NODE_ENV || "").toLowerCase() === "production";
+}
+
+/** 演示种子：生产环境默认关闭，除非 SEED_DEMO_DATA=true */
+export function wantsDemoSeed(env) {
+  const v = String(env.SEED_DEMO_DATA || "").toLowerCase();
+  if (v === "true") return true;
+  if (v === "false") return false;
+  return !isProductionEnv(env);
+}
+
+async function bootstrapProductionAdmin(conn, env) {
+  const username = String(env.ADMIN_BOOTSTRAP_USERNAME || "").trim();
+  const password = String(env.ADMIN_BOOTSTRAP_PASSWORD || "");
+  const displayName = String(env.ADMIN_BOOTSTRAP_DISPLAY_NAME || "系统管理员").trim() || "系统管理员";
+  const minLen = isProductionEnv(env) ? 12 : 8;
+  if (!username || password.length < minLen) {
+    throw new Error(
+      `[db] 数据库中尚无用户且未启用演示种子：请配置 ADMIN_BOOTSTRAP_USERNAME 与 ADMIN_BOOTSTRAP_PASSWORD（至少 ${minLen} 位），或设置 SEED_DEMO_DATA=true`
+    );
+  }
+  const rounds = Math.min(14, Math.max(10, Number(env.BCRYPT_ROUNDS) || 12));
+  const hash = bcrypt.hashSync(password, rounds);
+  await conn.query(
+    "INSERT INTO users (username, password_hash, display_name, role) VALUES (?,?,?,?)",
+    [username, hash, displayName, "管理员"]
+  );
+  console.warn(
+    "[db] 已通过 ADMIN_BOOTSTRAP_* 创建首个管理员；请在验证登录后从环境中移除明文密码变量。"
+  );
+}
+
 export async function initDb(env) {
   initMockDataset();
+
+  const prod = isProductionEnv(env);
+  const demoSeed = wantsDemoSeed(env);
 
   const host = env.MYSQL_HOST || "";
   const user = env.MYSQL_USER || "";
@@ -304,6 +547,11 @@ export async function initDb(env) {
   const database = env.MYSQL_DATABASE || "";
 
   if (!host || !user || !database) {
+    if (prod) {
+      throw new Error(
+        "[db] 生产环境必须配置 MYSQL_HOST、MYSQL_USER、MYSQL_DATABASE（不允许使用内存模拟库）。"
+      );
+    }
     mockMode = true;
     pool = null;
     console.warn("[db] 未配置 MYSQL_*，使用内存模拟数据（含登录 demo123）。");
@@ -318,23 +566,62 @@ export async function initDb(env) {
       password,
       database,
       waitForConnections: true,
-      connectionLimit: 10,
+      connectionLimit: Math.min(50, Math.max(2, Number(env.MYSQL_CONNECTION_LIMIT) || 10)),
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
     });
     const conn = await pool.getConnection();
     await ensureMysqlSchema(conn);
-    const [rows] = await conn.query("SELECT COUNT(*) AS c FROM projects");
-    if (rows[0].c === 0) {
+
+    const [[ur]] = await conn.query("SELECT COUNT(*) AS c FROM users");
+    const [[pr]] = await conn.query("SELECT COUNT(*) AS c FROM projects");
+
+    if (pr.c === 0 && demoSeed) {
       await seedDemo(conn);
     }
+
     await patchDemoCoverUrls(conn);
-    await seedUsersAndMembers(conn);
+
+    if (ur.c === 0) {
+      if (demoSeed) {
+        await seedUsersAndMembers(conn);
+      } else {
+        await bootstrapProductionAdmin(conn, env);
+      }
+    }
+
+    if (demoSeed) {
+      await seedDemoExtras(conn);
+    }
+
     conn.release();
     mockMode = false;
     console.log("[db] MySQL 已连接并完成结构检查。");
   } catch (e) {
+    if (prod) {
+      console.error("[db] 生产环境 MySQL 初始化失败：", e.message || e);
+      throw e;
+    }
     mockMode = true;
     pool = null;
     console.warn("[db] MySQL 连接失败，改用模拟数据：", e.message);
+  }
+}
+
+/** 就绪探针：线上负载均衡可调用 */
+export async function pingDb() {
+  if (mockMode || !pool) {
+    return { ok: true, db: "mock", latencyMs: 0 };
+  }
+  const t0 = Date.now();
+  await pool.query("SELECT 1 AS ok");
+  return { ok: true, db: "mysql", latencyMs: Date.now() - t0 };
+}
+
+export async function closeDb() {
+  if (pool) {
+    await pool.end();
+    pool = null;
   }
 }
 
@@ -578,6 +865,325 @@ export async function createMessageForUser(user, projectId, body) {
   return rows[0];
 }
 
+const PORTAL_MODULES = [
+  { key: "portal", title: "统一门户", path: "/portal.html", roles: ["*"], tag: "入口" },
+  { key: "proposal", title: "方案与工作台", path: "/index.html", roles: ["*"], tag: "全文+AI" },
+  { key: "manager", title: "施工经理看板", path: "/manager.html", roles: ["*"], tag: "汇总" },
+  {
+    key: "worker",
+    title: "工人极简视图",
+    path: "/worker.html",
+    roles: ["工人", "施工经理", "管理员"],
+    tag: "任务",
+  },
+  { key: "materials", title: "材料与现场影像", path: "/materials.html", roles: ["*"], tag: "TOC" },
+  { key: "tickets", title: "售后工单", path: "/tickets.html", roles: ["*"], tag: "质保" },
+  {
+    key: "client",
+    title: "客户 H5 视图",
+    path: "/client.html",
+    roles: ["客户", "管理员", "施工经理", "总包", "售后"],
+    tag: "业主",
+  },
+  { key: "multimodal", title: "多模态分析", path: "/multimodal.html", roles: ["*"], tag: "AI" },
+  { key: "admin", title: "管理后台", path: "/admin.html", roles: ["管理员"], tag: "RBAC" },
+  { key: "handover", title: "移交清单", path: "/handover.html", roles: ["*"], tag: "文档" },
+];
+
+export function getPortalModules(role) {
+  const r = String(role || "");
+  return PORTAL_MODULES.filter((m) => m.roles.includes("*") || m.roles.includes(r)).map(
+    ({ roles, ...rest }) => rest
+  );
+}
+
+function mapTicketRow(t) {
+  const u = mockUsers.find((x) => x.id === t.created_by_user_id);
+  return {
+    id: t.id,
+    project_id: t.project_id,
+    title: t.title,
+    description: t.description ?? null,
+    category: t.category,
+    status: t.status,
+    priority: t.priority,
+    created_by_user_id: t.created_by_user_id,
+    creator_username: u?.username ?? null,
+    creator_display_name: u?.display_name ?? null,
+    created_at: t.created_at,
+  };
+}
+
+export async function listMaterialsForUser(user, projectId) {
+  const pid = Number(projectId);
+  if (!pid) throw new Error("project_id 无效");
+  if (!(await userCanAccessProject(user, pid))) throw new Error("无权查看该项目材料");
+
+  if (mockMode || !pool) {
+    return mockMaterials
+      .filter((m) => m.project_id === pid)
+      .map((m) => ({ ...m, quantity_decimal: Number(m.quantity_decimal) }));
+  }
+  const [rows] = await pool.query(
+    `SELECT id, project_id, item_name, spec, quantity_decimal, unit, status_note, image_url,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+     FROM materials WHERE project_id = ? ORDER BY id`,
+    [pid]
+  );
+  return rows;
+}
+
+export async function createMaterialForUser(user, payload) {
+  const project_id = Number(payload?.project_id);
+  if (!project_id) throw new Error("project_id 无效");
+  if (!(await userCanAccessProject(user, project_id))) throw new Error("无权添加材料");
+  const item_name = String(payload?.item_name || "").trim();
+  if (!item_name) throw new Error("名称不能为空");
+  const spec = String(payload?.spec || "").trim() || null;
+  const quantity_decimal = Number(payload?.quantity_decimal ?? payload?.quantity ?? 0);
+  const unit = String(payload?.unit || "件").trim() || "件";
+  const status_note = String(payload?.status_note || "").trim() || null;
+  const image_url = String(payload?.image_url || "").trim() || null;
+
+  if (mockMode || !pool) {
+    const row = {
+      id: mockMatIdSeq++,
+      project_id,
+      item_name,
+      spec,
+      quantity_decimal,
+      unit,
+      status_note,
+      image_url,
+      updated_at: new Date().toISOString().slice(0, 19).replace("T", " "),
+    };
+    mockMaterials.push(row);
+    return row;
+  }
+  const [r] = await pool.query(
+    `INSERT INTO materials (project_id, item_name, spec, quantity_decimal, unit, status_note, image_url)
+     VALUES (?,?,?,?,?,?,?)`,
+    [project_id, item_name, spec, quantity_decimal, unit, status_note, image_url]
+  );
+  const [rows] = await pool.query(
+    `SELECT id, project_id, item_name, spec, quantity_decimal, unit, status_note, image_url,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+     FROM materials WHERE id = ?`,
+    [r.insertId]
+  );
+  return rows[0];
+}
+
+export async function listSitePhotosForUser(user, projectId) {
+  const pid = Number(projectId);
+  if (!pid) throw new Error("project_id 无效");
+  if (!(await userCanAccessProject(user, pid))) throw new Error("无权查看影像");
+
+  if (mockMode || !pool) {
+    return mockSitePhotos
+      .filter((p) => p.project_id === pid)
+      .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
+      .map((p) => ({ ...p }));
+  }
+  const [rows] = await pool.query(
+    `SELECT id, project_id, caption, image_url, sort_order,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+     FROM site_photos WHERE project_id = ? ORDER BY sort_order, id`,
+    [pid]
+  );
+  return rows;
+}
+
+export async function createSitePhotoForUser(user, payload) {
+  const project_id = Number(payload?.project_id);
+  if (!project_id) throw new Error("project_id 无效");
+  if (!(await userCanAccessProject(user, project_id))) throw new Error("无权上传影像记录");
+  const caption = String(payload?.caption || "").trim() || "现场影像";
+  const image_url = String(payload?.image_url || "").trim();
+  if (!image_url) throw new Error("图片 URL 不能为空");
+  const sort_order = Number(payload?.sort_order ?? 99);
+
+  if (mockMode || !pool) {
+    const row = {
+      id: mockPhotoIdSeq++,
+      project_id,
+      caption,
+      image_url,
+      sort_order,
+      created_at: new Date().toISOString().slice(0, 19).replace("T", " "),
+    };
+    mockSitePhotos.push(row);
+    return row;
+  }
+  const [r] = await pool.query(
+    `INSERT INTO site_photos (project_id, caption, image_url, sort_order) VALUES (?,?,?,?)`,
+    [project_id, caption, image_url, sort_order]
+  );
+  const [rows] = await pool.query(
+    `SELECT id, project_id, caption, image_url, sort_order,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+     FROM site_photos WHERE id = ?`,
+    [r.insertId]
+  );
+  return rows[0];
+}
+
+export async function listTicketsForUser(user, projectId) {
+  const pid = Number(projectId);
+  if (!pid) throw new Error("project_id 无效");
+  if (!(await userCanAccessProject(user, pid))) throw new Error("无权查看工单");
+
+  if (mockMode || !pool) {
+    return mockTickets.filter((t) => t.project_id === pid).map(mapTicketRow);
+  }
+  const [rows] = await pool.query(
+    `SELECT t.id, t.project_id, t.title, t.description, t.category, t.status, t.priority,
+            t.created_by_user_id, u.username AS creator_username, u.display_name AS creator_display_name,
+            DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+     FROM service_tickets t
+     JOIN users u ON u.id = t.created_by_user_id
+     WHERE t.project_id = ?
+     ORDER BY t.id DESC`,
+    [pid]
+  );
+  return rows;
+}
+
+export async function createTicketForUser(user, payload) {
+  const project_id = Number(payload?.project_id);
+  if (!project_id) throw new Error("project_id 无效");
+  if (!(await userCanAccessProject(user, project_id))) throw new Error("无权创建工单");
+  const title = String(payload?.title || "").trim();
+  if (!title) throw new Error("标题不能为空");
+  const description = String(payload?.description || "").trim() || null;
+  const category = String(payload?.category || "报修").trim() || "报修";
+  const priority = String(payload?.priority || "P2").trim() || "P2";
+  let status = String(payload?.status || "待受理").trim();
+  if (!SERVICE_TICKET_STATUSES.includes(status)) status = "待受理";
+
+  if (mockMode || !pool) {
+    const row = {
+      id: mockTicketIdSeq++,
+      project_id,
+      title,
+      description,
+      category,
+      status,
+      priority,
+      created_by_user_id: user.uid,
+      created_at: new Date().toISOString().slice(0, 19).replace("T", " "),
+    };
+    mockTickets.push(row);
+    return mapTicketRow(row);
+  }
+  const [r] = await pool.query(
+    `INSERT INTO service_tickets (project_id, title, description, category, status, priority, created_by_user_id)
+     VALUES (?,?,?,?,?,?,?)`,
+    [project_id, title, description, category, status, priority, user.uid]
+  );
+  const [rows] = await pool.query(
+    `SELECT t.id, t.project_id, t.title, t.description, t.category, t.status, t.priority,
+            t.created_by_user_id, u.username AS creator_username, u.display_name AS creator_display_name,
+            DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+     FROM service_tickets t JOIN users u ON u.id = t.created_by_user_id WHERE t.id = ?`,
+    [r.insertId]
+  );
+  return rows[0];
+}
+
+export async function patchTicketStatusForUser(user, ticketId, status) {
+  if (!SERVICE_TICKET_STATUSES.includes(status)) throw new Error("工单状态不合法");
+  const tid = Number(ticketId);
+  if (mockMode || !pool) {
+    const t = mockTickets.find((x) => x.id === tid);
+    if (!t) throw new Error("工单不存在");
+    if (!(await userCanAccessProject(user, t.project_id))) throw new Error("无权操作");
+    t.status = status;
+    return mapTicketRow(t);
+  }
+  const [rows] = await pool.query(
+    "SELECT id, project_id FROM service_tickets WHERE id = ? LIMIT 1",
+    [tid]
+  );
+  const t = rows[0];
+  if (!t) throw new Error("工单不存在");
+  if (!(await userCanAccessProject(user, t.project_id))) throw new Error("无权操作");
+  await pool.query("UPDATE service_tickets SET status = ? WHERE id = ?", [status, tid]);
+  const [out] = await pool.query(
+    `SELECT t.id, t.project_id, t.title, t.description, t.category, t.status, t.priority,
+            t.created_by_user_id, u.username AS creator_username, u.display_name AS creator_display_name,
+            DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+     FROM service_tickets t JOIN users u ON u.id = t.created_by_user_id WHERE t.id = ?`,
+    [tid]
+  );
+  return out[0];
+}
+
+export async function dashboardSummaryForUser(user, projectIdFilter) {
+  const plist = await listProjectsForUser(user);
+  let pids = plist.map((p) => Number(p.id));
+  if (projectIdFilter) {
+    const pid = Number(projectIdFilter);
+    if (!pids.includes(pid)) throw new Error("无权查看该项目");
+    pids = [pid];
+  }
+  const empty = {
+    projects: plist.filter((p) => !projectIdFilter || Number(p.id) === Number(projectIdFilter)),
+    tasks_by_status: {},
+    materials_count: 0,
+    site_photos_count: 0,
+    open_tickets: 0,
+  };
+  if (pids.length === 0) return empty;
+
+  const tasks_by_status = {};
+  for (const s of WORKFLOW_STATUSES) tasks_by_status[s] = 0;
+
+  if (mockMode || !pool) {
+    mockTasks
+      .filter((t) => pids.includes(t.project_id))
+      .forEach((t) => {
+        tasks_by_status[t.status] = (tasks_by_status[t.status] || 0) + 1;
+      });
+    empty.materials_count = mockMaterials.filter((m) => pids.includes(m.project_id)).length;
+    empty.site_photos_count = mockSitePhotos.filter((p) => pids.includes(p.project_id)).length;
+    empty.open_tickets = mockTickets.filter(
+      (t) => pids.includes(t.project_id) && t.status !== "已关闭"
+    ).length;
+    empty.tasks_by_status = tasks_by_status;
+    return empty;
+  }
+
+  const ph = pids.map(() => "?").join(",");
+  const params = [...pids];
+  const [trows] = await pool.query(
+    `SELECT status, COUNT(*) AS c FROM tasks WHERE project_id IN (${ph}) GROUP BY status`,
+    params
+  );
+  for (const row of trows) {
+    tasks_by_status[row.status] = Number(row.c);
+  }
+  const [[matRow]] = await pool.query(
+    `SELECT COUNT(*) AS c FROM materials WHERE project_id IN (${ph})`,
+    params
+  );
+  const [[photoRow]] = await pool.query(
+    `SELECT COUNT(*) AS c FROM site_photos WHERE project_id IN (${ph})`,
+    params
+  );
+  const [[tickRow]] = await pool.query(
+    `SELECT COUNT(*) AS c FROM service_tickets WHERE project_id IN (${ph}) AND status <> '已关闭'`,
+    params
+  );
+  return {
+    projects: plist.filter((p) => pids.includes(Number(p.id))),
+    tasks_by_status,
+    materials_count: matRow.c,
+    site_photos_count: photoRow.c,
+    open_tickets: tickRow.c,
+  };
+}
+
 export async function logAi(kind, prompt, resultSummary) {
   const summary = resultSummary ? String(resultSummary).slice(0, 512) : null;
   if (mockMode || !pool) {
@@ -610,6 +1216,9 @@ export async function adminStats() {
       tasks: mockTasks.length,
       messages: mockMessages.length,
       ai_logs: mockAiLogs.length,
+      materials: mockMaterials.length,
+      site_photos: mockSitePhotos.length,
+      service_tickets: mockTickets.length,
       db: "mock",
     };
   }
@@ -618,12 +1227,18 @@ export async function adminStats() {
   const [[tc]] = await pool.query("SELECT COUNT(*) AS c FROM tasks");
   const [[mc]] = await pool.query("SELECT COUNT(*) AS c FROM messages");
   const [[ac]] = await pool.query("SELECT COUNT(*) AS c FROM ai_logs");
+  const [[matc]] = await pool.query("SELECT COUNT(*) AS c FROM materials");
+  const [[phc]] = await pool.query("SELECT COUNT(*) AS c FROM site_photos");
+  const [[stc]] = await pool.query("SELECT COUNT(*) AS c FROM service_tickets");
   return {
     projects: pc.c,
     users: uc.c,
     tasks: tc.c,
     messages: mc.c,
     ai_logs: ac.c,
+    materials: matc.c,
+    site_photos: phc.c,
+    service_tickets: stc.c,
     db: "mysql",
   };
 }

@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -8,6 +10,9 @@ import {
   logAi,
   envPath,
   isMockDb,
+  pingDb,
+  closeDb,
+  isProductionEnv,
   findUserByUsername,
   verifyPassword,
   listProjectsForUser,
@@ -28,6 +33,16 @@ import {
   adminListAiLogs,
   clientProjectOverview,
   getMediaDashboard,
+  getPortalModules,
+  SERVICE_TICKET_STATUSES,
+  listMaterialsForUser,
+  createMaterialForUser,
+  listSitePhotosForUser,
+  createSitePhotoForUser,
+  listTicketsForUser,
+  createTicketForUser,
+  patchTicketStatusForUser,
+  dashboardSummaryForUser,
 } from "./db.js";
 import { signUserToken, authMiddleware, getJwtSecret, roleMiddleware } from "./auth.js";
 
@@ -37,17 +52,82 @@ dotenv.config({ path: envPath() });
 
 const app = express();
 const PORT = Number(process.env.PORT || 3780);
+const prod = isProductionEnv(process.env);
+const rawOrigins = String(process.env.CORS_ORIGIN || "").trim();
+const corsOrigins = rawOrigins
+  ? rawOrigins.split(",").map((s) => s.trim()).filter(Boolean)
+  : null;
 
-app.use(cors({ origin: true }));
+if (String(process.env.TRUST_PROXY || "").toLowerCase() === "true" || prod) {
+  app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS || 1) || 1);
+}
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+app.use(
+  cors(
+    corsOrigins && corsOrigins.length
+      ? { origin: corsOrigins, credentials: true }
+      : { origin: prod ? false : true }
+  )
+);
+
+const trustProxyEnabled =
+  String(process.env.TRUST_PROXY || "").toLowerCase() === "true" || prod;
+const rateLimitTrustProxyOpt = trustProxyEnabled ? { validate: { trustProxy: true } } : {};
+
+const apiLimiter = rateLimit({
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  max: Number(process.env.RATE_LIMIT_MAX || 400),
+  standardHeaders: true,
+  legacyHeaders: false,
+  ...rateLimitTrustProxyOpt,
+  skip: (req) =>
+    !req.path.startsWith("/api") || req.path === "/api/health" || req.path === "/api/health/ready",
+});
+
+const loginLimiter = rateLimit({
+  windowMs: Number(process.env.LOGIN_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  max: Number(process.env.LOGIN_RATE_LIMIT_MAX || 40),
+  standardHeaders: true,
+  legacyHeaders: false,
+  ...rateLimitTrustProxyOpt,
+});
+
+app.use(apiLimiter);
 app.use(express.json({ limit: "2mb" }));
 
 const publicDir = path.join(__dirname, "..", "public");
 const rootDir = path.join(__dirname, "..");
 
-app.use(express.static(publicDir));
-app.use(express.static(rootDir));
+const serveRepoRoot =
+  String(process.env.SERVE_REPO_ROOT || "").toLowerCase() === "true" ||
+  (!prod && String(process.env.SERVE_REPO_ROOT || "").toLowerCase() !== "false");
 
-await initDb(process.env);
+app.use(express.static(publicDir, { maxAge: prod ? 86400000 : 0, index: true }));
+if (serveRepoRoot) {
+  app.use(
+    express.static(rootDir, {
+      maxAge: prod ? 3600000 : 0,
+      index: false,
+      dotfiles: "ignore",
+    })
+  );
+} else if (prod) {
+  console.warn("[serve] 生产环境未挂载仓库根目录静态文件（避免误暴露无关文件）。需要 logo/方案页请设 SERVE_REPO_ROOT=true。");
+}
+
+try {
+  await initDb(process.env);
+} catch (e) {
+  console.error(e);
+  process.exit(1);
+}
 
 const requireAuth = authMiddleware(process.env);
 const adminOnly = [requireAuth, roleMiddleware("管理员")];
@@ -58,10 +138,24 @@ app.get("/api/health", (_req, res) => {
     db: isMockDb() ? "mock" : "mysql",
     port: PORT,
     auth: Boolean(getJwtSecret(process.env)),
+    env: prod ? "production" : "development",
+    mock_forbidden: prod,
   });
 });
 
-app.post("/api/auth/login", async (req, res) => {
+app.get("/api/health/ready", async (_req, res) => {
+  if (prod && isMockDb()) {
+    return res.status(503).json({ ok: false, ready: false, error: "production cannot use mock db" });
+  }
+  try {
+    const p = await pingDb();
+    return res.json({ ok: true, ready: true, ...p });
+  } catch (e) {
+    return res.status(503).json({ ok: false, ready: false, error: e.message || "db ping failed" });
+  }
+});
+
+app.post("/api/auth/login", loginLimiter, async (req, res) => {
   if (!getJwtSecret(process.env)) {
     return res.status(503).json({ error: "未配置 JWT_SECRET，无法登录" });
   }
@@ -162,11 +256,20 @@ app.get("/api/meta/workflow", (_req, res) => {
   res.json({ data: { statuses: WORKFLOW_STATUSES } });
 });
 
+app.get("/api/meta/ticket-statuses", (_req, res) => {
+  res.json({ data: { statuses: SERVICE_TICKET_STATUSES } });
+});
+
 app.get("/api/meta/delivery", (_req, res) => {
   res.json({
     data: {
       frontend_pages: [
+        { path: "/portal.html", deliverable: "统一门户（按角色模块导航）", audience: "已登录全员" },
         { path: "/index.html", deliverable: "方案正文 + 施工协同工作台 + AI", audience: "全员 / 演示" },
+        { path: "/manager.html", deliverable: "施工经理数据看板（任务/材料/工单汇总）", audience: "经理 / 演示" },
+        { path: "/worker.html", deliverable: "工人极简（任务 + 现场影像只读）", audience: "工人 / 经理 / 管理" },
+        { path: "/materials.html", deliverable: "材料 TOC + 现场影像归档", audience: "项目成员" },
+        { path: "/tickets.html", deliverable: "售后质保工单", audience: "客户 / 售后 / 管理 等" },
         { path: "/admin.html", deliverable: "Web 管理后台", audience: "管理/项目" },
         { path: "/client.html", deliverable: "项目 H5/网站 · 客户视图", audience: "终用户/业主" },
         { path: "/multimodal.html", deliverable: "多模态分析结论区（AI 调用留痕）", audience: "管理 / 可选 C 端" },
@@ -174,12 +277,15 @@ app.get("/api/meta/delivery", (_req, res) => {
       ],
       backend_route_groups: [
         { prefix: "/api/auth", note: "登录鉴权" },
+        { prefix: "/api/portal/modules", note: "门户模块清单（按角色过滤）" },
         { prefix: "/api/projects,/api/tasks,/api/messages", note: "业务协同（RBAC + 项目授权）" },
+        { prefix: "/api/materials,/api/site-photos,/api/tickets", note: "材料、影像、售后工单" },
+        { prefix: "/api/dashboard/summary", note: "经理看板汇总" },
         { prefix: "/api/admin/*", note: "管理后台（仅管理员）" },
         { prefix: "/api/client/overview", note: "客户视图聚合（封面+图库+里程碑）" },
         { prefix: "/api/media/dashboard", note: "工作台数据一览（项目封面+演示图库+AI留痕）" },
         { prefix: "/api/stream/events", note: "SSE 心跳（实时通道占位）" },
-        { prefix: "/api/ai/chat,/api/ai/image", note: "文生文 / 文生图" },
+        { prefix: "/api/ai/chat,/api/ai/image", note: "文生文 / 文生图（需登录）" },
       ],
       separate_products: [
         { name: "微信小程序", status: "需独立小程序工程 + 微信开发者工具发版" },
@@ -285,6 +391,83 @@ app.get("/api/media/dashboard", requireAuth, async (req, res) => {
   }
 });
 
+app.get("/api/portal/modules", requireAuth, (req, res) => {
+  res.json({ data: getPortalModules(req.user.role) });
+});
+
+app.get("/api/dashboard/summary", requireAuth, async (req, res) => {
+  try {
+    const q = req.query.project_id ? Number(req.query.project_id) : null;
+    res.json({ data: await dashboardSummaryForUser(req.user, q) });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.get("/api/materials", requireAuth, async (req, res) => {
+  try {
+    const rows = await listMaterialsForUser(req.user, req.query.project_id);
+    res.json({ data: rows });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post("/api/materials", requireAuth, async (req, res) => {
+  try {
+    const row = await createMaterialForUser(req.user, req.body || {});
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.get("/api/site-photos", requireAuth, async (req, res) => {
+  try {
+    const rows = await listSitePhotosForUser(req.user, req.query.project_id);
+    res.json({ data: rows });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post("/api/site-photos", requireAuth, async (req, res) => {
+  try {
+    const row = await createSitePhotoForUser(req.user, req.body || {});
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.get("/api/tickets", requireAuth, async (req, res) => {
+  try {
+    const rows = await listTicketsForUser(req.user, req.query.project_id);
+    res.json({ data: rows });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post("/api/tickets", requireAuth, async (req, res) => {
+  try {
+    const row = await createTicketForUser(req.user, req.body || {});
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.patch("/api/tickets/:id", requireAuth, async (req, res) => {
+  try {
+    const status = String(req.body?.status || "").trim();
+    const row = await patchTicketStatusForUser(req.user, req.params.id, status);
+    res.json({ data: row });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 app.get("/api/stream/events", requireAuth, (req, res) => {
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache, no-transform");
@@ -304,7 +487,7 @@ app.get("/api/stream/events", requireAuth, (req, res) => {
   });
 });
 
-app.post("/api/ai/chat", async (req, res) => {
+app.post("/api/ai/chat", requireAuth, async (req, res) => {
   const key = process.env.DEEPSEEK_API_KEY;
   if (!key) {
     return res.status(503).json({ error: "未配置 DEEPSEEK_API_KEY" });
@@ -396,7 +579,7 @@ async function wavespeedPoll(predictionId, apiKey, maxWaitMs = 120000) {
   throw new Error("文生图超时，请稍后重试");
 }
 
-app.post("/api/ai/image", async (req, res) => {
+app.post("/api/ai/image", requireAuth, async (req, res) => {
   const apiKey = process.env.WAVESPEED_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: "未配置 WAVESPEED_API_KEY" });
@@ -466,7 +649,27 @@ app.use((req, res, next) => {
   next();
 });
 
-app.listen(PORT, () => {
-  console.log(`服务已启动 http://127.0.0.1:${PORT}`);
-  console.log(`入口: index.html | 管理后台 admin.html | 客户视图 client.html | 移交 handover.html`);
+const BIND_HOST = process.env.BIND_HOST || (prod ? "127.0.0.1" : "0.0.0.0");
+
+const server = app.listen(PORT, BIND_HOST, () => {
+  console.log(`服务已启动 http://${BIND_HOST}:${PORT} （NODE_ENV=${process.env.NODE_ENV || "development"}）`);
+  console.log(
+    `入口: portal.html | index.html | manager/worker/materials/tickets | admin | client | handover`
+  );
 });
+
+function shutdown(signal) {
+  console.warn(`收到 ${signal}，正在关闭…`);
+  server.close(async () => {
+    try {
+      await closeDb();
+    } catch (e) {
+      console.warn("关闭数据库池时：", e.message);
+    }
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 15_000).unref();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

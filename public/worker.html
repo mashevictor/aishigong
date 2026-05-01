@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工人视图 · AI 施工监控系统</title>
+  <style>
+    body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; margin:0; background:#f1f5f9; color:#0f172a; }
+    header { background:#0f172a; color:#f8fafc; padding:14px 18px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; }
+    header a { color:#a7f3d0; font-weight:700; text-decoration:none; }
+    .wrap { max-width:720px; margin:0 auto; padding:14px; padding-bottom:48px; }
+    .card { background:#fff; border-radius:14px; padding:14px 16px; margin-bottom:12px; box-shadow:0 1px 4px rgba(15,23,42,.08); }
+    h2 { margin:0 0 10px; font-size:15px; color:#0f172a; }
+    label { font-size:13px; color:#64748b; }
+    select, button { font:inherit; padding:10px 12px; border-radius:10px; border:1px solid #cbd5e1; width:100%; box-sizing:border-box; }
+    button.go { background:#059669; color:#fff; border:none; font-weight:800; margin-top:10px; }
+    .task { border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:10px; }
+    .task b { display:block; font-size:15px; margin-bottom:4px; }
+    .task .meta { font-size:12px; color:#64748b; margin-bottom:8px; }
+    .imgs { display:flex; gap:8px; overflow-x:auto; padding:4px 0; }
+    .imgs img { width:120px; height:84px; object-fit:cover; border-radius:8px; flex-shrink:0; border:1px solid #e2e8f0; }
+    .muted { color:#64748b; font-size:13px; }
+    input { padding:10px; border-radius:10px; border:1px solid #cbd5e1; width:100%; box-sizing:border-box; margin-bottom:8px; }
+    pre { background:#fef2f2; color:#b91c1c; padding:10px; border-radius:8px; font-size:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>工人极简 · 任务与现场图</strong>
+    <div>
+      <span id="who" class="muted" style="color:#cbd5e1"></span>
+      <a href="/portal.html">门户</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card" id="loginCard">
+      <p class="muted" style="margin-top:0">演示：<code>gongren</code> / <code>demo123</code></p>
+      <input id="u" placeholder="用户名" autocomplete="username" />
+      <input id="p" type="password" placeholder="密码" autocomplete="current-password" />
+      <button type="button" class="go" id="btnLogin">登录</button>
+      <pre id="err" hidden></pre>
+    </div>
+    <div id="app" hidden>
+      <div class="card">
+        <label>我的项目</label>
+        <select id="proj"></select>
+        <button type="button" class="go" id="btnRefresh">刷新任务</button>
+      </div>
+      <div class="card">
+        <h2>待办任务（点选更新状态）</h2>
+        <div id="tasks"></div>
+      </div>
+      <div class="card">
+        <h2>现场影像（只读）</h2>
+        <div class="imgs" id="photos"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var T = "aishigong_token";
+    var WF = ["待派发", "进行中", "待验收", "整改中", "已完成"];
+    function tok() { return localStorage.getItem(T) || ""; }
+    function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+    function pid() { return document.getElementById("proj").value; }
+
+    function loadPhotos() {
+      fetch("/api/site-photos?project_id=" + encodeURIComponent(pid()), { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var box = document.getElementById("photos");
+          box.innerHTML = (j.data || []).map(function (p) {
+            return '<img src="' + esc(p.image_url) + '" title="' + esc(p.caption) + '" alt="" loading="lazy" onerror="this.src=\'/assets/demo/concrete.svg\'"/>';
+          }).join("") || '<span class="muted">暂无</span>';
+        });
+    }
+
+    function loadTasks() {
+      fetch("/api/tasks?project_id=" + encodeURIComponent(pid()), { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var box = document.getElementById("tasks");
+          box.innerHTML = (j.data || []).map(function (t) {
+            var opts = WF.map(function (s) {
+              return '<option' + (s === t.status ? ' selected' : '') + '>' + esc(s) + '</option>';
+            }).join("");
+            return '<div class="task" data-tid="' + esc(String(t.id)) + '"><b>' + esc(t.title) + '</b><div class="meta">' + esc(t.assignee_role || "未指定角色") + " · " + esc(t.priority) + " · 截止 " + esc(t.due_date || "—") + '</div><div class="muted" style="font-size:12px;margin-bottom:6px">' + esc(t.description || "") + '</div><select class="st">' + opts + '</select> <button type="button" class="go btnUp" style="width:auto;display:inline-block;padding:8px 14px;margin-top:8px">保存状态</button></div>';
+          }).join("") || '<p class="muted">暂无任务</p>';
+
+          box.querySelectorAll(".btnUp").forEach(function (btn) {
+            btn.onclick = function () {
+              var card = btn.closest(".task");
+              var id = card.getAttribute("data-tid");
+              var st = card.querySelector("select.st").value;
+              fetch("/api/tasks/" + encodeURIComponent(id), {
+                method: "PATCH",
+                headers: { Authorization: "Bearer " + tok(), "Content-Type": "application/json" },
+                body: JSON.stringify({ status: st })
+              }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+                .then(function (x) {
+                  if (!x.ok) { alert(x.j.error || "失败"); return; }
+                  loadTasks();
+                });
+            };
+          });
+        });
+    }
+
+    function projects() {
+      fetch("/api/projects", { headers: { Authorization: "Bearer " + tok() } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          var s = document.getElementById("proj");
+          s.innerHTML = (j.data || []).map(function (p) {
+            return '<option value="' + esc(String(p.id)) + '">' + esc(p.name) + '</option>';
+          }).join("");
+          loadTasks();
+          loadPhotos();
+        });
+    }
+
+    document.getElementById("btnLogin").onclick = function () {
+      document.getElementById("err").hidden = false;
+      document.getElementById("err").textContent = "登录中…";
+      fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: document.getElementById("u").value.trim(), password: document.getElementById("p").value })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          if (!x.ok || !x.j.data) { document.getElementById("err").textContent = x.j.error || "失败"; return; }
+          localStorage.setItem(T, x.j.data.token);
+          document.getElementById("who").textContent = x.j.data.user.name;
+          document.getElementById("loginCard").hidden = true;
+          document.getElementById("app").hidden = false;
+          document.getElementById("err").hidden = true;
+          projects();
+        });
+    };
+
+    document.getElementById("btnRefresh").onclick = function () { loadTasks(); loadPhotos(); };
+    document.getElementById("proj").onchange = function () { loadTasks(); loadPhotos(); };
+
+    fetch("/api/meta/workflow").then(function (r) { return r.json(); }).then(function (j) {
+      if (j.data && j.data.statuses) WF = j.data.statuses;
+    });
+
+    if (tok()) {
+      fetch("/api/me", { headers: { Authorization: "Bearer " + tok() } }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j.data) {
+          document.getElementById("who").textContent = j.data.name + "（" + j.data.role + "）";
+          document.getElementById("loginCard").hidden = true;
+          document.getElementById("app").hidden = false;
+          projects();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
