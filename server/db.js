@@ -1170,7 +1170,7 @@ const PORTAL_MODULES = [
     roles: ["*"],
     tag: "索引",
   },
-  { key: "proposal", title: "方案与工作台", path: "/index.html", roles: ["*"], tag: "全文+AI" },
+  { key: "proposal", title: "工作台 · AI 工具", path: "/index.html", roles: ["*"], tag: "登录+AI" },
   { key: "manager", title: "施工经理看板", path: "/manager.html", roles: ["*"], tag: "汇总" },
   {
     key: "worker",

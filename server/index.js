@@ -127,7 +127,7 @@ const serveRepoRoot =
 app.use(
   express.static(publicDir, {
     maxAge: prod ? 86400000 : 0,
-    index: ["index.html"],
+    index: ["demo.html"],
   })
 );
 if (serveRepoRoot) {
@@ -648,7 +648,7 @@ const BIND_HOST = process.env.BIND_HOST || (prod ? "127.0.0.1" : "0.0.0.0");
 const server = app.listen(PORT, BIND_HOST, () => {
   console.log(`服务已启动 http://${BIND_HOST}:${PORT} （NODE_ENV=${process.env.NODE_ENV || "development"}）`);
   console.log(
-    `入口: portal.html | index.html | manager/worker/materials/tickets | admin | client | handover`
+    `入口: / → demo.html | portal.html | index.html（工作台） | manager/worker/materials/tickets | admin | client | handover`
   );
 });
 

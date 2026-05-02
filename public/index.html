@@ -154,7 +154,6 @@
       @page { margin: 10mm; }
       .app-nav { display: none !important; }
       .view:not(.active) { display: none !important; }
-      #view-doc { display: block !important; }
       * {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
@@ -199,8 +198,7 @@
 </head>
 <body>
   <nav class="app-nav" aria-label="站点导航">
-    <button type="button" data-view="view-workbench">工作台（登录 · 项目 · 任务 · 聊天）</button>
-    <button type="button" class="active" data-view="view-doc">方案汇总</button>
+    <button type="button" class="active" data-view="view-workbench">工作台（登录 · 项目 · 任务 · 聊天）</button>
     <button type="button" data-view="view-chat">AI 文生文（DeepSeek）</button>
     <button type="button" data-view="view-img">AI 文生图（Wavespeed）</button>
     <span class="hint" id="healthHint"></span>
@@ -225,7 +223,7 @@
     </span>
   </nav>
 
-  <div id="view-doc" class="view active">
+  <div id="view-doc" class="view" hidden aria-hidden="true">
   <div class="container">
     <div class="top">
       <div class="top-brand">
@@ -610,7 +608,7 @@
   </div>
   </div>
 
-  <div id="view-workbench" class="view">
+  <div id="view-workbench" class="view active">
     <div class="container panel-tools">
       <div class="card" id="wbLoginCard">
         <h2 class="sect">工作台登录</h2>
